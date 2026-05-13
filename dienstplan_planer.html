@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dienstplan-Planer – Pflegeassistenz v5</title>
+<title>Dienstplan-Planer – Pflegeassistenz v6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -21,24 +21,26 @@
   --r:8px;
 }
 body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
-.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:14px;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.hdr h1{font-size:17px;font-weight:600;letter-spacing:-.3px;color:#fff}
-.hdr .sub{font-size:11px;opacity:.6;margin-top:1px}
-.hdr-sp{flex:1}.hdr-act{display:flex;gap:7px;align-items:center}
+.hdr{background:var(--navy);color:#fff;padding:0 18px;display:flex;align-items:center;gap:10px;height:54px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr h1{font-size:16px;font-weight:600;letter-spacing:-.3px;color:#fff;white-space:nowrap}
+.hdr .sub{font-size:10px;opacity:.6;margin-top:1px}
+.hdr-sp{flex:1}.hdr-act{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .tabs{background:var(--surface);border-bottom:2px solid var(--border);display:flex;padding:0 24px}
 .tab{padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
 .tab:hover{color:var(--navy)}.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
 .main{padding:20px 24px;max-width:1600px;margin:0 auto}
 .pane{display:none}.pane.on{display:block}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:14px}
-.ch{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.ch{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ch h2{font-size:15px;font-weight:600}.ch h3{font-size:13px;font-weight:600}
-.ch-act{margin-left:auto;display:flex;gap:7px;align-items:center}
+.ch-act{margin-left:auto;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .cb{padding:16px}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s}
-.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn-primary:hover{background:var(--navy-l)}
-.btn-sec{background:var(--surface);color:var(--text);border-color:var(--border)}.btn-sec:hover{background:var(--navy-bg)}
-.btn-danger{background:#fff;color:var(--red);border-color:var(--red-b)}.btn-danger:hover{background:var(--red-bg)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn-primary:hover:not(:disabled){background:var(--navy-l)}
+.btn-sec{background:var(--surface);color:var(--text);border-color:var(--border)}.btn-sec:hover:not(:disabled){background:var(--navy-bg)}
+.btn-danger{background:#fff;color:var(--red);border-color:var(--red-b)}.btn-danger:hover:not(:disabled){background:var(--red-bg)}
+.btn-amber{background:#fff;color:var(--amber);border-color:var(--amber-b)}.btn-amber:hover:not(:disabled){background:var(--amber-bg)}
 .btn-sm{padding:4px 10px;font-size:12px}.btn-xs{padding:2px 7px;font-size:11px}
 label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px}
 input[type=text],input[type=number],input[type=time],select,textarea{
@@ -69,21 +71,23 @@ textarea{resize:vertical;min-height:56px;font-family:'DM Mono',monospace;font-si
 .alert-info{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
 .alert-warn{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber)}
 .alert-err{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.alert-ok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
 .cal-wrap{overflow-x:auto}
 .cal-tbl{border-collapse:collapse;width:100%;font-size:12px}
 .cal-tbl th{background:var(--navy-bg);color:var(--navy);font-size:11px;font-weight:600;padding:5px 8px;text-align:left;border:1px solid var(--border);white-space:nowrap}
 .cal-tbl td{border:1px solid var(--border);padding:3px 6px;vertical-align:middle}
 .mono{font-family:'DM Mono',monospace}
-.muted-cell{color:var(--muted);font-style:italic}
+.muted-cell{color:var(--muted);font-style:italic;font-size:11px}
 .r-norm{background:#fff}.r-we{background:#f8f9fb}.r-hol{background:var(--amber-bg)}
 .r-werk{background:var(--cyan-bg)}.r-frei{background:var(--green-bg)}
 .r-werk-b{background:#e0f7fa}.r-frei-b{background:#d4edda}
 .td-day{font-weight:700;font-size:13px;text-align:center;min-width:24px}
 .td-date{min-width:85px;white-space:nowrap;font-size:11px}
-.td-shift{min-width:155px;font-size:11px;color:var(--muted)}
-.td-emp{min-width:120px}
+.td-shift{min-width:145px;font-size:11px;color:var(--muted)}
+.td-emp{min-width:130px}
 .emp-sel{width:100%;font-size:11px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;background:#fff;font-family:'DM Sans',sans-serif}
-.td-vac{min-width:80px;font-size:10px;color:var(--muted)}
+.emp-sel.has-warn{border-color:var(--amber-b);background:var(--amber-bg)}
+.td-vac{min-width:75px;font-size:10px;color:var(--muted)}
 .td-hints{min-width:90px}
 .viol{display:inline-block;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);border-radius:3px;padding:0 4px;font-size:10px;font-weight:600;margin:1px}
 .hint-warn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-b)}
@@ -97,17 +101,64 @@ textarea{resize:vertical;min-height:56px;font-family:'DM Mono',monospace;font-si
 .wt-times-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
 .wt-time-box{border:1px solid var(--cyan-b);border-radius:6px;padding:8px;background:#fff}
 .wt-time-box label{color:var(--cyan);font-size:11px;margin-bottom:4px}
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;margin:2px}
+.chip-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.chip-orange{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.chip-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.chip-del{background:none;border:none;cursor:pointer;font-size:13px;color:inherit;line-height:1;padding:0 2px;opacity:.7}
+.chip-del:hover{opacity:1}
+/* Datepicker */
+#dp-popup{position:fixed;z-index:9999;background:#fff;border:1px solid var(--border);border-radius:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);padding:0;min-width:280px;display:none}
+.dp-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;border-bottom:1px solid var(--border)}
+.dp-nav-btn{background:none;border:none;cursor:pointer;font-size:16px;color:var(--navy);padding:2px 8px;border-radius:4px}
+.dp-nav-btn:hover{background:var(--navy-bg)}
+.dp-nav-title{font-weight:600;font-size:13px;color:var(--navy)}
+.dp-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px 10px 2px;font-size:10px;font-weight:600;color:var(--muted);text-align:center}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:2px 10px 8px}
+.dp-cell{text-align:center;padding:5px 2px;font-size:12px;border-radius:5px;cursor:pointer;transition:background .1s}
+.dp-cell:hover:not(.dp-other):not(.dp-vacation){background:var(--navy-bg)}
+.dp-cell.dp-other{color:#ccc;cursor:default}
+.dp-cell.dp-vacation{background:var(--blue-bg);color:var(--blue);cursor:default}
+.dp-cell.dp-block{background:var(--amber-bg);color:var(--amber);font-weight:600}
+.dp-cell.dp-block:hover{background:#fed7aa}
+.dp-cell.dp-range-start,.dp-cell.dp-range-end{background:var(--navy);color:#fff;font-weight:700}
+.dp-cell.dp-range-mid{background:var(--navy-bg);color:var(--navy)}
+.dp-cell.dp-today{font-weight:700;text-decoration:underline}
+.dp-footer{padding:6px 14px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+/* Corrections */
+.corr-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;background:var(--violet-bg);color:var(--violet);border:1px solid var(--violet-b);margin:2px}
+.corr-chip .chip-del{color:var(--violet)}
+/* Validation report */
+.val-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.val-row:last-child{border-bottom:none}
+.val-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+/* Manual changes log */
+.mchg-item{font-size:11px;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--border)}
+.mchg-item:last-child{border-bottom:none}
+/* Template dropdown */
+.tmpl-menu{position:relative;display:inline-block}
+.tmpl-dropdown{position:absolute;top:calc(100% + 4px);right:0;background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:180px;z-index:300;display:none}
+.tmpl-dropdown.open{display:block}
+.tmpl-item{display:block;width:100%;text-align:left;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;background:none;border:none;cursor:pointer;color:var(--text)}
+.tmpl-item:hover{background:var(--navy-bg)}
+/* Collapsible */
+.collapsible-hdr{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:4px 0}
+.collapsible-hdr:hover{color:var(--navy)}
+.collapsible-arrow{transition:transform .2s;font-size:11px}
+.collapsible-hdr.open .collapsible-arrow{transform:rotate(90deg)}
 @media print{
-  body{background:#fff;font-size:10px}
+  body{background:#fff;font-size:9px}
   .hdr,.tabs,.btn,.ch-act,#pane-settings,#pane-summary,
-  .pane:not(.on){display:none!important}
+  .pane:not(.on),#corrections-section,#val-report,#manual-changes{display:none!important}
   .main{padding:2mm;max-width:none}
   .card{box-shadow:none;border:none;margin:0}
   .ch{padding:3px 6px}
   .cb{padding:3px 0}
-  .cal-tbl{font-size:8.5px}
-  .cal-tbl td,.cal-tbl th{padding:2px 3px}
-  .emp-sel{border:none;background:transparent;font-size:8.5px;padding:0;-webkit-appearance:none}
+  .cal-tbl{font-size:8px}
+  .cal-tbl td,.cal-tbl th{padding:1px 3px}
+  .emp-sel{border:none;background:transparent;font-size:8px;padding:0;-webkit-appearance:none;appearance:none}
   .td-emp{min-width:70px}.td-shift{min-width:100px}
   @page{size:A4 landscape;margin:8mm}
 }
@@ -115,16 +166,36 @@ textarea{resize:vertical;min-height:56px;font-family:'DM Mono',monospace;font-si
 </head>
 <body>
 
+<!-- DATEPICKER POPUP -->
+<div id="dp-popup">
+  <div class="dp-nav">
+    <button class="dp-nav-btn" onclick="dpNav(-1)">&#8592;</button>
+    <span class="dp-nav-title" id="dp-title"></span>
+    <button class="dp-nav-btn" onclick="dpNav(1)">&#8594;</button>
+  </div>
+  <div class="dp-dow-row"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+  <div class="dp-grid" id="dp-grid"></div>
+  <div class="dp-footer" id="dp-footer"></div>
+</div>
+
 <div class="hdr">
   <div>
     <h1>📋 Dienstplan-Planer</h1>
-    <div class="sub">Pflegeassistenz-Vorplanung v5</div>
+    <div class="sub">Pflegeassistenz-Vorplanung v6</div>
   </div>
   <div class="hdr-sp"></div>
   <div class="hdr-act">
+    <button id="btn-undo" class="btn btn-amber btn-sm" onclick="doUndo()" disabled>↩ Rückgängig</button>
     <button class="btn btn-sec btn-sm" onclick="exportJSON()">⬇ Export</button>
     <label class="btn btn-sec btn-sm" style="cursor:pointer;margin:0">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
     <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Drucken</button>
+    <div class="tmpl-menu">
+      <button class="btn btn-sec btn-sm" onclick="toggleTmplMenu(event)">💾 Vorlage ▾</button>
+      <div class="tmpl-dropdown" id="tmpl-menu">
+        <button class="tmpl-item" onclick="saveTemplate()">Vorlage speichern</button>
+        <button class="tmpl-item" onclick="loadTemplate()">Vorlage laden</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -266,6 +337,41 @@ textarea{resize:vertical;min-height:56px;font-family:'DM Mono',monospace;font-si
       <div class="alert alert-info">Plan generieren, um den Kalender anzuzeigen.</div>
     </div>
   </div>
+
+  <!-- Corrections -->
+  <div class="card" id="corrections-section">
+    <div class="ch"><h2>✏ Korrekturen &amp; Hinweise</h2></div>
+    <div class="cb">
+      <div class="row">
+        <div class="field" style="flex:3">
+          <label>Korrekturen eingeben (z.B. "Am 5. krank", "Anna am 12. frei", "ausnahmsweise am 8.")</label>
+          <textarea id="corr-input" rows="3" placeholder="Am 5. krank&#10;Anna am 12. frei&#10;ausnahmsweise am 8."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" onclick="applyCorrections()">Korrekturen anwenden</button>
+        <button class="btn btn-danger btn-sm" onclick="clearCorrections()">Korrekturen löschen</button>
+      </div>
+      <div id="corr-chips"></div>
+      <div id="manual-changes" style="margin-top:12px;display:none">
+        <div class="collapsible-hdr" onclick="toggleCollapsible('manual-changes-body',this)">
+          <span class="collapsible-arrow">▶</span>
+          <b style="font-size:12px">Manuelle Änderungen</b>
+        </div>
+        <div id="manual-changes-body" style="display:none;margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation report -->
+  <div class="card" id="val-report" style="display:none">
+    <div class="ch">
+      <h2>📋 Regelprüfung</h2>
+      <div class="ch-act" id="val-summary-badge"></div>
+    </div>
+    <div class="cb" id="val-report-body"></div>
+  </div>
+
 </div><!-- /pane-plan -->
 
 <!-- ÜBERSICHT -->
@@ -284,8 +390,9 @@ textarea{resize:vertical;min-height:56px;font-family:'DM Mono',monospace;font-si
 // =====================================================================
 // CONSTANTS
 // =====================================================================
-const SKEY = 'dp_v5_st';
-const PKEY = 'dp_v5_plan';
+const SKEY = 'dp_v6_st';
+const PKEY = 'dp_v6_plan';
+const TMPL_KEY = 'dp_v6_tmpl';
 const DOW_SHORT = ['So','Mo','Di','Mi','Do','Fr','Sa'];
 const DOW_FULL  = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const MON_NAMES = ['','Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -325,11 +432,18 @@ function defaultST() {
     normaltag:{ name:'24h-Dienst', start:'20:00', end:'20:00' },
     werkstatt:{ enabled:false, activeDays:[], dayConfig:{} },
     freischicht:{ enabled:false, activeDays:[], start:'08:00', end:'12:00' },
-    employees:[], printExtra:'', printAuthor:''
+    employees:[],
+    corrections:[],
+    manualOverrides:[],
+    manualChangeLog:[],
+    printExtra:'', printAuthor:'',
+    undoState: null
   };
 }
 let ST = defaultST();
 let PLAN = null;
+
+function deepCopy(obj){ return JSON.parse(JSON.stringify(obj)); }
 
 function loadState() {
   try {
@@ -339,8 +453,38 @@ function loadState() {
     if (p) PLAN = JSON.parse(p);
   } catch(e){ console.error(e); }
 }
-function saveST() { localStorage.setItem(SKEY, JSON.stringify(ST)); }
-function savePlan() { if(PLAN) localStorage.setItem(PKEY, JSON.stringify(PLAN)); else localStorage.removeItem(PKEY); }
+function saveST() {
+  const toSave = deepCopy(ST);
+  delete toSave.undoState; // don't nest undo
+  localStorage.setItem(SKEY, JSON.stringify(toSave));
+}
+function savePlan() {
+  if(PLAN) localStorage.setItem(PKEY, JSON.stringify(PLAN));
+  else localStorage.removeItem(PKEY);
+}
+
+// Undo
+function saveSnapshot() {
+  ST.undoState = { st: deepCopy(ST), plan: PLAN ? deepCopy(PLAN) : null };
+  delete ST.undoState.st.undoState;
+  updateUndoBtn();
+}
+function doUndo() {
+  if(!ST.undoState) return;
+  const snap = ST.undoState;
+  ST = Object.assign(defaultST(), snap.st);
+  PLAN = snap.plan;
+  saveST(); savePlan();
+  fillSettingsUI();
+  renderCalendar();
+  renderSummary();
+  renderCorrChips();
+  updateUndoBtn();
+}
+function updateUndoBtn() {
+  const btn = document.getElementById('btn-undo');
+  if(btn) btn.disabled = !ST.undoState;
+}
 
 // =====================================================================
 // UTILS
@@ -349,7 +493,7 @@ function pad2(n){ return String(n).padStart(2,'0'); }
 function fmtDate(y,m,d){ return `${y}-${pad2(m)}-${pad2(d)}`; }
 function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
 function dowOf(ds){ return new Date(ds+'T12:00:00').getDay(); }
-function holName(ds){ return (HOLS[ST.year]||{})[ds]||''; }
+function holName(ds){ return (HOLS[new Date(ds+'T12:00:00').getFullYear()]||{})[ds]||''; }
 function isHol(ds){ return !!holName(ds); }
 
 function isoWeek(ds){
@@ -360,7 +504,13 @@ function isoWeek(ds){
   return `${d.getFullYear()}-W${Math.ceil(((d-y1)/86400000+1)/7)}`;
 }
 
-function empName(id){
+function empNameStr(id){
+  if(id===null||id===undefined) return '–';
+  const e = ST.employees.find(x=>x.id===id);
+  if(!e) return '?';
+  return e.hasLicense ? e.name : e.name+' 🚫🚗';
+}
+function empNameClean(id){
   if(id===null||id===undefined) return '–';
   const e = ST.employees.find(x=>x.id===id);
   return e ? e.name : '?';
@@ -369,8 +519,6 @@ function empName(id){
 function parsePrefDow(text){
   if(!text) return null;
   const t = text.toLowerCase();
-  const map = {' mo':1,' di':2,' mi':3,' do':4,' fr':5,' sa':6,' so':0,
-               '^mo':1,'^di':2,'^mi':3,'^do':4,'^fr':5,'^sa':6,'^so':0};
   const keys2 = ['mo','di','mi','do','fr','sa','so'];
   const vals2  = [1,2,3,4,5,6,0];
   for(let i=0;i<keys2.length;i++){
@@ -379,21 +527,55 @@ function parsePrefDow(text){
   return null;
 }
 
+// Vacation ranges → individual dates in month
+function vacDatesInMonth(emp, year, month){
+  const dates = [];
+  const nd = daysInMonth(year, month);
+  for(let d=1; d<=nd; d++){
+    const ds = fmtDate(year,month,d);
+    if(isEmpOnVacation(emp, ds)) dates.push(ds);
+  }
+  return dates;
+}
+
+function isEmpOnVacation(emp, ds){
+  for(const r of (emp.vacations||[])){
+    if(ds >= r.start && ds <= r.end) return true;
+  }
+  return false;
+}
+
+function isEmpBlocked(emp, ds){
+  return (emp.blockDays||[]).includes(ds);
+}
+
+function blockDayMax(emp, year, month){
+  const vacInMonth = vacDatesInMonth(emp, year, month).length;
+  return Math.max(0, 4 - Math.floor(vacInMonth / 5));
+}
+
 // =====================================================================
 // ALGORITHM — canAssign helpers
 // =====================================================================
 function hA(asgn,i){ return !!(asgn[i]&&asgn[i].hasAssist); }
 function hB(asgn,i){ return !!(asgn[i]&&asgn[i].hasBelegt); }
 
-function canAssignDienst(empId, di, ed){
+function canAssignDienst(empId, di, ed, exceptions){
   const a = ed[empId].asgn;
-  if(hA(a,di-1)) return {ok:false,rule:'H2',msg:'Dienst Vortag'};
-  if(hA(a,di+1)) return {ok:false,rule:'H2',msg:'Dienst Folgetag'};
+  const exc = exceptions || [];
+  if(!exc.includes(di) || !exc.includes(di-1)) {
+    if(hA(a,di-1)) return {ok:false,rule:'H2',msg:'Dienst Vortag'};
+  }
+  if(!exc.includes(di) || !exc.includes(di+1)) {
+    if(hA(a,di+1)) return {ok:false,rule:'H2',msg:'Dienst Folgetag'};
+  }
   if(hB(a,di-1)&&hB(a,di-2)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di-1)&&hB(a,di+1)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di+1)&&hB(a,di+2)) return {ok:false,rule:'H3',msg:'3 Tage'};
-  if(hA(a,di-2)&&hB(a,di-1)) return {ok:false,rule:'H4',msg:'D-B-D'};
-  if(hB(a,di+1)&&hA(a,di+2)) return {ok:false,rule:'H4',msg:'D-B-D'};
+  if(!exc.includes(di)) {
+    if(hA(a,di-2)&&hB(a,di-1)) return {ok:false,rule:'H4',msg:'D-B-D'};
+    if(hB(a,di+1)&&hA(a,di+2)) return {ok:false,rule:'H4',msg:'D-B-D'};
+  }
   return {ok:true};
 }
 function canAssignBackup(empId, di, ed){
@@ -405,22 +587,24 @@ function canAssignBackup(empId, di, ed){
   return {ok:true};
 }
 function canAssignWerkABackup(empId, di, ed){
-  // H3 only — no H5 (werkstatt exception)
   const a = ed[empId].asgn;
   if(hB(a,di-1)&&hB(a,di-2)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di-1)&&hB(a,di+1)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di+1)&&hB(a,di+2)) return {ok:false,rule:'H3',msg:'3 Tage'};
   return {ok:true};
 }
-function canAssignWerkBDienst(empId, di, ed){
+function canAssignWerkBDienst(empId, di, ed, exceptions){
   const a = ed[empId].asgn;
-  if(hA(a,di-1)) return {ok:false,rule:'H2',msg:'Dienst Vortag'};
-  if(hA(a,di+1)) return {ok:false,rule:'H2',msg:'Dienst Folgetag'};
+  const exc = exceptions || [];
+  if(!exc.includes(di)) {
+    if(hA(a,di-1)) return {ok:false,rule:'H2',msg:'Dienst Vortag'};
+    if(hA(a,di+1)) return {ok:false,rule:'H2',msg:'Dienst Folgetag'};
+    if(hA(a,di-2)&&hB(a,di-1)) return {ok:false,rule:'H4',msg:'D-B-D'};
+    if(hB(a,di+1)&&hA(a,di+2)) return {ok:false,rule:'H4',msg:'D-B-D'};
+  }
   if(hB(a,di-1)&&hB(a,di-2)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di-1)&&hB(a,di+1)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(hB(a,di+1)&&hB(a,di+2)) return {ok:false,rule:'H3',msg:'3 Tage'};
-  if(hA(a,di-2)&&hB(a,di-1)) return {ok:false,rule:'H4',msg:'D-B-D'};
-  if(hB(a,di+1)&&hA(a,di+2)) return {ok:false,rule:'H4',msg:'D-B-D'};
   if(a[di]&&a[di].hasWBBkp) return {ok:false,rule:'H5',msg:'Bereits WB-Backup'};
   return {ok:true};
 }
@@ -431,6 +615,65 @@ function canAssignWerkBBackup(empId, di, ed){
   if(hB(a,di+1)&&hB(a,di+2)) return {ok:false,rule:'H3',msg:'3 Tage'};
   if(a[di]&&a[di].hasWBDienst) return {ok:false,rule:'H5',msg:'Bereits WB-Dienst'};
   return {ok:true};
+}
+
+// =====================================================================
+// Build ed from existing plan (for dropdown rule checking)
+// =====================================================================
+function buildEdFromPlan(plan){
+  const ed = {};
+  for(const emp of ST.employees){
+    ed[emp.id]={
+      vacSet:new Set(),
+      blkSet:new Set(),
+      asgn:{}, cnt24h:0, cntAusser:0, cntBkpReg:0, cntBkpWerk:0,
+      weekCounts:{}, lastDay:-1
+    };
+    for(const r of (emp.vacations||[])){
+      const s=new Date(r.start+'T12:00:00'), en=new Date(r.end+'T12:00:00');
+      for(let dd=new Date(s);dd<=en;dd.setDate(dd.getDate()+1)){
+        ed[emp.id].vacSet.add(fmtDate(dd.getFullYear(),dd.getMonth()+1,dd.getDate()));
+      }
+    }
+    for(const bd of (emp.blockDays||[])) ed[emp.id].blkSet.add(bd);
+  }
+  if(!plan) return ed;
+  for(const day of plan.days){
+    const di = day.idx;
+    const markA=(id,kind)=>{
+      if(!id) return;
+      if(!ed[id]) return;
+      if(!ed[id].asgn[di]) ed[id].asgn[di]={};
+      ed[id].asgn[di].hasAssist=true;
+      ed[id].asgn[di].hasBelegt=true;
+      if(kind==='werkB') ed[id].asgn[di].hasWBDienst=true;
+      ed[id].lastDay=di;
+      const wk=isoWeek(day.dateStr);
+      ed[id].weekCounts[wk]=(ed[id].weekCounts[wk]||0)+1;
+      if(kind==='24h') ed[id].cnt24h++; else ed[id].cntAusser++;
+    };
+    const markB=(id,kind)=>{
+      if(!id) return;
+      if(!ed[id]) return;
+      if(!ed[id].asgn[di]) ed[id].asgn[di]={};
+      ed[id].asgn[di].hasBelegt=true;
+      if(kind==='werkA'){ ed[id].asgn[di].isWABkp=true; ed[id].cntBkpWerk++; }
+      else { if(kind==='werkB') ed[id].asgn[di].hasWBBkp=true; ed[id].cntBkpReg++; }
+      ed[id].lastDay=di;
+    };
+    if(day.type==='normaltag'){
+      markA(day.normal.dienst,'24h');
+      markB(day.normal.backup,'reg');
+    } else if(day.type==='werkstatt'){
+      markB(day.werkA.backup,'werkA');
+      markA(day.werkB.dienst,'werkB');
+      markB(day.werkB.backup,'werkB');
+    } else {
+      markA(day.freieB.dienst,'aus');
+      markB(day.freieB.backup,'reg');
+    }
+  }
+  return ed;
 }
 
 // =====================================================================
@@ -487,11 +730,17 @@ function buildEd(){
   const ed={};
   for(const emp of ST.employees){
     ed[emp.id]={
-      vacSet:new Set(emp.vacations||[]),
+      vacSet:new Set(),
       blkSet:new Set(emp.blockDays||[]),
       asgn:{}, cnt24h:0, cntAusser:0, cntBkpReg:0, cntBkpWerk:0,
       weekCounts:{}, lastDay:-1
     };
+    for(const r of (emp.vacations||[])){
+      const s=new Date(r.start+'T12:00:00'), en=new Date(r.end+'T12:00:00');
+      for(let dd=new Date(s);dd<=en;dd.setDate(dd.getDate()+1)){
+        ed[emp.id].vacSet.add(fmtDate(dd.getFullYear(),dd.getMonth()+1,dd.getDate()));
+      }
+    }
   }
   return ed;
 }
@@ -501,12 +750,17 @@ function available(emp, day, ed){
   return !e.vacSet.has(day.dateStr) && !e.blkSet.has(day.dateStr);
 }
 
+function availableDs(empId, ds, ed){
+  const e=ed[empId];
+  return !e.vacSet.has(ds) && !e.blkSet.has(ds);
+}
+
 function weekOk(empId, day, ed){
   const wk=isoWeek(day.dateStr);
   return (ed[empId].weekCounts[wk]||0)<2;
 }
 
-// Pick best candidate from empIds list based on soft rules
+// Pick best candidate
 function pickBest(empIds, ed, isAusserhalb){
   return empIds.slice().sort((a,b)=>{
     const ea=ed[a], eb=ed[b];
@@ -524,8 +778,7 @@ function pickBest(empIds, ed, isAusserhalb){
 function pickBestBackup(empIds, ed){
   return empIds.slice().sort((a,b)=>{
     const ea=ed[a], eb=ed[b];
-    const defA=(ea.cntBkpReg||0), defB=(eb.cntBkpReg||0);
-    if(defA!==defB) return defA-defB;
+    if((ea.cntBkpReg||0)!==(eb.cntBkpReg||0)) return (ea.cntBkpReg||0)-(eb.cntBkpReg||0);
     return (ea.lastDay||0)-(eb.lastDay||0);
   })[0];
 }
@@ -538,9 +791,90 @@ function pickBestWABackup(empIds, ed){
 }
 
 // =====================================================================
+// CORRECTIONS PARSING
+// =====================================================================
+function parseCorrections(text){
+  const lines = text.split('\n').map(s=>s.trim()).filter(Boolean);
+  const results = [];
+  for(const line of lines){
+    let m;
+    // "Am N. krank" or "N. krank" → werkstatt_krank
+    m = line.match(/(?:am\s+)?(\d+)\.\s*krank/i);
+    if(m){ results.push({id:Date.now()+Math.random(),text:line,type:'werkstatt_krank',data:{day:parseInt(m[1])},active:true}); continue; }
+    // "[Name] am N. frei" → emp_free
+    m = line.match(/(.+?)\s+am\s+(\d+)\.\s*frei/i);
+    if(m){ results.push({id:Date.now()+Math.random(),text:line,type:'emp_free',data:{name:m[1].trim(),day:parseInt(m[2])},active:true}); continue; }
+    // "ausnahmsweise am N." → rule_exception
+    m = line.match(/ausnahmsweise\s+am\s+(\d+)\./i);
+    if(m){ results.push({id:Date.now()+Math.random(),text:line,type:'rule_exception',data:{day:parseInt(m[1])},active:true}); continue; }
+    // Unknown
+    results.push({id:Date.now()+Math.random(),text:line,type:'unknown',data:{},active:false});
+  }
+  return results;
+}
+
+function applyCorrections(){
+  const text = document.getElementById('corr-input').value;
+  const parsed = parseCorrections(text);
+  saveSnapshot();
+  ST.corrections = [...(ST.corrections||[]), ...parsed];
+  // Apply emp_free as blockDays
+  for(const c of parsed){
+    if(c.type==='emp_free' && c.active){
+      const emp = ST.employees.find(e=>e.name.toLowerCase()===c.data.name.toLowerCase());
+      if(emp){
+        const ds = fmtDate(ST.year, ST.month, c.data.day);
+        if(!emp.blockDays) emp.blockDays=[];
+        if(!emp.blockDays.includes(ds)) emp.blockDays.push(ds);
+      }
+    }
+  }
+  document.getElementById('corr-input').value='';
+  saveST();
+  renderCorrChips();
+  if(PLAN) { generatePlanInternal(); }
+}
+
+function clearCorrections(){
+  saveSnapshot();
+  ST.corrections=[];
+  saveST();
+  renderCorrChips();
+}
+
+function deleteCorrection(id){
+  ST.corrections = ST.corrections.filter(c=>c.id!==id);
+  saveST();
+  renderCorrChips();
+}
+
+function renderCorrChips(){
+  const el = document.getElementById('corr-chips');
+  if(!el) return;
+  const active = (ST.corrections||[]).filter(c=>c.active);
+  if(active.length===0){ el.innerHTML=''; return; }
+  el.innerHTML = active.map(c=>
+    `<span class="corr-chip">${escHtml(c.text)}<button class="chip-del" onclick="deleteCorrection(${c.id})" title="Löschen">×</button></span>`
+  ).join('');
+}
+
+// =====================================================================
 // ALGORITHM — phases
 // =====================================================================
+function getExceptionDays(){
+  return (ST.corrections||[])
+    .filter(c=>c.active && c.type==='rule_exception')
+    .map(c=>c.data.day - 1); // convert to 0-based idx
+}
+
+function getKrankDays(){
+  return (ST.corrections||[])
+    .filter(c=>c.active && c.type==='werkstatt_krank')
+    .map(c=>c.data.day - 1);
+}
+
 function phase1(days, ed){
+  const exc = getExceptionDays();
   for(const emp of ST.employees){
     const pref=parsePrefDow(emp.extraConstraints||'');
     if(pref===null) continue;
@@ -553,17 +887,17 @@ function phase1(days, ed){
       if(!weekOk(emp.id,day,ed)) continue;
       if(day.type==='normaltag'){
         if(day.normal.dienst!==null) continue;
-        if(!canAssignDienst(emp.id,day.idx,ed).ok) continue;
+        if(!canAssignDienst(emp.id,day.idx,ed,exc).ok) continue;
         day.normal.dienst=emp.id;
         recAssist(day,emp.id,ed,'24h');
       } else if(day.type==='werkstatt'){
         if(day.werkB.dienst!==null) continue;
-        if(!canAssignWerkBDienst(emp.id,day.idx,ed).ok) continue;
+        if(!canAssignWerkBDienst(emp.id,day.idx,ed,exc).ok) continue;
         day.werkB.dienst=emp.id;
         recAssist(day,emp.id,ed,'werkB');
       } else {
         if(day.freieB.dienst!==null) continue;
-        if(!canAssignDienst(emp.id,day.idx,ed).ok) continue;
+        if(!canAssignDienst(emp.id,day.idx,ed,exc).ok) continue;
         day.freieB.dienst=emp.id;
         recAssist(day,emp.id,ed,'aus');
       }
@@ -572,27 +906,26 @@ function phase1(days, ed){
 }
 
 function phase2(days, ed){
+  const exc = getExceptionDays();
   for(const day of days){
-    let slot, assignFn, canFn, kind;
     if(day.type==='normaltag'){
       if(day.normal.dienst!==null) continue;
-      canFn=canAssignDienst; kind='24h';
       const cands=ST.employees.filter(emp=>{
-        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canFn(emp.id,day.idx,ed).ok;
+        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canAssignDienst(emp.id,day.idx,ed,exc).ok;
       }).map(e=>e.id);
       const best=pickBest(cands,ed,false);
       if(best!==undefined){ day.normal.dienst=best; recAssist(day,best,ed,'24h'); }
     } else if(day.type==='werkstatt'){
       if(day.werkB.dienst!==null) continue;
       const cands=ST.employees.filter(emp=>{
-        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canAssignWerkBDienst(emp.id,day.idx,ed).ok;
+        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canAssignWerkBDienst(emp.id,day.idx,ed,exc).ok;
       }).map(e=>e.id);
       const best=pickBest(cands,ed,true);
       if(best!==undefined){ day.werkB.dienst=best; recAssist(day,best,ed,'werkB'); }
     } else {
       if(day.freieB.dienst!==null) continue;
       const cands=ST.employees.filter(emp=>{
-        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canAssignDienst(emp.id,day.idx,ed).ok;
+        return available(emp,day,ed) && weekOk(emp.id,day,ed) && canAssignDienst(emp.id,day.idx,ed,exc).ok;
       }).map(e=>e.id);
       const best=pickBest(cands,ed,true);
       if(best!==undefined){ day.freieB.dienst=best; recAssist(day,best,ed,'aus'); }
@@ -639,14 +972,27 @@ function phase3B(days, ed){
   }
 }
 
-function validatePlan(days, ed){
-  // Rebuild asgn for validation from final plan
+// Apply manual overrides after algorithm
+function applyManualOverrides(days){
+  for(const ov of (ST.manualOverrides||[])){
+    const day = days.find(d=>d.dateStr===ov.dateStr);
+    if(!day) continue;
+    const empId = ov.empId;
+    if(ov.block==='normal' && day.normal) day.normal[ov.field]=empId;
+    else if(ov.block==='werkA' && day.werkA) day.werkA[ov.field]=empId;
+    else if(ov.block==='werkB' && day.werkB) day.werkB[ov.field]=empId;
+    else if(ov.block==='freieB' && day.freieB) day.freieB[ov.field]=empId;
+    day.manualOverride=true;
+  }
+}
+
+function validatePlan(days){
   const asgn2={};
   for(const emp of ST.employees) asgn2[emp.id]=[];
   for(const day of days){
     const di=day.idx;
     function mark(id,role){
-      if(!id||id===null) return;
+      if(!id&&id!==0) return;
       if(!asgn2[id]) asgn2[id]=[];
       asgn2[id][di]=(asgn2[id][di]||'')+role;
     }
@@ -654,26 +1000,26 @@ function validatePlan(days, ed){
     else if(day.type==='werkstatt'){ mark(day.werkA.backup,'WA'); mark(day.werkB.dienst,'D'); mark(day.werkB.backup,'B'); }
     else { mark(day.freieB.dienst,'D'); mark(day.freieB.backup,'B'); }
   }
-  // Check hard rules on final plan
   for(const day of days){
     day.hardViol=[];
-    const check=(id,label)=>{
-      if(!id) return;
+    const check=(id)=>{
+      if(!id&&id!==0) return;
       const di=day.idx;
       const arr=asgn2[id]||[];
       const isD=s=>s&&(s.includes('D'));
       const isAny=s=>!!(s);
       if(isD(arr[di])){
-        if(isD(arr[di-1])) day.hardViol.push({rule:'H2',emp:empName(id),msg:'Dienst Vortag'});
-        if(isD(arr[di+1])) day.hardViol.push({rule:'H2',emp:empName(id),msg:'Dienst Folgetag'});
-        if(isAny(arr[di-1])&&isAny(arr[di-2])) day.hardViol.push({rule:'H3',emp:empName(id),msg:'3 Tage'});
-        if(isD(arr[di-2])&&isAny(arr[di-1])) day.hardViol.push({rule:'H4',emp:empName(id),msg:'D-B-D'});
+        if(isD(arr[di-1])) day.hardViol.push({rule:'H2',emp:empNameClean(id),msg:'Dienst Vortag'});
+        if(isD(arr[di+1])) day.hardViol.push({rule:'H2',emp:empNameClean(id),msg:'Dienst Folgetag'});
+        if(isAny(arr[di-1])&&isAny(arr[di-2])) day.hardViol.push({rule:'H3',emp:empNameClean(id),msg:'3 Tage'});
+        if(isD(arr[di-2])&&isAny(arr[di-1])) day.hardViol.push({rule:'H4',emp:empNameClean(id),msg:'D-B-D'});
       }
     };
-    if(day.type==='normaltag'){ check(day.normal.dienst,'D'); }
-    else if(day.type==='werkstatt'){ check(day.werkB.dienst,'D'); }
-    else { check(day.freieB.dienst,'D'); }
+    if(day.type==='normaltag'){ check(day.normal.dienst); }
+    else if(day.type==='werkstatt'){ check(day.werkB.dienst); }
+    else { check(day.freieB.dienst); }
   }
+  return asgn2;
 }
 
 // =====================================================================
@@ -684,35 +1030,40 @@ function generatePlan(){
     alert('Bitte zuerst Mitarbeiter anlegen.');
     return;
   }
+  saveSnapshot();
+  generatePlanInternal();
+}
+
+function generatePlanInternal(){
   const days=buildDays();
   const ed=buildEd();
   phase1(days,ed);
   phase2(days,ed);
   phase3A(days,ed);
   phase3B(days,ed);
-  validatePlan(days,ed);
-  // Store summary stats on plan
+  applyManualOverrides(days);
+  validatePlan(days);
   PLAN={days, stats:summarizeStats(days,ed), generated:new Date().toLocaleString('de-DE')};
   savePlan();
   renderCalendar();
   renderSummary();
+  renderValReport();
 }
 
 function summarizeStats(days, ed){
   const stats={};
   for(const emp of ST.employees){
     const e=ed[emp.id];
+    const vacDates = vacDatesInMonth(emp, ST.year, ST.month);
+    const blkInMonth = (emp.blockDays||[]).filter(ds=>{
+      const d=new Date(ds+'T12:00:00');
+      return d.getFullYear()===ST.year && d.getMonth()+1===ST.month;
+    });
     stats[emp.id]={
       cnt24h:e.cnt24h, cntAusser:e.cntAusser,
       cntBkpReg:e.cntBkpReg, cntBkpWerk:e.cntBkpWerk,
-      vacCount:(emp.vacations||[]).filter(ds=>{
-        const d=new Date(ds+'T12:00:00');
-        return d.getFullYear()===ST.year && d.getMonth()+1===ST.month;
-      }).length,
-      blkCount:(emp.blockDays||[]).filter(ds=>{
-        const d=new Date(ds+'T12:00:00');
-        return d.getFullYear()===ST.year && d.getMonth()+1===ST.month;
-      }).length
+      vacCount:vacDates.length,
+      blkCount:blkInMonth.length
     };
   }
   return stats;
@@ -720,11 +1071,16 @@ function summarizeStats(days, ed){
 
 function clearPlan(){
   if(!confirm('Plan wirklich löschen?')) return;
-  PLAN=null; savePlan();
+  saveSnapshot();
+  PLAN=null; ST.manualOverrides=[]; ST.manualChangeLog=[];
+  saveST(); savePlan();
   document.getElementById('plan-body').innerHTML=
     '<div class="alert alert-info">Plan generieren, um den Kalender anzuzeigen.</div>';
   document.getElementById('summary-body').innerHTML=
     '<div class="alert alert-info">Bitte zuerst einen Plan generieren.</div>';
+  const vr = document.getElementById('val-report');
+  if(vr) vr.style.display='none';
+  renderManualChanges();
 }
 
 function manualEdit(ds, block, field, val){
@@ -732,44 +1088,182 @@ function manualEdit(ds, block, field, val){
   const day=PLAN.days.find(d=>d.dateStr===ds);
   if(!day) return;
   const empId = val==='' ? null : parseInt(val);
+
+  // Log change
+  const oldId = (block==='normal' ? day.normal[field] :
+                 block==='werkA' ? day.werkA[field] :
+                 block==='werkB' ? day.werkB[field] :
+                 day.freieB[field]);
+  const logEntry = {
+    ts: new Date().toLocaleTimeString('de-DE'),
+    ds, block, field,
+    oldName: empNameClean(oldId)||'–',
+    newName: empId!==null ? empNameClean(empId) : '–',
+    empId
+  };
+  if(!ST.manualChangeLog) ST.manualChangeLog=[];
+  ST.manualChangeLog.push(logEntry);
+
   if(block==='normal') day.normal[field]=empId;
   else if(block==='werkA') day.werkA[field]=empId;
   else if(block==='werkB') day.werkB[field]=empId;
   else if(block==='freieB') day.freieB[field]=empId;
   day.manualOverride=true;
-  savePlan();
+
+  // Update manualOverrides
+  if(!ST.manualOverrides) ST.manualOverrides=[];
+  const existing = ST.manualOverrides.findIndex(o=>o.dateStr===ds&&o.block===block&&o.field===field);
+  if(existing>=0) ST.manualOverrides[existing].empId=empId;
+  else ST.manualOverrides.push({dateStr:ds,block,field,empId});
+
+  // Re-validate hints
+  validatePlan(PLAN.days);
+  savePlan(); saveST();
+  renderManualChanges();
+  // Re-render just the hints column would be ideal, but re-render calendar for correctness
+  renderCalendar();
+  renderValReport();
+}
+
+// =====================================================================
+// VALIDATION REPORT
+// =====================================================================
+function renderValReport(){
+  if(!PLAN) return;
+  const el = document.getElementById('val-report');
+  const body = document.getElementById('val-report-body');
+  const badge = document.getElementById('val-summary-badge');
+  if(!el||!body) return;
+  el.style.display='block';
+
+  const days = PLAN.days;
+  // Collect all violations
+  const h1v=[], h2v=[], h3v=[], h4v=[], h5v=[], h6v=[];
+  for(const day of days){
+    for(const v of day.hardViol){
+      const label=`Tag ${day.dayNum} (${v.emp})`;
+      if(v.rule==='H2') h2v.push(label);
+      else if(v.rule==='H3') h3v.push(label);
+      else if(v.rule==='H4') h4v.push(label);
+      else if(v.rule==='H5') h5v.push(label);
+    }
+    // H1: check if assigned emp is on vacation/blocked
+    const check=(id)=>{
+      if(!id) return;
+      const emp = ST.employees.find(e=>e.id===id);
+      if(!emp) return;
+      if(isEmpOnVacation(emp,day.dateStr)||isEmpBlocked(emp,day.dateStr))
+        h1v.push(`Tag ${day.dayNum} (${emp.name})`);
+    };
+    if(day.type==='normaltag'){ check(day.normal.dienst); check(day.normal.backup); }
+    else if(day.type==='werkstatt'){ check(day.werkA.backup); check(day.werkB.dienst); check(day.werkB.backup); }
+    else { check(day.freieB.dienst); check(day.freieB.backup); }
+  }
+
+  const totalV = h1v.length+h2v.length+h3v.length+h4v.length+h5v.length+h6v.length;
+  if(badge) badge.innerHTML = totalV===0
+    ? '<span class="chip chip-green">✓ Alle Regeln eingehalten</span>'
+    : `<span class="chip chip-orange">⚠ ${totalV} Verstoß${totalV===1?'':'verstöße'}</span>`;
+
+  function ruleRow(code, name, viols){
+    const ok = viols.length===0;
+    const ico = ok ? '✅' : '⚠';
+    const cls = ok ? '' : 'style="color:var(--amber)"';
+    const detail = ok ? 'kein Verstoß' : `${viols.length} Verstoß${viols.length===1?'':'verstöße'}: ${viols.join(', ')}`;
+    return `<div class="val-row"><span class="val-icon">${ico}</span><span ${cls}><b>${code}</b> ${name} – ${detail}</span></div>`;
+  }
+
+  body.innerHTML =
+    ruleRow('H1','Urlaub/Sperrtag',h1v)+
+    ruleRow('H2','Aufeinanderfolgende Dienste',h2v)+
+    ruleRow('H3','3 Tage in Folge',h3v)+
+    ruleRow('H4','D-B-D Muster',h4v)+
+    ruleRow('H5','Doppelrolle',h5v)+
+    ruleRow('H6','Freischicht Block A leer',h6v);
+}
+
+// =====================================================================
+// MANUAL CHANGES
+// =====================================================================
+function renderManualChanges(){
+  const el = document.getElementById('manual-changes');
+  const body = document.getElementById('manual-changes-body');
+  if(!el||!body) return;
+  const log = ST.manualChangeLog||[];
+  if(log.length===0){ el.style.display='none'; return; }
+  el.style.display='block';
+  body.innerHTML = log.slice().reverse().map(e=>
+    `<div class="mchg-item">${e.ts} – Tag ${e.ds}, ${e.block}/${e.field}: ${escHtml(e.oldName)} → <b>${escHtml(e.newName)}</b></div>`
+  ).join('');
 }
 
 // =====================================================================
 // CALENDAR RENDER
 // =====================================================================
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function checkViolForSlot(ds, block, field, empId, currentPlan){
+  // Returns {ok,rule,msg} for assigning empId to this slot
+  if(!empId && empId!==0) return {ok:true};
+  const day = currentPlan.days.find(d=>d.dateStr===ds);
+  if(!day) return {ok:true};
+  // Build ed from plan WITHOUT this slot's current assignment
+  const planCopy = deepCopy(currentPlan);
+  const dc = planCopy.days.find(d=>d.dateStr===ds);
+  if(!dc) return {ok:true};
+  if(block==='normal'){ dc.normal[field]=null; }
+  else if(block==='werkA'){ dc.werkA[field]=null; }
+  else if(block==='werkB'){ dc.werkB[field]=null; }
+  else if(block==='freieB'){ dc.freieB[field]=null; }
+  const ed = buildEdFromPlan(planCopy);
+  const di = day.idx;
+  if(block==='normal'){
+    if(field==='dienst') return canAssignDienst(empId, di, ed, []);
+    if(field==='backup') return canAssignBackup(empId, di, ed);
+  } else if(block==='werkA'){
+    return canAssignWerkABackup(empId, di, ed);
+  } else if(block==='werkB'){
+    if(field==='dienst') return canAssignWerkBDienst(empId, di, ed, []);
+    if(field==='backup') return canAssignWerkBBackup(empId, di, ed);
+  } else if(block==='freieB'){
+    if(field==='dienst') return canAssignDienst(empId, di, ed, []);
+    if(field==='backup') return canAssignBackup(empId, di, ed);
+  }
+  return {ok:true};
+}
+
 function empOpts(day, selId, block, field){
   const ds=day.dateStr;
-  const vacSet=new Set(), blkSet=new Set();
-  for(const emp of ST.employees){
-    if((emp.vacations||[]).includes(ds)) vacSet.add(emp.id);
-    if((emp.blockDays||[]).includes(ds)) blkSet.add(emp.id);
-  }
   let opts=`<option value="">– frei –</option>`;
+  let hasWarn = false;
   for(const emp of ST.employees){
+    const onVac = isEmpOnVacation(emp, ds);
+    if(onVac) continue; // skip vacationing employees
     const sel=selId===emp.id?' selected':'';
-    const suffix=vacSet.has(emp.id)?' (Urlaub)':blkSet.has(emp.id)?' (Sperr)':'';
-    opts+=`<option value="${emp.id}"${sel}>${emp.name}${suffix}</option>`;
+    const nameDisp = emp.hasLicense ? emp.name : emp.name+' 🚫🚗';
+    // Check rule violation
+    const chk = checkViolForSlot(ds, block, field, emp.id, PLAN);
+    let suffix = '';
+    if(!chk.ok){ suffix=` ⚠${chk.rule}`; if(selId!==emp.id) hasWarn=true; }
+    opts+=`<option value="${emp.id}"${sel}>${escHtml(nameDisp)}${suffix}</option>`;
   }
-  return `<select class="emp-sel" onchange="manualEdit('${ds}','${block}','${field}',this.value)">${opts}</select>`;
+  const warnCls = hasWarn ? ' has-warn' : '';
+  return `<select class="emp-sel${warnCls}" onchange="manualEdit('${ds}','${block}','${field}',this.value)">${opts}</select>`;
 }
 
 function vacCell(day){
   const parts=[];
   for(const emp of ST.employees){
-    if((emp.vacations||[]).includes(day.dateStr)) parts.push(emp.name);
+    if(isEmpOnVacation(emp, day.dateStr)) parts.push(emp.name);
   }
   return parts.join(', ')||'';
 }
 function blkCell(day){
   const parts=[];
   for(const emp of ST.employees){
-    if((emp.blockDays||[]).includes(day.dateStr)) parts.push(emp.name);
+    if(isEmpBlocked(emp, day.dateStr)) parts.push(emp.name);
   }
   return parts.join(', ')||'';
 }
@@ -790,7 +1284,7 @@ function rowClassB(day){
 
 function violBadges(day){
   return day.hardViol.map(v=>
-    `<span class="viol">${v.rule} ${v.emp}</span>`
+    `<span class="viol">${v.rule} ${escHtml(v.emp)}</span>`
   ).join('');
 }
 function manualBadge(day){
@@ -818,14 +1312,14 @@ function renderCalendar(){
 
   for(const day of days){
     const rc=rowClass(day);
-    const vc=vacCell(day);
-    const bc=blkCell(day);
+    const vc=escHtml(vacCell(day));
+    const bc=escHtml(blkCell(day));
     const dow=DOW_SHORT[day.dow];
-    const dateDisp=`${pad2(day.dayNum)}.${pad2(ST.month)}. <b>${dow}</b>${day.isHol?`<br><span style="font-size:9px;color:var(--amber)">${day.holName}</span>`:''}`;
+    const dateDisp=`${pad2(day.dayNum)}.${pad2(ST.month)}. <b>${dow}</b>${day.isHol?`<br><span style="font-size:9px;color:var(--amber)">${escHtml(day.holName)}</span>`:''}`;
     const viols=violBadges(day)+manualBadge(day);
 
     if(day.type==='normaltag'){
-      const shift=`${ST.normaltag.name} ${ST.normaltag.start}–${ST.normaltag.end} (+1)`;
+      const shift=`${escHtml(ST.normaltag.name)} ${ST.normaltag.start}–${ST.normaltag.end} (+1)`;
       tbl+=`<tr class="${rc}">
   <td class="td-day mono">${day.dayNum}</td>
   <td class="td-date">${dateDisp}</td>
@@ -878,6 +1372,7 @@ function renderCalendar(){
   tbl+='</tbody></table>';
   document.getElementById('plan-body').innerHTML=warn+`<p style="margin-bottom:10px;font-size:13px">${hdr}</p><div class="cal-wrap">${tbl}</div>`;
   document.getElementById('plan-title').textContent=`Dienstplan ${MON_NAMES[ST.month]} ${ST.year}`;
+  renderManualChanges();
 }
 
 // =====================================================================
@@ -891,29 +1386,34 @@ function renderSummary(){
   }
   const s=PLAN.stats;
   let html=`<table class="sum-tbl"><thead><tr>
-    <th>Name</th><th>FK</th><th>Soll</th>
+    <th>Name</th><th title="Führerschein">FK</th><th>Soll</th>
     <th>Ist 24h</th><th>Ist Außerh.</th>
     <th>Bkp reg.</th><th>Bkp Werk.</th>
     <th>Urlaub</th><th>Sperrtage</th><th>Einschränkungen</th>
   </tr></thead><tbody>`;
   for(const emp of ST.employees){
-    const st=s[emp.id]||{};
-    const tot=(st.cnt24h||0)+(st.cntAusser||0);
+    const st2=s[emp.id]||{};
+    const tot=(st2.cnt24h||0)+(st2.cntAusser||0);
     const target=emp.target||8;
     const diff=tot-target;
     const cls=diff<-1?'sum-err':diff<0?'sum-warn':'sum-ok';
-    const fk=emp.hasLicense?'':'🚫🚗';
+    const fk=emp.hasLicense
+      ? '<span class="sum-ok" title="Hat Führerschein">✓</span>'
+      : '<span class="sum-err" title="Kein Führerschein">🚫🚗</span>';
+    const constraintHtml = emp.extraConstraints
+      ? `<span style="font-size:11px;color:var(--muted)" title="${escHtml(emp.extraConstraints)}">ℹ ${escHtml(emp.extraConstraints.substring(0,30))}${emp.extraConstraints.length>30?'…':''}</span>`
+      : '';
     html+=`<tr>
-      <td><b>${emp.name}</b></td>
+      <td><b>${escHtml(emp.name)}</b>${emp.hasLicense?'':' 🚫🚗'}</td>
       <td style="text-align:center">${fk}</td>
       <td>${target}</td>
-      <td class="${cls}">${st.cnt24h||0}</td>
-      <td class="${cls}">${st.cntAusser||0}</td>
-      <td>${st.cntBkpReg||0}</td>
-      <td>${st.cntBkpWerk||0}</td>
-      <td>${st.vacCount||0}</td>
-      <td>${st.blkCount||0}</td>
-      <td style="font-size:11px;color:var(--muted)">${emp.extraConstraints||''}</td>
+      <td class="${cls}">${st2.cnt24h||0}</td>
+      <td class="${cls}">${st2.cntAusser||0}</td>
+      <td>${st2.cntBkpReg||0}</td>
+      <td>${st2.cntBkpWerk||0}</td>
+      <td>${st2.vacCount||0}</td>
+      <td>${st2.blkCount||0}</td>
+      <td>${constraintHtml}</td>
     </tr>`;
   }
   html+='</tbody></table>';
@@ -964,10 +1464,7 @@ function saveSettings(){
     emp.hasLicense=document.getElementById(`elic-${id}`).checked;
     emp.prefShift=document.getElementById(`epref-${id}`).value;
     emp.extraConstraints=document.getElementById(`econstr-${id}`).value;
-    const vacRaw=document.getElementById(`evac-${id}`).value;
-    emp.vacations=vacRaw.split('\n').map(s=>s.trim()).filter(s=>s.match(/^\d{4}-\d{2}-\d{2}$/));
-    const blkRaw=document.getElementById(`eblk-${id}`).value;
-    emp.blockDays=blkRaw.split('\n').map(s=>s.trim()).filter(s=>s.match(/^\d{4}-\d{2}-\d{2}$/));
+    // vacations and blockDays managed via datepicker chips, not textarea
     return emp;
   });
 
@@ -1018,6 +1515,51 @@ function removeEmployee(id){
   renderEmpList();
 }
 
+function renderEmpVacChips(empId){
+  const emp = ST.employees.find(e=>e.id===empId);
+  if(!emp) return '';
+  return (emp.vacations||[]).map((r,i)=>
+    `<span class="chip chip-blue">${r.start === r.end ? r.start : r.start+' – '+r.end}<button class="chip-del" onclick="deleteVacRange(${empId},${i})" title="Löschen">×</button></span>`
+  ).join('');
+}
+
+function renderEmpBlkChips(empId){
+  const emp = ST.employees.find(e=>e.id===empId);
+  if(!emp) return '';
+  const used = (emp.blockDays||[]).length;
+  const max = blockDayMax(emp, ST.year, ST.month);
+  const inMonth = (emp.blockDays||[]).filter(ds=>{
+    const d=new Date(ds+'T12:00:00');
+    return d.getFullYear()===ST.year && d.getMonth()+1===ST.month;
+  });
+  const chips = inMonth.map((ds,i)=>
+    `<span class="chip chip-orange">${ds}<button class="chip-del" onclick="deleteBlockDay(${empId},'${ds}')" title="Löschen">×</button></span>`
+  ).join('');
+  const info = `<span style="font-size:11px;color:var(--muted);margin-left:4px">${inMonth.length} von ${max} verwendet</span>`;
+  return chips + (inMonth.length > 0 ? info : '');
+}
+
+function deleteVacRange(empId, idx){
+  const emp = ST.employees.find(e=>e.id===empId);
+  if(!emp) return;
+  emp.vacations.splice(idx,1);
+  saveST();
+  // Re-render chips
+  const vcEl = document.getElementById(`vac-chips-${empId}`);
+  if(vcEl) vcEl.innerHTML = renderEmpVacChips(empId);
+  const bkEl = document.getElementById(`blk-chips-${empId}`);
+  if(bkEl) bkEl.innerHTML = renderEmpBlkChips(empId);
+}
+
+function deleteBlockDay(empId, ds){
+  const emp = ST.employees.find(e=>e.id===empId);
+  if(!emp) return;
+  emp.blockDays = (emp.blockDays||[]).filter(d=>d!==ds);
+  saveST();
+  const bkEl = document.getElementById(`blk-chips-${empId}`);
+  if(bkEl) bkEl.innerHTML = renderEmpBlkChips(empId);
+}
+
 function renderEmpList(){
   const container=document.getElementById('emp-list');
   if(!container) return;
@@ -1028,17 +1570,15 @@ function renderEmpList(){
   let html='';
   for(const emp of ST.employees){
     const id=emp.id;
-    const vacStr=(emp.vacations||[]).join('\n');
-    const blkStr=(emp.blockDays||[]).join('\n');
     html+=`<div class="emp-card" id="ecard-${id}">
   <div class="emp-hdr">
-    <span class="emp-name-lbl">${emp.name}</span>
-    <span style="font-size:12px;color:var(--muted)">${emp.hasLicense?'🚗':'🚫🚗'}</span>
+    <span class="emp-name-lbl">${escHtml(emp.name)}</span>
+    <span style="font-size:12px;color:var(--muted)">${emp.hasLicense?'<span style="color:var(--green)">✓ FK</span>':'🚫🚗'}</span>
     <button class="icon-btn" onclick="removeEmployee(${id})" title="Entfernen">🗑</button>
   </div>
   <div class="row">
     <div class="field"><label>Name</label>
-      <input type="text" id="ename-${id}" value="${emp.name}" onchange="saveSettings()"></div>
+      <input type="text" id="ename-${id}" value="${escHtml(emp.name)}" onchange="saveSettings()"></div>
     <div class="field" style="max-width:90px"><label>Soll-Dienste</label>
       <input type="number" id="etgt-${id}" value="${emp.target||8}" min="0" max="31" onchange="saveSettings()"></div>
     <div class="field" style="max-width:200px">
@@ -1056,12 +1596,21 @@ function renderEmpList(){
     </div>
   </div>
   <div class="row">
-    <div class="field"><label>Urlaube (JJJJ-MM-TT, eine pro Zeile)</label>
-      <textarea id="evac-${id}" onchange="saveSettings()" rows="3">${vacStr}</textarea></div>
-    <div class="field"><label>Sperrtage (JJJJ-MM-TT, eine pro Zeile)</label>
-      <textarea id="eblk-${id}" onchange="saveSettings()" rows="3">${blkStr}</textarea></div>
     <div class="field" style="flex:2"><label>Einschränkungen / Hinweise (z.B. "bevorzugt Mo", "kein Sa")</label>
-      <textarea id="econstr-${id}" onchange="saveSettings()" rows="3" style="font-family:'DM Sans',sans-serif">${emp.extraConstraints||''}</textarea></div>
+      <textarea id="econstr-${id}" onchange="saveSettings()" rows="2" style="font-family:'DM Sans',sans-serif">${escHtml(emp.extraConstraints||'')}</textarea></div>
+  </div>
+  <div class="sep"></div>
+  <div class="row" style="gap:16px">
+    <div style="flex:1">
+      <label style="margin-bottom:4px">🏖 Urlaub</label>
+      <div id="vac-chips-${id}" style="margin-bottom:6px">${renderEmpVacChips(id)}</div>
+      <button class="btn btn-sec btn-xs" onclick="openDpVac(${id},event)">+ Urlaub hinzufügen</button>
+    </div>
+    <div style="flex:1">
+      <label style="margin-bottom:4px">🚫 Sperrtage</label>
+      <div id="blk-chips-${id}" style="margin-bottom:6px">${renderEmpBlkChips(id)}</div>
+      <button class="btn btn-sec btn-xs" onclick="openDpBlk(${id},event)">+ Sperrtag hinzufügen</button>
+    </div>
   </div>
 </div>`;
   }
@@ -1098,6 +1647,231 @@ function fillSettingsUI(){
   renderEmpList();
   renderWerkstattTimes();
   updatePlanTitle();
+  renderCorrChips();
+  renderManualChanges();
+  updateUndoBtn();
+}
+
+// =====================================================================
+// DATEPICKER
+// =====================================================================
+let DP = {
+  mode: null, // 'vac' | 'blk'
+  empId: null,
+  year: 0, month: 0,
+  step: 1, // for vac: 1=pick start, 2=pick end
+  startDs: null
+};
+
+function openDpVac(empId, event){
+  event.stopPropagation();
+  DP.mode='vac'; DP.empId=empId;
+  DP.year=ST.year; DP.month=ST.month;
+  DP.step=1; DP.startDs=null;
+  dpShow(event.target);
+}
+
+function openDpBlk(empId, event){
+  event.stopPropagation();
+  DP.mode='blk'; DP.empId=empId;
+  DP.year=ST.year; DP.month=ST.month;
+  dpShow(event.target);
+}
+
+function dpShow(anchor){
+  const popup = document.getElementById('dp-popup');
+  popup.style.display='block';
+  dpRender();
+  // Position near anchor
+  const rect = anchor.getBoundingClientRect();
+  const pw = 290;
+  let left = rect.left;
+  if(left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+  let top = rect.bottom + 4;
+  if(top + 320 > window.innerHeight) top = rect.top - 320;
+  popup.style.left = Math.max(4, left)+'px';
+  popup.style.top = Math.max(4, top)+'px';
+}
+
+function dpClose(){
+  document.getElementById('dp-popup').style.display='none';
+}
+
+function dpNav(dir){
+  DP.month += dir;
+  if(DP.month > 12){ DP.month=1; DP.year++; }
+  if(DP.month < 1){ DP.month=12; DP.year--; }
+  dpRender();
+}
+
+function dpRender(){
+  const popup = document.getElementById('dp-popup');
+  if(popup.style.display==='none') return;
+  document.getElementById('dp-title').textContent = `${MON_NAMES[DP.month]} ${DP.year}`;
+
+  const emp = DP.empId ? ST.employees.find(e=>e.id===DP.empId) : null;
+  const vacSet = new Set();
+  const blkSet = new Set(emp ? (emp.blockDays||[]) : []);
+
+  if(emp){
+    for(const r of (emp.vacations||[])){
+      const s=new Date(r.start+'T12:00:00'), en=new Date(r.end+'T12:00:00');
+      for(let dd=new Date(s);dd<=en;dd.setDate(dd.getDate()+1)){
+        vacSet.add(fmtDate(dd.getFullYear(),dd.getMonth()+1,dd.getDate()));
+      }
+    }
+  }
+
+  const nd = daysInMonth(DP.year, DP.month);
+  const firstDow = dowOf(fmtDate(DP.year, DP.month, 1));
+  // Mo=0...So=6 grid
+  const firstCell = firstDow===0 ? 6 : firstDow-1;
+
+  let grid = '';
+  const today = fmtDate(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+
+  // Previous month padding
+  const prevNd = daysInMonth(DP.year, DP.month-1<1?12:DP.month-1, DP.month-1<1?DP.year-1:DP.year);
+  for(let i=0;i<firstCell;i++){
+    grid+=`<div class="dp-cell dp-other">${prevNd-firstCell+1+i}</div>`;
+  }
+
+  for(let d=1;d<=nd;d++){
+    const ds=fmtDate(DP.year,DP.month,d);
+    let cls='dp-cell';
+    if(ds===today) cls+=' dp-today';
+    if(DP.mode==='vac'){
+      if(vacSet.has(ds)) cls+=' dp-vacation';
+      else if(blkSet.has(ds)) cls+=' dp-block';
+      // range highlight
+      if(DP.step===2 && DP.startDs){
+        if(ds===DP.startDs) cls+=' dp-range-start';
+      }
+    } else {
+      if(vacSet.has(ds)){ cls+=' dp-vacation'; }
+      else if(blkSet.has(ds)){ cls+=' dp-block'; }
+    }
+    const clickable = !(DP.mode==='blk' && vacSet.has(ds));
+    const onclick = clickable ? `onclick="dpClick('${ds}')"` : '';
+    grid+=`<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+
+  // Fill remaining cells
+  const total = firstCell + nd;
+  const rem = total%7===0 ? 0 : 7-(total%7);
+  for(let i=1;i<=rem;i++) grid+=`<div class="dp-cell dp-other">${i}</div>`;
+
+  document.getElementById('dp-grid').innerHTML=grid;
+
+  // Footer
+  let footer='';
+  if(DP.mode==='vac'){
+    footer = DP.step===1 ? 'Startdatum wählen' : `Start: ${DP.startDs} → Enddatum wählen`;
+  } else if(DP.mode==='blk' && emp){
+    const max = blockDayMax(emp, ST.year, ST.month);
+    const inMonth = (emp.blockDays||[]).filter(ds=>{
+      const d=new Date(ds+'T12:00:00');
+      return d.getFullYear()===ST.year && d.getMonth()+1===ST.month;
+    }).length;
+    footer = `${inMonth} von ${max} Sperrtagen verwendet`;
+  }
+  document.getElementById('dp-footer').textContent=footer;
+}
+
+function dpClick(ds){
+  const emp = ST.employees.find(e=>e.id===DP.empId);
+  if(!emp) return;
+
+  if(DP.mode==='vac'){
+    if(DP.step===1){
+      DP.startDs=ds; DP.step=2; dpRender();
+    } else {
+      // Add range
+      let start=DP.startDs, end=ds;
+      if(start>end){ const t=start; start=end; end=t; }
+      if(!emp.vacations) emp.vacations=[];
+      emp.vacations.push({start,end});
+      saveST();
+      const vcEl = document.getElementById(`vac-chips-${DP.empId}`);
+      if(vcEl) vcEl.innerHTML = renderEmpVacChips(DP.empId);
+      const bkEl = document.getElementById(`blk-chips-${DP.empId}`);
+      if(bkEl) bkEl.innerHTML = renderEmpBlkChips(DP.empId);
+      DP.step=1; DP.startDs=null; dpRender();
+    }
+  } else if(DP.mode==='blk'){
+    if(!emp.blockDays) emp.blockDays=[];
+    const idx = emp.blockDays.indexOf(ds);
+    if(idx>=0){
+      // Toggle off
+      emp.blockDays.splice(idx,1);
+    } else {
+      // Check max
+      const max = blockDayMax(emp, ST.year, ST.month);
+      const inMonthDs = emp.blockDays.filter(d=>{
+        const dd=new Date(d+'T12:00:00');
+        return dd.getFullYear()===ST.year && dd.getMonth()+1===ST.month;
+      });
+      const dsYear = new Date(ds+'T12:00:00').getFullYear();
+      const dsMonth = new Date(ds+'T12:00:00').getMonth()+1;
+      const isCurrentMonth = (dsYear===ST.year && dsMonth===ST.month);
+      if(isCurrentMonth && inMonthDs.length >= max){
+        alert(`Maximal ${max} Sperrtage in diesem Monat erlaubt.`);
+        return;
+      }
+      emp.blockDays.push(ds);
+      emp.blockDays.sort();
+    }
+    saveST();
+    const bkEl = document.getElementById(`blk-chips-${DP.empId}`);
+    if(bkEl) bkEl.innerHTML = renderEmpBlkChips(DP.empId);
+    dpRender();
+  }
+}
+
+// =====================================================================
+// TEMPLATE SAVE/LOAD
+// =====================================================================
+function toggleTmplMenu(event){
+  event.stopPropagation();
+  document.getElementById('tmpl-menu').classList.toggle('open');
+}
+
+function saveTemplate(){
+  document.getElementById('tmpl-menu').classList.remove('open');
+  const tmpl = ST.employees.map(e=>({
+    id:e.id, name:e.name, target:e.target,
+    hasLicense:e.hasLicense, prefShift:e.prefShift,
+    extraConstraints:e.extraConstraints
+  }));
+  localStorage.setItem(TMPL_KEY, JSON.stringify(tmpl));
+  alert('Vorlage gespeichert ('+tmpl.length+' Mitarbeiter, ohne Urlaub/Sperrtage).');
+}
+
+function loadTemplate(){
+  document.getElementById('tmpl-menu').classList.remove('open');
+  const raw = localStorage.getItem(TMPL_KEY);
+  if(!raw){ alert('Keine gespeicherte Vorlage gefunden.'); return; }
+  if(ST.employees.length>0 && !confirm('Vorhandene Mitarbeiter ersetzen?')) return;
+  try {
+    const tmpl = JSON.parse(raw);
+    ST.employees = tmpl.map(e=>({
+      ...e, vacations:[], blockDays:[]
+    }));
+    saveST();
+    fillSettingsUI();
+    alert('Vorlage geladen: '+tmpl.length+' Mitarbeiter.');
+  } catch(e){ alert('Fehler beim Laden: '+e.message); }
+}
+
+// =====================================================================
+// COLLAPSIBLE
+// =====================================================================
+function toggleCollapsible(bodyId, hdrEl){
+  const body = document.getElementById(bodyId);
+  if(!body) return;
+  const open = body.style.display!=='none';
+  body.style.display = open ? 'none' : 'block';
+  if(hdrEl) hdrEl.classList.toggle('open', !open);
 }
 
 // =====================================================================
@@ -1107,7 +1881,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===tab));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   document.getElementById(`pane-${tab}`).classList.add('on');
-  if(tab==='plan'&&PLAN) renderCalendar();
+  if(tab==='plan'&&PLAN){ renderCalendar(); renderValReport(); }
   if(tab==='summary'&&PLAN) renderSummary();
 }
 
@@ -1130,6 +1904,7 @@ function importJSON(event){
       const data=JSON.parse(e.target.result);
       if(data.ST){ ST=Object.assign(defaultST(),data.ST); saveST(); fillSettingsUI(); }
       if(data.PLAN){ PLAN=data.PLAN; savePlan(); }
+      if(PLAN){ renderCalendar(); renderSummary(); renderValReport(); }
       alert('Import erfolgreich.');
     } catch(err){ alert('Fehler beim Import: '+err.message); }
   };
@@ -1138,11 +1913,29 @@ function importJSON(event){
 }
 
 // =====================================================================
+// GLOBAL CLICK — close popups
+// =====================================================================
+document.addEventListener('click', function(e){
+  // Close datepicker if clicking outside
+  const popup = document.getElementById('dp-popup');
+  if(popup && popup.style.display!=='none' && !popup.contains(e.target)){
+    dpClose();
+  }
+  // Close template menu
+  const menu = document.getElementById('tmpl-menu');
+  if(menu && menu.classList.contains('open') && !menu.closest('.tmpl-menu').contains(e.target)){
+    menu.classList.remove('open');
+  }
+});
+
+// =====================================================================
 // INIT
 // =====================================================================
 loadState();
 fillSettingsUI();
-if(PLAN){ renderCalendar(); renderSummary(); }
+if(PLAN){ renderCalendar(); renderSummary(); renderValReport(); }
+renderCorrChips();
+updateUndoBtn();
 </script>
 </body>
 </html>
