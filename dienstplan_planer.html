@@ -6,885 +6,467 @@
 <title>Dienstplan-Planer – Pflegeassistenz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ========== RESET & BASE ========== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --navy:      #1a3a5c;
-  --navy-light:#2a5080;
-  --navy-bg:   #e8f0f8;
-  --bg:        #f5f6f8;
-  --surface:   #ffffff;
-  --border:    #dde2ea;
-  --text:      #1e2d3d;
-  --text-muted:#6b7a8d;
-  --green:     #1a7a4a;
-  --green-bg:  #e6f5ed;
-  --amber:     #b45309;
-  --amber-bg:  #fef3c7;
-  --orange:    #c2410c;
-  --orange-bg: #ffedd5;
-  --red:       #be123c;
-  --red-bg:    #ffe4e6;
-  --blue:      #1d4ed8;
-  --blue-bg:   #dbeafe;
-  --radius:    8px;
-  --shadow:    0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.06);
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a5c;--navy-l:#2a5080;--navy-bg:#e8f0f8;
+  --bg:#f5f6f8;--surface:#fff;--border:#dde2ea;
+  --text:#1e2d3d;--muted:#6b7a8d;
+  --green:#1a7a4a;--green-bg:#e6f5ed;--green-b:#6ee7b7;
+  --amber:#92400e;--amber-bg:#fef3c7;--amber-b:#fcd34d;
+  --orange:#c2410c;--orange-bg:#ffedd5;--orange-b:#fed7aa;
+  --red:#be123c;--red-bg:#ffe4e6;--red-b:#fca5a5;
+  --blue:#1d4ed8;--blue-bg:#dbeafe;--blue-b:#93c5fd;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.06)
 }
+body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
 
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
-  min-height: 100vh;
+/* ===== HEADER ===== */
+.app-header{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.app-header h1{font-size:18px;font-weight:600;letter-spacing:-.3px}
+.app-header .sub{font-size:11px;opacity:.65;margin-top:1px}
+.hdr-sp{flex:1}
+.hdr-act{display:flex;gap:8px}
+
+/* ===== TABS ===== */
+.tab-bar{background:var(--surface);border-bottom:2px solid var(--border);display:flex;padding:0 24px}
+.tab-btn{padding:13px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:7px}
+.tab-btn:hover{color:var(--navy)}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy)}
+.tab-badge{background:var(--red);color:#fff;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:600}
+
+/* ===== LAYOUT ===== */
+.main{padding:20px 24px;max-width:1500px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.card-hdr h2{font-size:15px;font-weight:600}
+.card-hdr h3{font-size:13px;font-weight:600}
+.card-hdr .icon{font-size:17px}
+.card-hdr-act{margin-left:auto;display:flex;gap:8px;align-items:center}
+.card-body{padding:18px}
+
+/* ===== FORM ===== */
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 11px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:var(--surface);width:100%;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,58,92,.1)}
+.fg input[type=checkbox]{width:auto;cursor:pointer}
+.frow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.cb-row{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
+.cb-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--navy)}
+
+/* ===== BUTTONS ===== */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 15px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy-l)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg);border-color:var(--navy)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.btn-danger:hover{background:#fecaca}
+.btn-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.btn-lg{padding:11px 22px;font-size:15px;font-weight:600}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ===== EMPLOYEE CARD ===== */
+.emp-list{display:flex;flex-direction:column;gap:12px}
+.emp-card{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.emp-card-hdr{background:var(--navy-bg);padding:9px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.emp-num{background:var(--navy);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.emp-body{padding:14px;display:flex;flex-direction:column;gap:12px}
+
+/* ===== VACATION / BLOCK DAY ===== */
+.vac-list{display:flex;flex-direction:column;gap:5px}
+.vac-entry{display:flex;align-items:center;gap:7px;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:6px;padding:5px 9px;flex-wrap:wrap}
+.vac-lbl{font-size:11px;color:var(--blue);font-weight:600}
+.block-grid{display:flex;flex-wrap:wrap;gap:5px}
+.block-chip{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber);border-radius:20px;padding:3px 9px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px}
+.block-chip button{background:none;border:none;cursor:pointer;color:var(--amber);font-size:14px;line-height:1;padding:0;font-weight:600}
+
+/* ===== SHIFT TYPE BOXES ===== */
+.shift-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.shift-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.shift-box.s1{border-left:4px solid #2563eb}
+.shift-box.s2{border-left:4px solid #7c3aed}
+.shift-box h4{font-size:13px;font-weight:600;margin-bottom:10px}
+
+/* ===== CALENDAR TABLE ===== */
+.cal-wrap{overflow-x:auto}
+.cal-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px}
+.cal-table th{background:var(--navy);color:#fff;padding:9px 10px;text-align:left;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:5}
+.cal-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.cal-table tr:last-child td{border-bottom:none}
+.cal-table tr:hover td{background:rgba(26,58,92,.025)}
+/* row states */
+.r-ok{}
+.r-block td{background:#fffdf0}
+.r-over td{background:var(--orange-bg)}
+.r-open td{background:var(--red-bg)}
+.r-weekend td{background:#f8f9fb}
+.r-holiday td{background:#f0f4fa}
+/* Override: open takes priority */
+.r-open.r-weekend td,.r-open.r-holiday td{background:var(--red-bg)}
+.r-block.r-weekend td,.r-block.r-holiday td{background:#fffdf0}
+
+/* ===== CHIPS ===== */
+.chip{display:inline-flex;align-items:center;gap:3px;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.c-green{background:var(--green-bg);color:var(--green)}
+.c-amber{background:var(--amber-bg);color:var(--amber)}
+.c-orange{background:var(--orange-bg);color:var(--orange)}
+.c-red{background:var(--red-bg);color:var(--red)}
+.c-blue{background:var(--blue-bg);color:var(--blue)}
+.c-gray{background:#f1f5f9;color:#64748b}
+.c-purple{background:#ede9fe;color:#5b21b6}
+.shift-tag{display:inline-block;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
+.st1{background:#dbeafe;color:#1e40af}
+.st2{background:#ede9fe;color:#5b21b6}
+
+/* ===== ALERTS ===== */
+.alert{border-radius:6px;padding:11px 15px;display:flex;align-items:flex-start;gap:9px;font-size:13px;margin-bottom:10px}
+.a-warn{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber)}
+.a-err{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.a-ok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+.a-info{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.ai{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ===== SECTION TITLE ===== */
+.sec-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:10px}
+
+/* ===== SUMMARY TABLE ===== */
+.sum-table{width:100%;border-collapse:collapse;font-size:13px}
+.sum-table th{background:var(--navy-bg);color:var(--navy);padding:8px 11px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
+.sum-table td{padding:8px 11px;border-bottom:1px solid var(--border)}
+.sum-table tr:last-child td{border-bottom:none}
+
+/* ===== PROGRESS ===== */
+.prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px}
+.prog-fill{height:100%;border-radius:3px}
+.pf-ok{background:var(--green)}.pf-warn{background:var(--amber)}.pf-bad{background:var(--red)}
+
+/* ===== CORRECTIONS ===== */
+.corr-item{display:flex;align-items:center;gap:8px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:6px;padding:7px 11px;font-size:13px;margin-bottom:5px}
+.corr-item span{flex:1}
+
+/* ===== LICENSE ICON ===== */
+.no-lic{display:inline-block;font-size:14px;cursor:help;vertical-align:middle}
+
+/* ===== EMPTY STATE ===== */
+.empty{text-align:center;padding:44px 24px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}
+.empty h3{font-size:16px;font-weight:600;margin-bottom:5px;color:var(--text)}
+
+/* ===== UTILS ===== */
+.flex{display:flex}.flex-col{display:flex;flex-direction:column}
+.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}.gap-16{gap:16px}
+.items-c{align-items:center}.just-b{justify-content:space-between}.ml-auto{margin-left:auto}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
+.text-sm{font-size:12px}.text-xs{font-size:11px}.muted{color:var(--muted)}
+.bold{font-weight:600}.mono{font-family:'DM Mono',monospace}.w-full{width:100%}
+.vac-cell{font-size:11px;font-family:'DM Sans',sans-serif}
+
+/* ===== PRINT ===== */
+@media print{
+  @page{size:A4 landscape;margin:.8cm}
+  body{background:#fff;font-size:10px}
+  .app-header,.tab-bar,.no-print,.tab-panel:not(.active){display:none!important}
+  .tab-panel.active{display:block!important}
+  .main{padding:0;max-width:100%}
+  .card{box-shadow:none;border:1px solid #ccc;margin-bottom:10px;break-inside:avoid}
+  .card-body{padding:10px}
+  .print-hdr{display:flex!important;justify-content:space-between;align-items:flex-end;margin-bottom:12px;border-bottom:2px solid #1a3a5c;padding-bottom:6px}
+  .print-hdr h1{font-size:18px;font-weight:700;color:#1a3a5c}
+  .print-hdr .pm{font-size:10px;color:#666}
+  .cal-table{font-size:9px}
+  .cal-table th{background:#1a3a5c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:5px 7px}
+  .cal-table td{padding:3px 7px}
+  .r-weekend td{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-holiday td{background:#eef2f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-block td{background:#fffdf0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-open td{background:#ffe4e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .chip,.shift-tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-ftr{display:flex!important;justify-content:space-between;margin-top:10px;border-top:1px solid #ccc;padding-top:6px;font-size:9px}
+  #summary-card,#corrections-card{display:none!important}
+  #plan-alerts{display:none}
 }
+.print-hdr{display:none}
+.print-ftr{display:none}
 
-/* ========== HEADER ========== */
-.app-header {
-  background: var(--navy);
-  color: #fff;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
-}
-.app-header h1 { font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
-.app-header .subtitle { font-size: 12px; opacity: .7; margin-top: 1px; }
-.header-spacer { flex: 1; }
-.header-actions { display: flex; gap: 8px; }
-
-/* ========== TABS ========== */
-.tab-bar {
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
-  display: flex;
-  padding: 0 24px;
-  gap: 0;
-}
-.tab-btn {
-  padding: 14px 24px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.tab-btn:hover { color: var(--navy); }
-.tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
-.tab-badge {
-  background: var(--red);
-  color: white;
-  border-radius: 10px;
-  padding: 2px 6px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-/* ========== LAYOUT ========== */
-.main-content { padding: 24px; max-width: 1400px; margin: 0 auto; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ========== CARDS ========== */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 16px;
-}
-.card-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-header h2 { font-size: 15px; font-weight: 600; }
-.card-header h3 { font-size: 14px; font-weight: 600; }
-.card-header .icon { font-size: 18px; }
-.card-header-actions { margin-left: auto; display: flex; gap: 8px; }
-.card-body { padding: 20px; }
-
-/* ========== FORMS ========== */
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-.form-group { display: flex; flex-direction: column; gap: 4px; }
-.form-group label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
-.form-group input, .form-group select, .form-group textarea {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  background: var(--surface);
-  transition: border-color .15s;
-  width: 100%;
-}
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-  outline: none;
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(26,58,92,.1);
-}
-.form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-
-/* ========== BUTTONS ========== */
-.btn {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: all .15s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-.btn-primary { background: var(--navy); color: #fff; }
-.btn-primary:hover { background: var(--navy-light); }
-.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { background: var(--bg); border-color: var(--navy); }
-.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid #fca5a5; }
-.btn-danger:hover { background: #fecaca; }
-.btn-success { background: var(--green-bg); color: var(--green); border: 1px solid #6ee7b7; }
-.btn-success:hover { background: #d1fae5; }
-.btn-large { padding: 12px 24px; font-size: 15px; font-weight: 600; }
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
-
-/* ========== EMPLOYEE CARDS ========== */
-.employee-list { display: flex; flex-direction: column; gap: 12px; }
-.employee-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
-  overflow: hidden;
-}
-.employee-card-header {
-  background: var(--navy-bg);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
-}
-.employee-card-header .emp-num {
-  background: var(--navy);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.employee-card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-
-/* Vacation entries */
-.vacation-list { display: flex; flex-direction: column; gap: 6px; }
-.vacation-entry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--blue-bg);
-  border: 1px solid #93c5fd;
-  border-radius: 6px;
-  padding: 6px 10px;
-  flex-wrap: wrap;
-}
-.vacation-entry .vac-label { font-size: 12px; color: var(--blue); font-weight: 500; }
-
-/* Block days */
-.block-days-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.block-day-chip {
-  background: var(--amber-bg);
-  border: 1px solid #fcd34d;
-  color: var(--amber);
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.block-day-chip button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--amber);
-  font-size: 14px;
-  line-height: 1;
-  padding: 0;
-}
-
-/* ========== CALENDAR TABLE ========== */
-.calendar-wrapper { overflow-x: auto; }
-.calendar-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-}
-.calendar-table th {
-  background: var(--navy);
-  color: #fff;
-  padding: 10px 12px;
-  text-align: left;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-}
-.calendar-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-  white-space: nowrap;
-}
-.calendar-table tr:hover td { background: rgba(26,58,92,.03); }
-
-/* Day type highlighting */
-.day-weekend td { background: #f8f9fb; }
-.day-holiday td { background: #f0f4f9; }
-.day-today td { background: #fffbeb; }
-
-/* Row status colors */
-.row-ok td.status-col { background: var(--green-bg); color: var(--green); }
-.row-blockday td { background: #fffbeb; }
-.row-overweek td { background: var(--orange-bg); }
-.row-open td { background: var(--red-bg); }
-.row-vacation td { background: var(--blue-bg); color: var(--blue); }
-
-/* Status chips in table */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-}
-.chip-green { background: var(--green-bg); color: var(--green); }
-.chip-amber { background: var(--amber-bg); color: var(--amber); }
-.chip-orange { background: var(--orange-bg); color: var(--orange); }
-.chip-red { background: var(--red-bg); color: var(--red); }
-.chip-blue { background: var(--blue-bg); color: var(--blue); }
-.chip-gray { background: #f1f5f9; color: #64748b; }
-
-/* Holiday label */
-.holiday-label {
-  font-size: 11px;
-  color: var(--navy);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  margin-left: 4px;
-}
-
-/* ========== SUMMARY TABLE ========== */
-.summary-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.summary-table th {
-  background: var(--navy-bg);
-  color: var(--navy);
-  padding: 8px 12px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  border-bottom: 2px solid var(--border);
-}
-.summary-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.summary-table tr:last-child td { border-bottom: none; }
-
-/* ========== ALERTS ========== */
-.alert {
-  border-radius: 6px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-.alert-warning { background: var(--amber-bg); border: 1px solid #fcd34d; color: var(--amber); }
-.alert-error   { background: var(--red-bg);   border: 1px solid #fca5a5; color: var(--red);   }
-.alert-success { background: var(--green-bg); border: 1px solid #6ee7b7; color: var(--green); }
-.alert-info    { background: var(--blue-bg);  border: 1px solid #93c5fd; color: var(--blue);  }
-.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-/* ========== CORRECTIONS ========== */
-.correction-list { display: flex; flex-direction: column; gap: 6px; }
-.correction-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--amber-bg);
-  border: 1px solid #fcd34d;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-}
-.correction-item span { flex: 1; }
-
-/* ========== SHIFT TYPE COLORS in table ========== */
-.shift-tag {
-  display: inline-block;
-  background: var(--navy-bg);
-  color: var(--navy);
-  border-radius: 4px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-}
-
-/* ========== LEGEND ========== */
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  font-size: 12px;
-}
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-dot {
-  width: 12px; height: 12px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-/* ========== SECTION DIVIDER ========== */
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .7px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-
-/* ========== UTIL ========== */
-.flex { display: flex; }
-.flex-col { display: flex; flex-direction: column; }
-.gap-8 { gap: 8px; }
-.gap-12 { gap: 12px; }
-.gap-16 { gap: 16px; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.ml-auto { margin-left: auto; }
-.mt-4 { margin-top: 4px; }
-.mt-8 { margin-top: 8px; }
-.mt-12 { margin-top: 12px; }
-.mt-16 { margin-top: 16px; }
-.mb-8 { margin-bottom: 8px; }
-.mb-12 { margin-bottom: 12px; }
-.mb-16 { margin-bottom: 16px; }
-.text-sm { font-size: 12px; }
-.text-muted { color: var(--text-muted); }
-.font-mono { font-family: 'DM Mono', monospace; }
-.bold { font-weight: 600; }
-.w-full { width: 100%; }
-
-/* ========== SHIFT TYPE CONFIG ========== */
-.shift-config-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.shift-config-box {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-.shift-config-box.shift-1 { border-left: 4px solid #2563eb; }
-.shift-config-box.shift-2 { border-left: 4px solid #7c3aed; }
-.shift-config-box h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-
-/* ========== EMPTY STATE ========== */
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--text-muted);
-}
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-.empty-state p { font-size: 13px; }
-
-/* ========== PRINT ========== */
-@media print {
-  @page { size: A4 landscape; margin: 1cm; }
-
-  body { background: white; font-size: 11px; }
-  .app-header, .tab-bar, .no-print, .btn, .tab-panel:not(.active) { display: none !important; }
-  .tab-panel.active { display: block !important; }
-
-  .main-content { padding: 0; max-width: 100%; }
-  .card { box-shadow: none; border: 1px solid #ccc; margin-bottom: 12px; break-inside: avoid; }
-
-  .print-header {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 16px;
-    border-bottom: 2px solid #1a3a5c;
-    padding-bottom: 8px;
-  }
-  .print-header h1 { font-size: 20px; font-weight: 700; color: #1a3a5c; }
-  .print-header .print-meta { font-size: 11px; color: #666; }
-
-  .calendar-table { font-size: 10px; }
-  .calendar-table th { background: #1a3a5c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .calendar-table td { padding: 4px 8px; }
-
-  .day-weekend td { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .day-holiday td { background: #eef2f8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  .chip, .shift-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  .print-footer {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 16px;
-    border-top: 1px solid #ccc;
-    padding-top: 8px;
-    font-size: 10px;
-  }
-
-  .print-legend { display: flex !important; gap: 16px; flex-wrap: wrap; }
-}
-
-.print-header { display: none; }
-.print-footer { display: none; }
-.print-legend { display: none; }
-
-/* ========== PROGRESS BAR ========== */
-.progress-bar {
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width .3s;
-}
-.progress-ok   { background: var(--green); }
-.progress-warn { background: var(--amber); }
-.progress-over { background: var(--red); }
-
-/* ========== TOOLTIP ========== */
-[title] { cursor: help; }
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-  .shift-config-grid { grid-template-columns: 1fr; }
-  .main-content { padding: 12px; }
-  .card-header, .card-body { padding: 12px; }
-  .tab-btn { padding: 12px 14px; font-size: 13px; }
+@media(max-width:768px){
+  .shift-grid{grid-template-columns:1fr}
+  .main{padding:12px}
+  .card-hdr,.card-body{padding:12px}
 }
 </style>
 </head>
 <body>
 
-<!-- ========== APP HEADER ========== -->
+<!-- HEADER -->
 <header class="app-header">
   <div>
     <h1>Dienstplan-Planer</h1>
-    <div class="subtitle">Pflegeassistenz-Vorplanung</div>
+    <div class="sub">Pflegeassistenz · Vorplanung</div>
   </div>
-  <div class="header-spacer"></div>
-  <div class="header-actions no-print">
-    <button class="btn btn-secondary btn-sm" onclick="exportJSON()">⬇ JSON exportieren</button>
-    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('jsonImportFile').click()">⬆ JSON importieren</button>
-    <input type="file" id="jsonImportFile" accept=".json" style="display:none" onchange="importJSON(event)">
+  <div class="hdr-sp"></div>
+  <div class="hdr-act no-print">
+    <button class="btn btn-secondary btn-sm" onclick="exportJSON()">⬇ JSON</button>
+    <button class="btn btn-secondary btn-sm" onclick="triggerImport()">⬆ Import</button>
+    <input type="file" id="file-import" accept=".json" style="display:none" onchange="importJSON(event)">
   </div>
 </header>
 
-<!-- ========== TAB BAR ========== -->
+<!-- TAB BAR -->
 <nav class="tab-bar no-print">
-  <button class="tab-btn active" onclick="switchTab('setup')" id="tab-setup">
-    <span>⚙</span> Einrichtung
-  </button>
+  <button class="tab-btn active" onclick="switchTab('setup')" id="tab-setup">⚙ Einrichtung</button>
   <button class="tab-btn" onclick="switchTab('plan')" id="tab-plan">
-    <span>📅</span> Planung &amp; Vorschau
+    📅 Planung &amp; Vorschau
     <span class="tab-badge" id="open-badge" style="display:none">!</span>
   </button>
-  <button class="tab-btn" onclick="switchTab('export')" id="tab-export">
-    <span>🖨</span> Export
-  </button>
+  <button class="tab-btn" onclick="switchTab('export')" id="tab-export">🖨 Export</button>
 </nav>
 
-<!-- ========== MAIN CONTENT ========== -->
-<div class="main-content">
+<div class="main">
 
-  <!-- ===== TAB 1: EINRICHTUNG ===== -->
-  <div class="tab-panel active" id="panel-setup">
+<!-- ======================================================
+     TAB 1 – EINRICHTUNG
+     ====================================================== -->
+<div class="tab-panel active" id="panel-setup">
 
-    <!-- MONTH / YEAR SELECTION -->
-    <div class="card">
-      <div class="card-header">
-        <span class="icon">📆</span>
-        <h2>Monatsauswahl</h2>
-      </div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group" style="min-width:140px">
-            <label>Jahr</label>
-            <select id="sel-year" onchange="onMonthChange()"></select>
-          </div>
-          <div class="form-group" style="min-width:160px">
-            <label>Monat</label>
-            <select id="sel-month" onchange="onMonthChange()">
-              <option value="0">Januar</option>
-              <option value="1">Februar</option>
-              <option value="2">März</option>
-              <option value="3">April</option>
-              <option value="4">Mai</option>
-              <option value="5">Juni</option>
-              <option value="6">Juli</option>
-              <option value="7">August</option>
-              <option value="8">September</option>
-              <option value="9">Oktober</option>
-              <option value="10">November</option>
-              <option value="11">Dezember</option>
-            </select>
-          </div>
-          <div class="form-group" style="flex:1; max-width:300px">
-            <label>Übergabe-Uhrzeit (für Druck)</label>
-            <input type="time" id="handover-time" value="08:00" oninput="saveState()">
-          </div>
-          <div style="align-self:flex-end; padding-bottom:1px">
-            <div class="chip chip-gray font-mono" id="days-info">30 Tage</div>
-          </div>
+  <!-- Month/Year -->
+  <div class="card">
+    <div class="card-hdr"><span class="icon">📆</span><h2>Monatsauswahl</h2></div>
+    <div class="card-body">
+      <div class="frow">
+        <div class="fg" style="min-width:130px"><label>Jahr</label><select id="sel-year" onchange="onMonthChange()"></select></div>
+        <div class="fg" style="min-width:150px"><label>Monat</label>
+          <select id="sel-month" onchange="onMonthChange()">
+            <option value="0">Januar</option><option value="1">Februar</option><option value="2">März</option>
+            <option value="3">April</option><option value="4">Mai</option><option value="5">Juni</option>
+            <option value="6">Juli</option><option value="7">August</option><option value="8">September</option>
+            <option value="9">Oktober</option><option value="10">November</option><option value="11">Dezember</option>
+          </select>
         </div>
+        <div class="fg" style="min-width:170px"><label>Übergabe-Uhrzeit</label><input type="time" id="handover-time" value="08:00" oninput="saveState()"></div>
+        <div style="align-self:flex-end"><span class="chip c-gray mono" id="days-info">30 Tage</span></div>
       </div>
-    </div>
-
-    <!-- SHIFT TYPES -->
-    <div class="card">
-      <div class="card-header">
-        <span class="icon">🕐</span>
-        <h2>Schichttypen definieren</h2>
-      </div>
-      <div class="card-body">
-        <div class="shift-config-grid">
-          <div class="shift-config-box shift-1">
-            <h4>Schichttyp 1</h4>
-            <div class="flex flex-col gap-8">
-              <div class="form-group">
-                <label>Bezeichnung</label>
-                <input type="text" id="shift1-name" value="Tagdienst" oninput="saveState()">
-              </div>
-              <div class="form-row">
-                <div class="form-group" style="flex:1">
-                  <label>Startzeit</label>
-                  <input type="time" id="shift1-start" value="08:00" oninput="saveState()">
-                </div>
-                <div class="form-group" style="flex:1">
-                  <label>Endzeit</label>
-                  <input type="time" id="shift1-end" value="20:00" oninput="saveState()">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="shift-config-box shift-2">
-            <h4>Schichttyp 2</h4>
-            <div class="flex flex-col gap-8">
-              <div class="form-group">
-                <label>Bezeichnung</label>
-                <input type="text" id="shift2-name" value="24h-Dienst" oninput="saveState()">
-              </div>
-              <div class="form-row">
-                <div class="form-group" style="flex:1">
-                  <label>Startzeit</label>
-                  <input type="time" id="shift2-start" value="20:00" oninput="saveState()">
-                </div>
-                <div class="form-group" style="flex:1">
-                  <label>Endzeit</label>
-                  <input type="time" id="shift2-end" value="20:00" oninput="saveState()">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EMPLOYEES -->
-    <div class="card">
-      <div class="card-header">
-        <span class="icon">👥</span>
-        <h2>Mitarbeiter</h2>
-        <div class="card-header-actions">
-          <span id="emp-count-label" class="text-muted text-sm"></span>
-          <button class="btn btn-primary btn-sm" onclick="addEmployee()" id="btn-add-emp">+ Mitarbeiter hinzufügen</button>
-        </div>
-      </div>
-      <div class="card-body">
-        <div id="validation-warning" style="display:none"></div>
-        <div class="employee-list" id="employee-list"></div>
-      </div>
-    </div>
-
-    <!-- NEXT STEP -->
-    <div class="flex gap-12 no-print" style="justify-content:flex-end; margin-top:8px">
-      <button class="btn btn-primary btn-large" onclick="switchTab('plan'); generatePlan()">
-        📅 Weiter zur Planung →
-      </button>
     </div>
   </div>
 
-  <!-- ===== TAB 2: PLANUNG ===== -->
-  <div class="tab-panel" id="panel-plan">
+  <!-- Shift types -->
+  <div class="card">
+    <div class="card-hdr"><span class="icon">🕐</span><h2>Schichttypen</h2></div>
+    <div class="card-body">
+      <div class="shift-grid">
+        <div class="shift-box s1">
+          <h4>Schichttyp 1</h4>
+          <div class="flex flex-col gap-8">
+            <div class="fg"><label>Bezeichnung</label><input type="text" id="s1-name" value="Tagdienst" oninput="saveState()"></div>
+            <div class="frow">
+              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s1-start" value="08:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s1-end" value="20:00" oninput="saveState()"></div>
+            </div>
+          </div>
+        </div>
+        <div class="shift-box s2">
+          <h4>Schichttyp 2</h4>
+          <div class="flex flex-col gap-8">
+            <div class="fg"><label>Bezeichnung</label><input type="text" id="s2-name" value="24h-Dienst" oninput="saveState()"></div>
+            <div class="frow">
+              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s2-start" value="20:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s2-end" value="20:00" oninput="saveState()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- PRINT HEADER (only visible when printing) -->
-    <div class="print-header" id="print-header">
+  <!-- Employees -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="icon">👥</span><h2>Mitarbeiter</h2>
+      <div class="card-hdr-act">
+        <span class="muted text-sm" id="emp-count-lbl"></span>
+        <button class="btn btn-primary btn-sm" onclick="addEmployee()" id="btn-add-emp">+ Mitarbeiter</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="val-warn" style="display:none"></div>
+      <div class="emp-list" id="emp-list"></div>
+    </div>
+  </div>
+
+  <div class="flex gap-10 no-print" style="justify-content:flex-end;margin-top:6px">
+    <button class="btn btn-primary btn-lg" onclick="switchTab('plan');generatePlan()">📅 Zur Planung →</button>
+  </div>
+</div>
+
+<!-- ======================================================
+     TAB 2 – PLANUNG
+     ====================================================== -->
+<div class="tab-panel" id="panel-plan">
+
+  <!-- Print header -->
+  <div class="print-hdr" id="print-hdr">
+    <div><h1 id="ph-title">Dienstplan</h1><div class="pm" id="ph-meta"></div></div>
+    <div class="pm" id="ph-right"></div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="card no-print">
+    <div class="card-body" style="padding:11px 18px">
+      <div class="flex gap-10 items-c flex-wrap">
+        <button class="btn btn-primary btn-lg" onclick="generatePlan()" id="btn-gen">⚡ Dienstplan generieren</button>
+        <button class="btn btn-secondary" onclick="undoPlan()" id="btn-undo" disabled>↩ Rückgängig</button>
+        <div class="muted text-sm" id="plan-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="plan-alerts"></div>
+
+  <!-- Calendar -->
+  <div class="card" id="cal-card">
+    <div class="card-hdr">
+      <span class="icon">📋</span><h2 id="cal-title">Monatsübersicht</h2>
+      <div class="card-hdr-act no-print">
+        <div class="flex gap-8 items-c text-xs muted flex-wrap">
+          <span>🟢 OK</span><span>🟡 Sperrtag</span><span>🟠 Überwoche</span><span>🔴 Offen/Regelverstoß</span><span>📋 Feiertag/WE</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="cal-wrap">
+        <div id="cal-content">
+          <div class="empty"><div class="ei">📅</div><h3>Noch kein Plan generiert</h3><p>Einrichtung ausfüllen, dann „Dienstplan generieren".</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule validation report -->
+  <div class="card" id="rule-card" style="display:none">
+    <div class="card-hdr"><span class="icon">✅</span><h2>Regelprüfung</h2></div>
+    <div class="card-body" id="rule-content"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" id="sum-card" style="display:none">
+    <div class="card-hdr"><span class="icon">📊</span><h2>Mitarbeiter-Zusammenfassung</h2></div>
+    <div class="card-body" style="padding:0"><div id="sum-content"></div></div>
+  </div>
+
+  <!-- Corrections -->
+  <div class="card no-print" id="corr-card" style="display:none">
+    <div class="card-hdr"><span class="icon">✏️</span><h2>Korrekturen &amp; Ausnahmen</h2></div>
+    <div class="card-body">
+      <div class="fg mb-8">
+        <label>Korrekturen (Freitext)</label>
+        <textarea id="corr-text" rows="4" style="resize:vertical;min-height:80px"
+          placeholder="z.B.: Maria darf nie samstags arbeiten.&#10;Klaus soll am 15. auf jeden Fall frei haben.&#10;Fatima soll ausnahmsweise am 10. und 11. Dienst machen.&#10;Thomas nur Schichttyp 1."></textarea>
+      </div>
+      <div class="flex gap-8 mb-12">
+        <button class="btn btn-primary" onclick="applyCorrections()">✔ Anwenden &amp; Plan neu generieren</button>
+        <button class="btn btn-secondary" onclick="el('corr-text').value=''">✕ Leeren</button>
+      </div>
+      <div id="active-corr"></div>
+    </div>
+  </div>
+
+  <!-- Print footer -->
+  <div class="print-ftr" id="print-ftr">
+    <div><strong>Legende:</strong> 🟢 OK &nbsp; 🟡 Sperrtag &nbsp; 🟠 &gt;2 Schichten/Woche &nbsp; 🔴 Offen / Regelverstoß &nbsp; 🔵 Urlaub</div>
+    <div id="print-sum-short"></div>
+  </div>
+</div>
+
+<!-- ======================================================
+     TAB 3 – EXPORT
+     ====================================================== -->
+<div class="tab-panel" id="panel-export">
+  <div class="card">
+    <div class="card-hdr"><span class="icon">🖨</span><h2>PDF-Export</h2></div>
+    <div class="card-body">
+      <div class="alert a-info mb-12"><span class="ai">ℹ</span>
+        <div>Druckdialog öffnen → <strong>„Als PDF speichern"</strong>, Format <strong>A4 Querformat</strong>. Kopf-/Fußzeilen des Browsers deaktivieren.</div>
+      </div>
+      <div class="frow mb-12">
+        <div class="fg" style="min-width:220px"><label>Titel-Zusatz</label><input type="text" id="print-extra" placeholder="z.B. Station 3A" oninput="saveState()"></div>
+        <div class="fg" style="min-width:200px"><label>Erstellt von</label><input type="text" id="print-author" placeholder="Name" oninput="saveState()"></div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="printPlan()">🖨 Druckdialog öffnen</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="icon">💾</span><h2>Datenverwaltung</h2></div>
+    <div class="card-body flex flex-col gap-12">
       <div>
-        <h1 id="print-title">Dienstplan</h1>
-        <div class="print-meta" id="print-meta"></div>
-      </div>
-      <div class="print-meta" id="print-meta-right"></div>
-    </div>
-
-    <!-- ACTION BAR -->
-    <div class="card no-print">
-      <div class="card-body" style="padding:12px 20px">
-        <div class="flex gap-12 items-center flex-wrap">
-          <button class="btn btn-primary btn-large" onclick="generatePlan()" id="btn-generate">
-            ⚡ Dienstplan generieren
-          </button>
-          <button class="btn btn-secondary" onclick="undoPlan()" id="btn-undo" disabled>
-            ↩ Rückgängig
-          </button>
-          <div id="plan-status" class="text-muted text-sm"></div>
+        <div class="sec-title">Export</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-secondary" onclick="exportJSON()">⬇ Einstellungen als JSON</button>
+          <button class="btn btn-secondary" onclick="exportPlanJSON()">⬇ Plan als JSON</button>
         </div>
       </div>
-    </div>
-
-    <!-- ALERTS -->
-    <div id="plan-alerts"></div>
-
-    <!-- CALENDAR -->
-    <div class="card" id="calendar-card">
-      <div class="card-header">
-        <span class="icon">📋</span>
-        <h2 id="calendar-title">Monatsübersicht</h2>
-        <div class="card-header-actions no-print">
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--green-bg);border:1px solid #6ee7b7"></div> OK</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--amber-bg);border:1px solid #fcd34d"></div> Sperrtag</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--orange-bg);border:1px solid #fed7aa"></div> Überwoche</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--red-bg);border:1px solid #fca5a5"></div> Offen</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--blue-bg);border:1px solid #93c5fd"></div> Urlaub</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#f5f5f5;border:1px solid #ccc"></div> Wochenende</div>
-          </div>
+      <div>
+        <div class="sec-title">Import</div>
+        <div class="flex gap-8 items-c flex-wrap">
+          <button class="btn btn-secondary" onclick="triggerImport()">⬆ JSON importieren</button>
+          <span class="muted text-sm">Mitarbeiterliste bleibt, Urlaube/Sperrtage werden geleert</span>
         </div>
       </div>
-      <div class="card-body" style="padding:0">
-        <div class="calendar-wrapper">
-          <div id="calendar-content">
-            <div class="empty-state">
-              <div class="empty-icon">📅</div>
-              <h3>Noch kein Plan generiert</h3>
-              <p>Füllen Sie die Einrichtung aus und klicken Sie „Dienstplan generieren".</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SUMMARY TABLE -->
-    <div class="card" id="summary-card" style="display:none">
-      <div class="card-header">
-        <span class="icon">📊</span>
-        <h2>Mitarbeiter-Zusammenfassung</h2>
-      </div>
-      <div class="card-body" style="padding:0">
-        <div id="summary-content"></div>
-      </div>
-    </div>
-
-    <!-- CORRECTIONS -->
-    <div class="card no-print" id="corrections-card" style="display:none">
-      <div class="card-header">
-        <span class="icon">✏️</span>
-        <h2>Korrekturen eingeben</h2>
-      </div>
-      <div class="card-body">
-        <div class="form-group mb-8">
-          <label>Korrekturen (freie Texteingabe)</label>
-          <textarea id="correction-text" rows="4"
-            placeholder="z.B.: Maria darf am Montag nicht arbeiten.&#10;Thomas möchte nur Schichttyp 1.&#10;Anna soll nicht an Wochenenden eingeplant werden."
-            style="resize:vertical; min-height:80px"></textarea>
-        </div>
-        <div class="flex gap-8 mb-12">
-          <button class="btn btn-primary" onclick="applyCorrections()">✔ Korrekturen anwenden &amp; Plan neu generieren</button>
-          <button class="btn btn-secondary" onclick="document.getElementById('correction-text').value=''">✕ Leeren</button>
-        </div>
-        <div id="active-corrections"></div>
-      </div>
-    </div>
-
-    <!-- PRINT FOOTER -->
-    <div class="print-footer" id="print-footer">
-      <div class="print-legend" id="print-legend">
-        <strong>Legende:</strong>
-        <span>🟢 OK &nbsp; 🟡 Sperrtag nicht eingehalten &nbsp; 🟠 Mehr als 2 Schichten/Woche &nbsp; 🔴 Offen &nbsp; 🔵 Urlaubstag</span>
-      </div>
-      <div id="print-summary-short"></div>
-    </div>
-  </div>
-
-  <!-- ===== TAB 3: EXPORT ===== -->
-  <div class="tab-panel" id="panel-export">
-    <div class="card">
-      <div class="card-header">
-        <span class="icon">🖨</span>
-        <h2>PDF-Export</h2>
-      </div>
-      <div class="card-body">
-        <div class="alert alert-info mb-12">
-          <span class="alert-icon">ℹ</span>
-          <div>
-            Der PDF-Export nutzt die Browser-Druckfunktion. Wählen Sie im Druckdialog <strong>„Als PDF speichern"</strong> und stellen Sie das Format auf <strong>A4 Querformat</strong> ein. Deaktivieren Sie ggf. Kopf- und Fußzeilen des Browsers.
-          </div>
-        </div>
-        <div class="flex gap-12 flex-wrap">
-          <button class="btn btn-primary btn-large" onclick="printPlan()">
-            🖨 Als PDF drucken / Druckdialog öffnen
-          </button>
-        </div>
-        <div class="mt-16">
-          <div class="section-title">Druckvorschau-Einstellungen</div>
-          <div class="form-grid" style="max-width:600px">
-            <div class="form-group">
-              <label>Titel-Zusatz</label>
-              <input type="text" id="print-extra-title" placeholder="z.B. Station 3A" oninput="saveState()">
-            </div>
-            <div class="form-group">
-              <label>Erstellt von</label>
-              <input type="text" id="print-author" placeholder="Name / Funktion" oninput="saveState()">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="icon">💾</span>
-        <h2>Datenverwaltung</h2>
-      </div>
-      <div class="card-body">
-        <div class="flex flex-col gap-12">
-          <div>
-            <div class="section-title">Export</div>
-            <div class="flex gap-8 flex-wrap">
-              <button class="btn btn-secondary" onclick="exportJSON()">⬇ Einstellungen als JSON exportieren</button>
-              <button class="btn btn-secondary" onclick="exportPlanJSON()">⬇ Aktuellen Plan als JSON exportieren</button>
-            </div>
-          </div>
-          <div>
-            <div class="section-title">Import</div>
-            <div class="flex gap-8 flex-wrap items-center">
-              <button class="btn btn-secondary" onclick="document.getElementById('jsonImportFile2').click()">
-                ⬆ JSON importieren (Einstellungen)
-              </button>
-              <input type="file" id="jsonImportFile2" accept=".json" style="display:none" onchange="importJSON(event)">
-              <span class="text-muted text-sm">Tipp: Beim Import als Vorlage werden Urlaube und Sperrtage geleert, die Mitarbeiterliste bleibt erhalten.</span>
-            </div>
-          </div>
-          <div>
-            <div class="section-title">Reset</div>
-            <div class="flex gap-8">
-              <button class="btn btn-danger" onclick="clearVacationsAndBlocks()">🗑 Urlaube &amp; Sperrtage leeren (Vorlage für nächsten Monat)</button>
-              <button class="btn btn-danger" onclick="resetAll()">⚠ Alle Daten zurücksetzen</button>
-            </div>
-          </div>
+      <div>
+        <div class="sec-title">Reset</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-danger" onclick="clearVacBlock()">🗑 Urlaube &amp; Sperrtage leeren</button>
+          <button class="btn btn-danger" onclick="resetAll()">⚠ Alle Daten zurücksetzen</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-</div><!-- /main-content -->
+</div><!-- /main -->
 
 <script>
 // ============================================================
-// CONSTANTS
+// SECTION 1 – CONSTANTS
 // ============================================================
 
-const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-const DAY_NAMES   = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-const DAY_NAMES_FULL = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DAYS_S  = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+const DAYS_L  = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
-// NRW Feiertage (fest kodiert 2024–2027)
-const NRW_HOLIDAYS = {
-  2024: {
+/** NRW Feiertage 2024–2027 fest einkodiert */
+const HOLIDAYS = {
+  2024:{
     '2024-01-01':'Neujahr','2024-03-29':'Karfreitag','2024-04-01':'Ostermontag',
     '2024-05-01':'Tag der Arbeit','2024-05-09':'Christi Himmelfahrt',
     '2024-05-20':'Pfingstmontag','2024-05-30':'Fronleichnam',
     '2024-10-03':'Tag der deutschen Einheit','2024-11-01':'Allerheiligen',
     '2024-12-25':'1. Weihnachtstag','2024-12-26':'2. Weihnachtstag'
   },
-  2025: {
+  2025:{
     '2025-01-01':'Neujahr','2025-04-18':'Karfreitag','2025-04-21':'Ostermontag',
     '2025-05-01':'Tag der Arbeit','2025-05-29':'Christi Himmelfahrt',
     '2025-06-09':'Pfingstmontag','2025-06-19':'Fronleichnam',
     '2025-10-03':'Tag der deutschen Einheit','2025-11-01':'Allerheiligen',
     '2025-12-25':'1. Weihnachtstag','2025-12-26':'2. Weihnachtstag'
   },
-  2026: {
+  2026:{
     '2026-01-01':'Neujahr','2026-04-03':'Karfreitag','2026-04-06':'Ostermontag',
     '2026-05-01':'Tag der Arbeit','2026-05-14':'Christi Himmelfahrt',
     '2026-05-25':'Pfingstmontag','2026-06-04':'Fronleichnam',
     '2026-10-03':'Tag der deutschen Einheit','2026-11-01':'Allerheiligen',
     '2026-12-25':'1. Weihnachtstag','2026-12-26':'2. Weihnachtstag'
   },
-  2027: {
+  2027:{
     '2027-01-01':'Neujahr','2027-03-26':'Karfreitag','2027-03-29':'Ostermontag',
     '2027-05-01':'Tag der Arbeit','2027-05-06':'Christi Himmelfahrt',
     '2027-05-17':'Pfingstmontag','2027-05-27':'Fronleichnam',
@@ -894,910 +476,682 @@ const NRW_HOLIDAYS = {
 };
 
 // ============================================================
-// STATE
+// SECTION 2 – STATE
 // ============================================================
 
 let state = {
-  year:  new Date().getFullYear(),
+  year: new Date().getFullYear(),
   month: new Date().getMonth(),
   handoverTime: '08:00',
-  shift1: { name: 'Tagdienst',   start: '08:00', end: '20:00' },
-  shift2: { name: '24h-Dienst',  start: '20:00', end: '20:00' },
-  employees: [],        // { id, name, target, vacations:[{from,to}], blockDays:[dateStr], prefShift:'' }
-  corrections: [],      // string[]
-  printExtraTitle: '',
-  printAuthor: '',
+  shift1: { name:'Tagdienst', start:'08:00', end:'20:00' },
+  shift2: { name:'24h-Dienst', start:'20:00', end:'20:00' },
+  employees: [],
+  corrections: [],
+  printExtra: '',
+  printAuthor: ''
 };
 
-let plan = null;        // generated plan
-let planHistory = null; // previous plan (undo)
-let empIdCounter = 1;
+let plan = null;
+let planHistory = null;
 
 // ============================================================
-// UTILITY
+// SECTION 3 – UTILITIES
 // ============================================================
 
-function dateStr(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
-function parseDateStr(s){ const[y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+const el = id => document.getElementById(id);
 
+function dStr(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function parseD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
 function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function dow(y,m,d){ return new Date(y,m,d).getDay(); }
+function isWE(y,m,d){ const w=dow(y,m,d); return w===0||w===6; }
+function isHol(y,m,d){ return !!(HOLIDAYS[y]&&HOLIDAYS[y][dStr(y,m,d)]); }
+function holName(y,m,d){ return (HOLIDAYS[y]&&HOLIDAYS[y][dStr(y,m,d)])||''; }
+function isWkday(y,m,d){ const w=dow(y,m,d); return w>=1&&w<=5; }
 
-function isWeekend(y,m,d){
-  const dow = new Date(y,m,d).getDay();
-  return dow===0||dow===6;
+function getMonday(ds){
+  const d=parseD(ds), dw=d.getDay(), diff=dw===0?-6:1-dw;
+  const mon=new Date(d.getTime()+diff*86400000);
+  return `${mon.getFullYear()}-${pad(mon.getMonth()+1)}-${pad(mon.getDate())}`;
+}
+function weekKey(ds){ return getMonday(ds); }
+
+function dateRange(a,b){
+  const res=[]; let cur=parseD(a); const end=parseD(b);
+  while(cur<=end){ res.push(dStr(cur.getFullYear(),cur.getMonth(),cur.getDate())); cur=new Date(cur.getTime()+86400000); }
+  return res;
+}
+function wkdaysInRange(a,b){
+  return dateRange(a,b).filter(s=>{ const d=parseD(s); return isWkday(d.getFullYear(),d.getMonth(),d.getDate()); }).length;
 }
 
-function isHoliday(y,m,d){
-  const s = dateStr(y,m,d);
-  return !!(NRW_HOLIDAYS[y] && NRW_HOLIDAYS[y][s]);
-}
-
-function holidayName(y,m,d){
-  const s = dateStr(y,m,d);
-  return (NRW_HOLIDAYS[y] && NRW_HOLIDAYS[y][s]) || '';
-}
-
-function isWeekday(y,m,d){
-  const dow = new Date(y,m,d).getDay();
-  return dow>=1 && dow<=5;
-}
-
-function getMondayOfWeek(dateS){
-  const d = parseDateStr(dateS);
-  const dow = d.getDay(); // 0=Sun
-  const diff = (dow===0) ? -6 : 1-dow;
-  const mon = new Date(d.getTime() + diff*86400000);
-  return `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`;
-}
-
-function getWeekKey(dateS){ return getMondayOfWeek(dateS); }
-
-function dateRange(fromS, toS){
-  const result = [];
-  let cur = parseDateStr(fromS);
-  const end = parseDateStr(toS);
-  while(cur <= end){
-    result.push(dateStr(cur.getFullYear(), cur.getMonth(), cur.getDate()));
-    cur = new Date(cur.getTime()+86400000);
-  }
-  return result;
-}
-
-function countWeekdaysInRange(fromS, toS){
-  return dateRange(fromS,toS).filter(s=>{
-    const d = parseDateStr(s);
-    return isWeekday(d.getFullYear(), d.getMonth(), d.getDate());
-  }).length;
-}
-
-// How many block days are allowed for an employee this month?
-function allowedBlockDays(emp){
-  let base = 4;
-  for(const vac of emp.vacations){
-    const wkdays = countWeekdaysInRange(vac.from, vac.to);
-    const vacWeeks = wkdays / 5;
-    base -= Math.floor(vacWeeks);
-  }
-  return Math.max(0, base);
-}
-
-// All vacation dates for employee (flat set of date strings)
-function vacationDates(emp){
-  const s = new Set();
-  for(const vac of emp.vacations){
-    for(const d of dateRange(vac.from, vac.to)) s.add(d);
-  }
+function vacSet(emp){
+  const s=new Set();
+  for(const v of emp.vacations) for(const d of dateRange(v.from,v.to)) s.add(d);
   return s;
 }
 
-function el(id){ return document.getElementById(id); }
+function allowedBlocks(emp){
+  let n=4;
+  for(const v of emp.vacations){ n-=Math.floor(wkdaysInRange(v.from,v.to)/5); }
+  return Math.max(0,n);
+}
 
-function generateId(){ return `emp-${Date.now()}-${Math.random().toString(36).slice(2,7)}`; }
+function fmtDateShort(s){
+  if(!s) return '';
+  const d=parseD(s);
+  return `${DAYS_S[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`;
+}
 
-// ============================================================
-// INITIALIZATION
-// ============================================================
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function init(){
-  // Populate year dropdown
-  const yearSel = el('sel-year');
-  const curYear = new Date().getFullYear();
-  for(let y=curYear-2; y<=curYear+2; y++){
-    const opt = document.createElement('option');
-    opt.value = y; opt.textContent = y;
-    if(y===curYear) opt.selected = true;
-    yearSel.appendChild(opt);
-  }
+function newEmpId(){ return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 
-  loadState();
-  renderSetup();
-  updateDaysInfo();
-  updateValidation();
+function mkEmp(name=''){
+  return { id:newEmpId(), name, target:8, vacations:[], blockDays:[],
+           prefShift:'', noSaturday:false, noSunday:false, noLicense:false,
+           preferredDays:'', extraConstraints:'' };
 }
 
 // ============================================================
-// STATE PERSISTENCE
+// SECTION 4 – STATE PERSISTENCE
 // ============================================================
 
 function saveState(){
-  // Read current form values into state
-  state.year  = parseInt(el('sel-year').value);
-  state.month = parseInt(el('sel-month').value);
-  state.handoverTime = el('handover-time').value;
-  state.shift1 = {
-    name:  el('shift1-name').value,
-    start: el('shift1-start').value,
-    end:   el('shift1-end').value,
-  };
-  state.shift2 = {
-    name:  el('shift2-name').value,
-    start: el('shift2-start').value,
-    end:   el('shift2-end').value,
-  };
-  state.printExtraTitle = el('print-extra-title') ? el('print-extra-title').value : '';
-  state.printAuthor = el('print-author') ? el('print-author').value : '';
-
-  // Read employees from DOM
-  readEmployeesFromDOM();
-  updateDaysInfo();
-  updateValidation();
-
-  try{ localStorage.setItem('dienstplan_state', JSON.stringify(state)); }catch(e){}
-  if(plan) try{ localStorage.setItem('dienstplan_plan', JSON.stringify(plan)); }catch(e){}
+  readFormIntoState();
+  try{ localStorage.setItem('dp_state', JSON.stringify(state)); }catch(e){}
+  if(plan) try{ localStorage.setItem('dp_plan', JSON.stringify(plan)); }catch(e){}
 }
 
 function loadState(){
   try{
-    const raw = localStorage.getItem('dienstplan_state');
-    if(raw){ Object.assign(state, JSON.parse(raw)); }
-    const planRaw = localStorage.getItem('dienstplan_plan');
-    if(planRaw){ plan = JSON.parse(planRaw); }
-  }catch(e){ console.warn('loadState error', e); }
-  if(!state.employees || !state.employees.length){
-    // Add 3 default employees
-    state.employees = [
-      createEmployee('Mitarbeiter 1'),
-      createEmployee('Mitarbeiter 2'),
-      createEmployee('Mitarbeiter 3'),
-    ];
+    const s=localStorage.getItem('dp_state'); if(s) Object.assign(state,JSON.parse(s));
+    const p=localStorage.getItem('dp_plan');  if(p) plan=JSON.parse(p);
+  }catch(e){ console.warn(e); }
+  if(!state.employees||!state.employees.length){
+    state.employees=[mkEmp('Mitarbeiter 1'),mkEmp('Mitarbeiter 2'),mkEmp('Mitarbeiter 3')];
   }
+  // Ensure new fields exist on loaded employees
+  state.employees.forEach(emp=>{
+    if(emp.noSaturday===undefined) emp.noSaturday=false;
+    if(emp.noSunday===undefined)   emp.noSunday=false;
+    if(emp.noLicense===undefined)  emp.noLicense=false;
+    if(!emp.preferredDays)    emp.preferredDays='';
+    if(!emp.extraConstraints) emp.extraConstraints='';
+  });
 }
 
-function createEmployee(name=''){
-  return {
-    id: generateId(),
-    name,
-    target: 8,
-    vacations: [],
-    blockDays: [],
-    prefShift: ''
-  };
-}
-
-// ============================================================
-// SETUP TAB
-// ============================================================
-
-function renderSetup(){
-  el('sel-year').value  = state.year;
-  el('sel-month').value = state.month;
-  el('handover-time').value = state.handoverTime || '08:00';
-  el('shift1-name').value  = state.shift1.name;
-  el('shift1-start').value = state.shift1.start;
-  el('shift1-end').value   = state.shift1.end;
-  el('shift2-name').value  = state.shift2.name;
-  el('shift2-start').value = state.shift2.start;
-  el('shift2-end').value   = state.shift2.end;
-  if(el('print-extra-title')) el('print-extra-title').value = state.printExtraTitle||'';
-  if(el('print-author')) el('print-author').value = state.printAuthor||'';
-
-  renderEmployeeList();
-}
-
-function renderEmployeeList(){
-  const container = el('employee-list');
-  container.innerHTML = '';
-  state.employees.forEach((emp, idx) => renderEmployeeCard(emp, idx, container));
-  el('emp-count-label').textContent = `${state.employees.length} Mitarbeiter`;
-  el('btn-add-emp').disabled = state.employees.length >= 10;
-}
-
-function renderEmployeeCard(emp, idx, container){
-  const y = state.year, m = state.month;
-  const monthStr = `${y}-${String(m+1).padStart(2,'0')}`;
-  const daysCount = daysInMonth(y,m);
-  const maxDay = daysCount;
-  const allowed = allowedBlockDays(emp);
-
-  const card = document.createElement('div');
-  card.className = 'employee-card';
-  card.id = `empcard-${emp.id}`;
-
-  // Build vacation entries HTML
-  let vacHtml = emp.vacations.map((vac, vi) => `
-    <div class="vacation-entry">
-      <span class="vac-label">Urlaub ${vi+1}</span>
-      <input type="date" class="vac-from" data-empid="${emp.id}" data-vi="${vi}"
-        value="${vac.from}" min="${monthStr}-01" max="${monthStr}-${String(maxDay).padStart(2,'0')}"
-        onchange="onVacChange(event)" style="width:145px">
-      <span style="color:var(--text-muted)">bis</span>
-      <input type="date" class="vac-to" data-empid="${emp.id}" data-vi="${vi}"
-        value="${vac.to}" min="${monthStr}-01" max="${monthStr}-${String(maxDay).padStart(2,'0')}"
-        onchange="onVacChange(event)" style="width:145px">
-      <button class="btn btn-sm btn-danger" onclick="removeVacation('${emp.id}', ${vi})">✕</button>
-    </div>
-  `).join('');
-
-  // Build block day chips
-  let blockHtml = emp.blockDays.map((bd, bi) => `
-    <div class="block-day-chip">
-      ${formatDateShort(bd)}
-      <button onclick="removeBlockDay('${emp.id}', ${bi})" title="Entfernen">×</button>
-    </div>
-  `).join('');
-
-  card.innerHTML = `
-    <div class="employee-card-header">
-      <div class="emp-num">${idx+1}</div>
-      <div class="flex flex-col" style="flex:1">
-        <input type="text" class="emp-name-input" data-empid="${emp.id}"
-          value="${escHtml(emp.name)}" placeholder="Name"
-          oninput="onEmpFieldChange(event)"
-          style="font-weight:600; border:none; background:transparent; font-size:14px; padding:2px 0; color:var(--navy); width:100%">
-      </div>
-      ${state.employees.length > 1 ? `<button class="btn btn-sm btn-danger ml-auto" onclick="removeEmployee('${emp.id}')">🗑 Entfernen</button>` : ''}
-    </div>
-    <div class="employee-card-body">
-      <div class="flex gap-16 flex-wrap">
-        <div class="form-group" style="min-width:180px">
-          <label>Soll-Schichten im Monat</label>
-          <input type="number" class="emp-target-input" data-empid="${emp.id}"
-            value="${emp.target}" min="0" max="${daysCount*2}" oninput="onEmpFieldChange(event)">
-        </div>
-        <div class="form-group" style="min-width:200px">
-          <label>Schichttyp-Präferenz (optional)</label>
-          <select class="emp-pref-input" data-empid="${emp.id}" onchange="onEmpFieldChange(event)">
-            <option value="">Keine Präferenz</option>
-            <option value="shift1" ${emp.prefShift==='shift1'?'selected':''}>
-              ${escHtml(state.shift1.name)}
-            </option>
-            <option value="shift2" ${emp.prefShift==='shift2'?'selected':''}>
-              ${escHtml(state.shift2.name)}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <div class="section-title">Urlaub (FIXE Sperren)</div>
-        <div class="vacation-list" id="vac-list-${emp.id}">
-          ${vacHtml}
-        </div>
-        <button class="btn btn-sm btn-secondary mt-8" onclick="addVacation('${emp.id}')">
-          + Urlaub hinzufügen
-        </button>
-      </div>
-
-      <div>
-        <div class="section-title">
-          Sperrtage (weich) – max. ${allowed} für diesen Monat
-          ${emp.blockDays.length > allowed ? `<span style="color:var(--red);font-size:11px;"> ⚠ Limit überschritten (${emp.blockDays.length}/${allowed})</span>` : `<span class="text-muted"> (${emp.blockDays.length}/${allowed} belegt)</span>`}
-        </div>
-        <div class="block-days-grid mb-8" id="block-grid-${emp.id}">${blockHtml}</div>
-        <div class="form-row">
-          <input type="date" id="block-picker-${emp.id}"
-            min="${monthStr}-01" max="${monthStr}-${String(maxDay).padStart(2,'0')}">
-          <button class="btn btn-sm btn-secondary" onclick="addBlockDay('${emp.id}')">+ Sperrtag hinzufügen</button>
-        </div>
-      </div>
-    </div>
-  `;
-  container.appendChild(card);
-}
-
-function formatDateShort(s){
-  if(!s) return '';
-  const d = parseDateStr(s);
-  return `${DAY_NAMES[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`;
-}
-
-function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function onMonthChange(){
+function readFormIntoState(){
   state.year  = parseInt(el('sel-year').value);
   state.month = parseInt(el('sel-month').value);
+  state.handoverTime = el('handover-time').value;
+  state.shift1 = { name:el('s1-name').value, start:el('s1-start').value, end:el('s1-end').value };
+  state.shift2 = { name:el('s2-name').value, start:el('s2-start').value, end:el('s2-end').value };
+  state.printExtra  = (el('print-extra')||{}).value||'';
+  state.printAuthor = (el('print-author')||{}).value||'';
+  // Employees read via event handlers
+}
+
+// ============================================================
+// SECTION 5 – SETUP UI
+// ============================================================
+
+function initUI(){
+  const ySel=el('sel-year'), cy=new Date().getFullYear();
+  for(let y=cy-2;y<=cy+2;y++){
+    const o=document.createElement('option');
+    o.value=y; o.textContent=y; if(y===cy) o.selected=true;
+    ySel.appendChild(o);
+  }
+  loadState();
+  applyStateToForm();
+  renderEmpList();
   updateDaysInfo();
-  renderEmployeeList();
+  updateValWarn();
+  if(plan) renderPlan();
+}
+
+function applyStateToForm(){
+  el('sel-year').value=state.year;
+  el('sel-month').value=state.month;
+  el('handover-time').value=state.handoverTime||'08:00';
+  el('s1-name').value=state.shift1.name;
+  el('s1-start').value=state.shift1.start;
+  el('s1-end').value=state.shift1.end;
+  el('s2-name').value=state.shift2.name;
+  el('s2-start').value=state.shift2.start;
+  el('s2-end').value=state.shift2.end;
+  if(el('print-extra'))  el('print-extra').value=state.printExtra||'';
+  if(el('print-author')) el('print-author').value=state.printAuthor||'';
+}
+
+function onMonthChange(){
+  state.year=parseInt(el('sel-year').value);
+  state.month=parseInt(el('sel-month').value);
+  updateDaysInfo();
+  renderEmpList();
   saveState();
 }
 
 function updateDaysInfo(){
-  const d = daysInMonth(state.year, state.month);
-  el('days-info').textContent = `${d} Tage`;
+  el('days-info').textContent=daysInMonth(state.year,state.month)+' Tage';
 }
 
-function onEmpFieldChange(e){
-  const empid = e.target.dataset.empid;
-  const emp = state.employees.find(x=>x.id===empid);
-  if(!emp) return;
-  if(e.target.classList.contains('emp-name-input'))   emp.name   = e.target.value;
-  if(e.target.classList.contains('emp-target-input')) emp.target = parseInt(e.target.value)||0;
-  if(e.target.classList.contains('emp-pref-input'))   emp.prefShift = e.target.value;
+function updateValWarn(){
+  const total=state.employees.reduce((s,e)=>s+e.target,0);
+  const need=daysInMonth(state.year,state.month)*2;
+  const w=el('val-warn');
+  if(total<need){
+    w.style.display='';
+    w.innerHTML=`<div class="alert a-warn mb-8"><span class="ai">⚠</span>
+      <div>Soll-Schichten gesamt: <strong>${total}</strong> — benötigt: <strong>${need}</strong> (${daysInMonth(state.year,state.month)} Tage × 2). Es fehlen mindestens <strong>${need-total} Schichten</strong>. Team möglicherweise zu klein.</div></div>`;
+  } else { w.style.display='none'; }
+}
+
+// ===== EMPLOYEE LIST =====
+
+function renderEmpList(){
+  const c=el('emp-list'); c.innerHTML='';
+  state.employees.forEach((emp,idx)=>c.appendChild(buildEmpCard(emp,idx)));
+  el('emp-count-lbl').textContent=state.employees.length+' Mitarbeiter';
+  el('btn-add-emp').disabled=state.employees.length>=10;
+}
+
+function buildEmpCard(emp, idx){
+  const y=state.year, m=state.month;
+  const ms=`${y}-${pad(m+1)}`;
+  const md=daysInMonth(y,m);
+  const abl=allowedBlocks(emp);
+
+  const wrap=document.createElement('div');
+  wrap.className='emp-card'; wrap.id=`ec-${emp.id}`;
+
+  // vacation HTML
+  let vacH=emp.vacations.map((v,vi)=>`
+    <div class="vac-entry">
+      <span class="vac-lbl">Urlaub ${vi+1}</span>
+      <input type="date" class="vac-from" data-id="${emp.id}" data-vi="${vi}"
+        value="${v.from}" min="${ms}-01" max="${ms}-${pad(md)}"
+        onchange="onVacChange(event)" style="width:140px">
+      <span class="muted">bis</span>
+      <input type="date" class="vac-to" data-id="${emp.id}" data-vi="${vi}"
+        value="${v.to}" min="${ms}-01" max="${ms}-${pad(md)}"
+        onchange="onVacChange(event)" style="width:140px">
+      <button class="btn btn-sm btn-danger" onclick="removeVac('${emp.id}',${vi})">✕</button>
+    </div>`).join('');
+
+  // block day chips
+  let blkH=emp.blockDays.map((bd,bi)=>`
+    <div class="block-chip">${fmtDateShort(bd)}<button onclick="removeBlk('${emp.id}',${bi})">×</button></div>`).join('');
+
+  const blkWarn=emp.blockDays.length>abl
+    ? `<span style="color:var(--red);font-size:11px"> ⚠ Limit überschritten (${emp.blockDays.length}/${abl})</span>`
+    : `<span class="muted text-xs"> (${emp.blockDays.length}/${abl})</span>`;
+
+  wrap.innerHTML=`
+  <div class="emp-card-hdr">
+    <div class="emp-num">${idx+1}</div>
+    <input type="text" class="en" data-id="${emp.id}" value="${esc(emp.name)}" placeholder="Name"
+      oninput="onEmpField(event)"
+      style="font-weight:600;border:none;background:transparent;font-size:14px;color:var(--navy);flex:1;padding:2px 0">
+    ${state.employees.length>1?`<button class="btn btn-sm btn-danger ml-auto" onclick="removeEmp('${emp.id}')">🗑 Entfernen</button>`:''}
+  </div>
+  <div class="emp-body">
+    <div class="fgrid">
+      <div class="fg"><label>Soll-Schichten</label>
+        <input type="number" class="et" data-id="${emp.id}" value="${emp.target}" min="0" max="${md*2}" oninput="onEmpField(event)">
+      </div>
+      <div class="fg"><label>Schichttyp-Präferenz</label>
+        <select class="ep" data-id="${emp.id}" onchange="onEmpField(event)">
+          <option value="">Keine Präferenz</option>
+          <option value="shift1" ${emp.prefShift==='shift1'?'selected':''}>${esc(state.shift1.name)}</option>
+          <option value="shift2" ${emp.prefShift==='shift2'?'selected':''}>${esc(state.shift2.name)}</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-title">Besonderheiten &amp; Einschränkungen</div>
+      <div class="flex flex-col gap-6">
+        <label class="cb-row"><input type="checkbox" class="e-nosat" data-id="${emp.id}" ${emp.noSaturday?'checked':''} onchange="onEmpField(event)"> Nie samstags</label>
+        <label class="cb-row"><input type="checkbox" class="e-nosun" data-id="${emp.id}" ${emp.noSunday?'checked':''} onchange="onEmpField(event)"> Nie sonntags</label>
+        <label class="cb-row"><input type="checkbox" class="e-nolic" data-id="${emp.id}" ${emp.noLicense?'checked':''} onchange="onEmpField(event)"> 🚗 Kein Führerschein <span class="muted text-xs">(Info im Plan sichtbar)</span></label>
+        <div class="fg"><label>Bevorzugte Tage / Zeiten</label>
+          <input type="text" class="e-prefdays" data-id="${emp.id}" value="${esc(emp.preferredDays)}" placeholder="z.B. bevorzugt Mittwoch auf Donnerstag" oninput="onEmpField(event)">
+        </div>
+        <div class="fg"><label>Weitere Einschränkungen</label>
+          <input type="text" class="e-extra" data-id="${emp.id}" value="${esc(emp.extraConstraints)}" placeholder="z.B. nie zwei Wochenenden hintereinander" oninput="onEmpField(event)">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-title">Urlaub (FIXE Sperren – kein Dienst, kein Backup an Urlaubstagen)</div>
+      <div class="vac-list" id="vl-${emp.id}">${vacH}</div>
+      <button class="btn btn-sm btn-secondary mt-8" onclick="addVac('${emp.id}')">+ Urlaub hinzufügen</button>
+    </div>
+
+    <div>
+      <div class="sec-title">Sperrtage (weich) – max. ${abl} ${blkWarn}</div>
+      <div class="block-grid mb-8" id="bg-${emp.id}">${blkH}</div>
+      <div class="frow">
+        <input type="date" id="bp-${emp.id}" min="${ms}-01" max="${ms}-${pad(md)}" style="width:160px">
+        <button class="btn btn-sm btn-secondary" onclick="addBlk('${emp.id}')">+ Sperrtag</button>
+      </div>
+    </div>
+  </div>`;
+  return wrap;
+}
+
+// ===== EMPLOYEE FIELD EVENTS =====
+
+function onEmpField(e){
+  const id=e.target.dataset.id;
+  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
+  if(e.target.classList.contains('en'))       emp.name=e.target.value;
+  if(e.target.classList.contains('et'))       emp.target=parseInt(e.target.value)||0;
+  if(e.target.classList.contains('ep'))       emp.prefShift=e.target.value;
+  if(e.target.classList.contains('e-nosat'))  emp.noSaturday=e.target.checked;
+  if(e.target.classList.contains('e-nosun'))  emp.noSunday=e.target.checked;
+  if(e.target.classList.contains('e-nolic'))  emp.noLicense=e.target.checked;
+  if(e.target.classList.contains('e-prefdays'))emp.preferredDays=e.target.value;
+  if(e.target.classList.contains('e-extra'))  emp.extraConstraints=e.target.value;
+  updateValWarn();
   saveState();
 }
 
 function onVacChange(e){
-  const empid = e.target.dataset.empid;
-  const vi    = parseInt(e.target.dataset.vi);
-  const emp   = state.employees.find(x=>x.id===empid);
-  if(!emp) return;
-  if(e.target.classList.contains('vac-from')) emp.vacations[vi].from = e.target.value;
-  if(e.target.classList.contains('vac-to'))   emp.vacations[vi].to   = e.target.value;
+  const id=e.target.dataset.id, vi=parseInt(e.target.dataset.vi);
+  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
+  if(e.target.classList.contains('vac-from')) emp.vacations[vi].from=e.target.value;
+  if(e.target.classList.contains('vac-to'))   emp.vacations[vi].to=e.target.value;
   saveState();
-  // Re-render just this employee to update allowed block days display
-  const cardEl = document.getElementById(`empcard-${empid}`);
-  if(cardEl){
-    const idx = state.employees.findIndex(x=>x.id===empid);
-    const newCard = document.createElement('div');
-    renderEmployeeCard(emp, idx, newCard);
-    cardEl.replaceWith(newCard.firstChild);
-  }
+  refreshEmpCard(emp);
+}
+
+function refreshEmpCard(emp){
+  const old=document.getElementById(`ec-${emp.id}`); if(!old) return;
+  const idx=state.employees.findIndex(x=>x.id===emp.id);
+  old.replaceWith(buildEmpCard(emp,idx));
 }
 
 function addEmployee(){
-  if(state.employees.length >= 10) return;
-  state.employees.push(createEmployee(`Mitarbeiter ${state.employees.length+1}`));
-  renderEmployeeList();
-  saveState();
+  if(state.employees.length>=10) return;
+  state.employees.push(mkEmp('Mitarbeiter '+(state.employees.length+1)));
+  renderEmpList(); saveState();
+}
+function removeEmp(id){
+  if(state.employees.length<=1){alert('Mindestens 1 Mitarbeiter.');return;}
+  state.employees=state.employees.filter(x=>x.id!==id);
+  renderEmpList(); saveState();
+}
+function addVac(id){
+  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
+  const d1=dStr(state.year,state.month,1);
+  emp.vacations.push({from:d1,to:d1});
+  refreshEmpCard(emp); saveState();
+}
+function removeVac(id,vi){
+  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
+  emp.vacations.splice(vi,1); refreshEmpCard(emp); saveState();
+}
+function addBlk(id){
+  const emp=state.employees.find(x=>x.id===id);
+  const pick=el('bp-'+id); if(!emp||!pick.value) return;
+  if(!emp.blockDays.includes(pick.value)){ emp.blockDays.push(pick.value); emp.blockDays.sort(); }
+  pick.value=''; refreshEmpCard(emp); saveState();
+}
+function removeBlk(id,bi){
+  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
+  emp.blockDays.splice(bi,1); refreshEmpCard(emp); saveState();
 }
 
-function removeEmployee(empid){
-  if(state.employees.length <= 1){ alert('Mindestens 1 Mitarbeiter erforderlich.'); return; }
-  state.employees = state.employees.filter(x=>x.id!==empid);
-  renderEmployeeList();
-  saveState();
-}
+// ============================================================
+// SECTION 6 – SCHEDULING ALGORITHM
+// ============================================================
 
-function addVacation(empid){
-  const emp = state.employees.find(x=>x.id===empid);
-  if(!emp) return;
-  const y = state.year, m = state.month;
-  const d1 = dateStr(y,m,1);
-  const d2 = dateStr(y,m,daysInMonth(y,m));
-  emp.vacations.push({ from: d1, to: d1 });
-  renderEmployeeList();
-  saveState();
-}
+/**
+ * Hard-rule check: can this employee take this role on dayIdx?
+ * asgn: { [dayIdx]: 'dienst'|'backup' }  (employee's own history so far)
+ * Returns { ok:true } or { ok:false, rule:'H2'|'H3'|'H4'|'H5', msg:string }
+ */
+function canAssign(asgn, dayIdx, role){
+  const p1 = dayIdx>0 ? asgn[dayIdx-1] : null;
+  const p2 = dayIdx>1 ? asgn[dayIdx-2] : null;
 
-function removeVacation(empid, vi){
-  const emp = state.employees.find(x=>x.id===empid);
-  if(!emp) return;
-  emp.vacations.splice(vi,1);
-  renderEmployeeList();
-  saveState();
-}
-
-function addBlockDay(empid){
-  const emp  = state.employees.find(x=>x.id===empid);
-  const pick = el(`block-picker-${empid}`);
-  if(!emp || !pick.value) return;
-  if(!emp.blockDays.includes(pick.value)){
-    emp.blockDays.push(pick.value);
-    emp.blockDays.sort();
+  if(role==='dienst'){
+    // H2: No consecutive Dienst
+    if(p1==='dienst') return {ok:false,rule:'H2',msg:'Zwei Dienste hintereinander'};
+    // H3: No 3 consecutive any
+    if(p1 && p2) return {ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
+    // H4: Dienst-Backup-Dienst pattern
+    if(p2==='dienst' && p1==='backup') return {ok:false,rule:'H4',msg:'Dienst-Backup-Dienst-Muster'};
   }
-  pick.value = '';
-  renderEmployeeList();
-  saveState();
-}
-
-function removeBlockDay(empid, bi){
-  const emp = state.employees.find(x=>x.id===empid);
-  if(!emp) return;
-  emp.blockDays.splice(bi,1);
-  renderEmployeeList();
-  saveState();
-}
-
-function readEmployeesFromDOM(){
-  // Name and target are read via oninput handlers; just ensure state is current
-  // (vacations and blockDays are maintained directly in state)
-}
-
-function updateValidation(){
-  const totalTarget = state.employees.reduce((s,e)=>s+e.target,0);
-  const needed = daysInMonth(state.year, state.month) * 2;
-  const warn = el('validation-warning');
-  if(totalTarget < needed){
-    warn.style.display = 'block';
-    warn.innerHTML = `<div class="alert alert-warning"><span class="alert-icon">⚠</span>
-      <div>Soll-Schichten gesamt: <strong>${totalTarget}</strong> – benötigt für vollständige Abdeckung: <strong>${needed}</strong> (${daysInMonth(state.year,state.month)} Tage × 2). Das Team könnte zu klein sein.</div></div>`;
-  } else {
-    warn.style.display = 'none';
+  if(role==='backup'){
+    // H3
+    if(p1 && p2) return {ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
+    // H5: already dienst today
+    if(asgn[dayIdx]==='dienst') return {ok:false,rule:'H5',msg:'Bereits als Dienst eingeplant'};
   }
+  return {ok:true};
 }
 
-// ============================================================
-// TAB SWITCHING
-// ============================================================
+/**
+ * Score an employee for assignment (lower = preferred)
+ */
+function score(empId, dayIdx, role, day, empData, corrRules){
+  const ed=empData[empId];
+  const emp=ed.emp;
+  let s=0;
 
-function switchTab(name){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  el(`panel-${name}`).classList.add('active');
-  el(`tab-${name}`).classList.add('active');
-  if(name==='plan' && plan) renderPlan();
+  // Prefer employees with most remaining capacity relative to target
+  const used=ed.dienstCnt+ed.backupCnt;
+  const rem=emp.target-used;
+  s -= rem*10;
+
+  // Balance: backup should roughly equal dienst count (W4)
+  if(role==='backup') s += (ed.backupCnt-ed.dienstCnt)*8;
+
+  // Soft block day (W2)
+  if(ed.blkSet.has(day.date)) s+=30;
+
+  // Week limit (W1)
+  const wc=ed.weekCounts[day.wk]||0;
+  if(wc>=2) s+=50;
+  if(wc>=3) s+=100;
+
+  // W3: for backup – penalise if last assignment as dienst was yesterday (risky for H4)
+  if(role==='backup' && dayIdx>0 && ed.asgn[dayIdx-1]==='dienst') s+=35;
+
+  // W5: individual constraints
+  if(emp.noSaturday && day.dow===6) s+=45;
+  if(emp.noSunday   && day.dow===0) s+=45;
+
+  // Correction-based soft penalties
+  for(const r of corrRules){
+    if(r.empId!==empId) continue;
+    if(r.type==='no_dow' && r.dow===day.dow) s+=50;
+    if(r.type==='no_weekend' && (day.dow===0||day.dow===6)) s+=50;
+    if(r.type==='force_shift_type' && role==='dienst') {/* handled elsewhere */}
+  }
+
+  // Small random tiebreaker
+  s += Math.random()*0.4;
+  return s;
 }
 
-// ============================================================
-// SCHEDULING ALGORITHM
-// ============================================================
-
+// Main generation function
 function generatePlan(){
   saveState();
   planHistory = plan ? JSON.parse(JSON.stringify(plan)) : null;
   el('btn-undo').disabled = !planHistory;
 
-  const y = state.year, m = state.month;
-  const numDays = daysInMonth(y,m);
+  const y=state.year, m=state.month, nd=daysInMonth(y,m);
 
-  // Build per-employee data
-  const employees = state.employees.map(emp => ({
-    ...emp,
-    vacSet:    vacationDates(emp),
-    blockSet:  new Set(emp.blockDays),
-    dienstCount: 0,
-    backupCount: 0,
-    weekShifts: {}, // weekKey -> count
-  }));
+  // Parse corrections
+  const corrRules = parseAllCorrections(state.corrections, state.employees);
+
+  // Build employee runtime data
+  const empData={};
+  state.employees.forEach(emp=>{
+    empData[emp.id]={
+      emp,
+      vacSt: vacSet(emp),
+      blkSet: new Set(emp.blockDays),
+      asgn: {},         // { [dayIdx]: 'dienst'|'backup' }
+      dienstCnt:0, backupCnt:0,
+      weekCounts:{}     // { weekKey: count }
+    };
+  });
 
   // Build days array
-  const days = [];
-  for(let d=1; d<=numDays; d++){
-    const ds = dateStr(y,m,d);
+  const days=[];
+  for(let d=1;d<=nd;d++){
+    const ds=dStr(y,m,d);
     days.push({
-      date: ds,
-      day:  d,
-      dow:  new Date(y,m,d).getDay(),
-      isWeekend: isWeekend(y,m,d),
-      isHoliday: isHoliday(y,m,d),
-      holidayName: holidayName(y,m,d),
-      weekKey: getWeekKey(ds),
-      dienst:  null,   // employee id
-      backup:  null,   // employee id
-      dienstShift: '', // 'shift1' or 'shift2'
-      flags: [],       // 'blockday_violated', 'over_week', 'open_dienst', 'open_backup'
+      date:ds, day:d, dayIdx:d-1,
+      dow:dow(y,m,d),
+      isWE:isWE(y,m,d), isHol:isHol(y,m,d),
+      holName:holName(y,m,d),
+      wk:weekKey(ds),
+      dienst:null, backup:null,
+      dienstShift:'shift1',
+      flags:[],         // soft violations
+      hardViol:[],      // hard rule violations (manual overrides only)
+      manualOverride:false
     });
   }
 
-  // Parse corrections into simple rules
-  const correctionRules = parseCorrections(state.corrections, employees, y, m);
+  // ── ASSIGNMENT LOOP ──
+  for(let di=0;di<days.length;di++){
+    const day=days[di];
 
-  // ---- ASSIGNMENT ALGORITHM ----
-  // Greedy: for each day, score all employees and pick best for Dienst then Backup
+    // Check for manual force-free corrections (force day off for employee)
+    const forceFree = corrRules.filter(r=>r.type==='force_free'&&r.date===day.date).map(r=>r.empId);
 
-  for(const day of days){
-    // Determine shift type: prefer employee's preference, else alternate
-    // We'll decide after assigning
-
-    // --- Assign Dienst ---
-    const dienstCandidates = employees
-      .filter(emp => !emp.vacSet.has(day.date))
-      .filter(emp => !isForbiddenByCorrections(correctionRules, emp.id, day.date, 'dienst'))
-      .sort((a,b) => scoreDienst(a,b,day,employees));
-
-    let dienstEmp = null;
-    for(const cand of dienstCandidates){
-      dienstEmp = cand;
-      break;
-    }
-
-    if(dienstEmp){
-      day.dienst = dienstEmp.id;
-      // Determine shift type
-      day.dienstShift = resolveShiftType(dienstEmp, correctionRules);
-      dienstEmp.dienstCount++;
-      dienstEmp.weekShifts[day.weekKey] = (dienstEmp.weekShifts[day.weekKey]||0)+1;
-      if(dienstEmp.blockSet.has(day.date)) day.flags.push('blockday_violated');
-      if((dienstEmp.weekShifts[day.weekKey]||0) > 2) day.flags.push('over_week_dienst');
+    // ── Assign DIENST ──
+    const manDienst=corrRules.find(r=>r.type==='force_dienst'&&r.date===day.date);
+    if(manDienst){
+      // Manual override – may violate hard rules
+      day.dienst=manDienst.empId;
+      day.manualOverride=true;
+      const ed=empData[manDienst.empId];
+      const chk=canAssign(ed.asgn,di,'dienst');
+      if(!chk.ok) day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
+      ed.asgn[di]='dienst'; ed.dienstCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
+      day.dienstShift=resolveShiftType(manDienst.empId,corrRules);
     } else {
-      day.flags.push('open_dienst');
+      // Auto-assign
+      const cands=state.employees
+        .filter(emp=>{
+          const ed=empData[emp.id];
+          if(ed.vacSt.has(day.date)) return false; // H1
+          if(forceFree.includes(emp.id)) return false;
+          const chk=canAssign(ed.asgn,di,'dienst');
+          if(!chk.ok) return false;
+          return true;
+        })
+        .sort((a,b)=>score(a.id,di,'dienst',day,empData,corrRules)-score(b.id,di,'dienst',day,empData,corrRules));
+
+      if(cands.length){
+        const ch=cands[0]; const ed=empData[ch.id];
+        day.dienst=ch.id;
+        day.dienstShift=resolveShiftType(ch.id,corrRules);
+        ed.asgn[di]='dienst'; ed.dienstCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
+        // Soft flags
+        if(ed.blkSet.has(day.date)) day.flags.push('blockday');
+        const wc=ed.weekCounts[day.wk];
+        if(wc>2) day.flags.push('over_week');
+        if(ch.noSaturday&&day.dow===6) day.flags.push('soft_viol');
+        if(ch.noSunday&&day.dow===0)   day.flags.push('soft_viol');
+      } else {
+        day.flags.push('open_dienst');
+      }
     }
 
-    // --- Assign Backup ---
-    const backupCandidates = employees
-      .filter(emp => !emp.vacSet.has(day.date))
-      .filter(emp => emp.id !== day.dienst)  // HARD: no double role
-      .filter(emp => !isForbiddenByCorrections(correctionRules, emp.id, day.date, 'backup'))
-      .sort((a,b) => scoreBackup(a,b,day,employees,days));
-
-    let backupEmp = null;
-    for(const cand of backupCandidates){
-      backupEmp = cand;
-      break;
-    }
-
-    if(backupEmp){
-      day.backup = backupEmp.id;
-      backupEmp.backupCount++;
-      backupEmp.weekShifts[day.weekKey] = (backupEmp.weekShifts[day.weekKey]||0)+1;
-      if(backupEmp.blockSet.has(day.date) && !day.flags.includes('blockday_violated'))
-        day.flags.push('blockday_violated');
-      if((backupEmp.weekShifts[day.weekKey]||0) > 2 && !day.flags.includes('over_week_dienst'))
-        day.flags.push('over_week_backup');
+    // ── Assign BACKUP ──
+    const manBackup=corrRules.find(r=>r.type==='force_backup'&&r.date===day.date);
+    if(manBackup && manBackup.empId!==day.dienst){
+      day.backup=manBackup.empId;
+      day.manualOverride=true;
+      const ed=empData[manBackup.empId];
+      const chk=canAssign(ed.asgn,di,'backup');
+      if(!chk.ok) day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
+      ed.asgn[di]='backup'; ed.backupCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
     } else {
-      day.flags.push('open_backup');
+      const cands=state.employees
+        .filter(emp=>{
+          const ed=empData[emp.id];
+          if(ed.vacSt.has(day.date)) return false; // H1
+          if(emp.id===day.dienst) return false;     // H5
+          if(forceFree.includes(emp.id)) return false;
+          const chk=canAssign(ed.asgn,di,'backup');
+          if(!chk.ok) return false;
+          return true;
+        })
+        .sort((a,b)=>score(a.id,di,'backup',day,empData,corrRules)-score(b.id,di,'backup',day,empData,corrRules));
+
+      if(cands.length){
+        const ch=cands[0]; const ed=empData[ch.id];
+        day.backup=ch.id;
+        ed.asgn[di]='backup'; ed.backupCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
+        if(ed.blkSet.has(day.date)&&!day.flags.includes('blockday')) day.flags.push('blockday');
+        const wc=ed.weekCounts[day.wk];
+        if(wc>2&&!day.flags.includes('over_week')) day.flags.push('over_week');
+      } else {
+        day.flags.push('open_backup');
+      }
     }
   }
 
-  plan = {
-    year: y,
-    month: m,
-    days,
-    employees: employees.map(e => ({
-      id: e.id,
-      dienstCount: e.dienstCount,
-      backupCount: e.backupCount,
-    })),
-    generatedAt: new Date().toISOString(),
+  // Build plan stats per employee
+  const empStats={};
+  state.employees.forEach(emp=>{
+    const ed=empData[emp.id];
+    empStats[emp.id]={ dienstCnt:ed.dienstCnt, backupCnt:ed.backupCnt };
+  });
+
+  plan={
+    year:y, month:m, days, empStats,
+    generatedAt:new Date().toISOString()
   };
 
-  try{ localStorage.setItem('dienstplan_plan', JSON.stringify(plan)); }catch(e){}
+  // Post-generation hard rule validation
+  plan.hardViolations = validateHardRules(days, empData);
 
-  if(el('tab-plan').classList.contains('active')){
-    renderPlan();
-  }
-  el('btn-undo').disabled = !planHistory;
+  try{ localStorage.setItem('dp_plan',JSON.stringify(plan)); }catch(e){}
+  renderPlan();
 }
 
-function resolveShiftType(emp, corrRules){
-  // Check if a correction forces shift type
-  const forced = corrRules.find(r => r.type==='force_shift' && r.empId===emp.id);
+function resolveShiftType(empId, corrRules){
+  const forced=corrRules.find(r=>r.type==='force_shift_type'&&r.empId===empId);
   if(forced) return forced.shiftType;
-  if(emp.prefShift) return emp.prefShift;
-  return 'shift1'; // default
+  const emp=state.employees.find(e=>e.id===empId);
+  if(emp&&emp.prefShift) return emp.prefShift;
+  return 'shift1';
 }
 
-// Scoring: lower = better (sort ascending)
-function scoreDienst(a, b, day, allEmps){
-  return scoreEmpDienst(a,day,allEmps) - scoreEmpDienst(b,day,allEmps);
-}
+/**
+ * Post-generation hard rule check across all days.
+ * Returns array of violation objects.
+ */
+function validateHardRules(days, empData){
+  const viols=[];
 
-function scoreEmpDienst(emp, day, allEmps){
-  let score = 0;
-  const weekCount = emp.weekShifts[day.weekKey]||0;
+  for(let di=0;di<days.length;di++){
+    const day=days[di];
+    const prev=di>0?days[di-1]:null;
+    const prev2=di>1?days[di-2]:null;
 
-  // Prefer employees further from their target (most "room left")
-  const remaining = emp.target - emp.dienstCount - emp.backupCount;
-  score -= remaining * 10;  // more remaining = lower score = preferred
-
-  // Penalty for being on blocked day
-  if(emp.blockSet.has(day.date)) score += 30;
-
-  // Penalty for over week
-  if(weekCount >= 2) score += 50;
-  if(weekCount >= 3) score += 100;
-
-  // Small randomization to break ties
-  score += Math.random() * 0.5;
-
-  return score;
-}
-
-function scoreBackup(a, b, day, allEmps, allDays){
-  return scoreEmpBackup(a,day,allEmps,allDays) - scoreEmpBackup(b,day,allEmps,allDays);
-}
-
-function scoreEmpBackup(emp, day, allEmps, allDays){
-  let score = 0;
-  const weekCount = emp.weekShifts[day.weekKey]||0;
-
-  // Prefer employees with similar backup vs dienst count (balance)
-  const diff = emp.backupCount - emp.dienstCount;
-  score += diff * 8; // too many backups already → higher score
-
-  // Prefer employees who have had their own dienst BEFORE this backup
-  // (backup should come after own dienst → day index of last dienst < current day index)
-  const lastDienstIdx = allDays.slice(0, allDays.indexOf(day))
-    .map((d,i)=>d.dienst===emp.id?i:-1).filter(i=>i>=0).pop();
-  if(lastDienstIdx === undefined) score += 5; // no prior dienst yet → slight penalty
-
-  // Total assignment vs target
-  const total = emp.dienstCount + emp.backupCount;
-  if(total >= emp.target + 1) score += 40;
-
-  // Blocked day penalty
-  if(emp.blockSet.has(day.date)) score += 25;
-
-  // Over week penalty
-  if(weekCount >= 2) score += 45;
-  if(weekCount >= 3) score += 90;
-
-  // Small randomization
-  score += Math.random() * 0.5;
-
-  return score;
-}
-
-// ============================================================
-// CORRECTIONS PARSING
-// ============================================================
-
-function parseCorrections(corrections, employees, y, m){
-  const rules = [];
-  for(const text of corrections){
-    const lower = text.toLowerCase();
-
-    // Try to match employee names
-    for(const emp of employees){
-      const name = emp.name.toLowerCase();
-      if(!lower.includes(name)) continue;
-
-      // Detect "kein Dienst am Wochenende"
-      if(lower.includes('wochenende') && (lower.includes('nicht') || lower.includes('kein'))){
-        rules.push({ type:'no_weekend', empId:emp.id, text });
+    // H1: Vacation check (belt-and-suspenders)
+    state.employees.forEach(emp=>{
+      const ed=empData[emp.id];
+      if(ed.vacSt.has(day.date)&&(day.dienst===emp.id||day.backup===emp.id)){
+        viols.push({rule:'H1',date:day.date,empId:emp.id,
+          msg:`${emp.name} ist am ${day.date} im Urlaub, wurde aber eingeplant`});
       }
-      // Detect "nur Schichttyp 1" or "nur Tagdienst"
-      if(lower.includes('schichttyp 1') || lower.includes(state.shift1.name.toLowerCase())){
-        rules.push({ type:'force_shift', empId:emp.id, shiftType:'shift1', text });
+    });
+
+    if(day.dienst){
+      const empName=state.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
+      // H2: consecutive dienst
+      if(prev&&prev.dienst===day.dienst&&!day.manualOverride&&!prev.manualOverride)
+        viols.push({rule:'H2',date:day.date,empId:day.dienst,
+          msg:`${empName}: Zwei Dienste hintereinander (${prev.date} + ${day.date})`});
+      // H3: 3 consecutive
+      if(prev&&prev2&&!day.manualOverride){
+        const wasPrev =(prev.dienst===day.dienst||prev.backup===day.dienst);
+        const wasPrev2=(prev2.dienst===day.dienst||prev2.backup===day.dienst);
+        if(wasPrev&&wasPrev2)
+          viols.push({rule:'H3',date:day.date,empId:day.dienst,
+            msg:`${empName}: Drei aufeinanderfolgende Tage (${prev2.date}–${day.date})`});
       }
-      if(lower.includes('schichttyp 2') || lower.includes(state.shift2.name.toLowerCase())){
-        rules.push({ type:'force_shift', empId:emp.id, shiftType:'shift2', text });
-      }
-      // Detect day-of-week exclusions
-      const dows = [{n:'montag',d:1},{n:'dienstag',d:2},{n:'mittwoch',d:3},
-                    {n:'donnerstag',d:4},{n:'freitag',d:5},{n:'samstag',d:6},{n:'sonntag',d:0}];
-      for(const {n,d} of dows){
-        if(lower.includes(n) && (lower.includes('nicht') || lower.includes('kein'))){
-          rules.push({ type:'no_dow', empId:emp.id, dow:d, text });
-        }
+      // H4: Dienst-Backup-Dienst
+      if(prev&&prev2&&!day.manualOverride){
+        if(prev2.dienst===day.dienst&&prev.backup===day.dienst)
+          viols.push({rule:'H4',date:day.date,empId:day.dienst,
+            msg:`${empName}: Dienst-Backup-Dienst-Muster (${prev2.date}/${prev.date}/${day.date})`});
       }
     }
+
+    // H5: Double role same day
+    if(day.dienst&&day.backup&&day.dienst===day.backup&&!day.manualOverride){
+      const n=state.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
+      viols.push({rule:'H5',date:day.date,empId:day.dienst,
+        msg:`${n}: Gleichzeitig Dienst und Backup am ${day.date}`});
+    }
+  }
+  return viols;
+}
+
+// ============================================================
+// SECTION 7 – CORRECTIONS PARSING
+// ============================================================
+
+function parseAllCorrections(corrTexts, employees){
+  const rules=[];
+  for(const text of corrTexts){
+    const lo=text.toLowerCase();
+    for(const emp of employees){
+      const nm=emp.name.toLowerCase();
+      if(!lo.includes(nm)) continue;
+
+      // Date detection: "am 15.", "am 10.06.", "am 3"
+      const dm=text.match(/am\s+(\d{1,2})\.?(\d{1,2})?\.?/i);
+      let tDate=null;
+      if(dm){
+        const day=parseInt(dm[1]);
+        if(day>=1&&day<=31){
+          tDate=dStr(state.year,state.month,day);
+        }
+      }
+
+      // Force free
+      if(tDate&&(lo.includes('frei')&&lo.includes(nm)||
+                 lo.includes('freistellen')||lo.includes('auf jeden fall frei')||
+                 (lo.includes('kein dienst')&&lo.includes(nm)))){
+        rules.push({type:'force_free',empId:emp.id,date:tDate,text});
+      }
+
+      // Force dienst/backup (manual overrides)
+      if(tDate&&lo.includes('ausnahmsweise')){
+        if(lo.includes('dienst')||lo.includes('schicht'))
+          rules.push({type:'force_dienst',empId:emp.id,date:tDate,text,manualOverride:true});
+        if(lo.includes('backup')||lo.includes('vertretung'))
+          rules.push({type:'force_backup',empId:emp.id,date:tDate,text,manualOverride:true});
+      }
+
+      // Weekday restrictions
+      const dows=[{n:'montag',d:1},{n:'dienstag',d:2},{n:'mittwoch',d:3},
+                  {n:'donnerstag',d:4},{n:'freitag',d:5},{n:'samstag',d:6},{n:'sonntag',d:0}];
+      for(const {n,d} of dows){
+        if(lo.includes(n)&&(lo.includes('nicht')||lo.includes('nie')||lo.includes('kein')))
+          rules.push({type:'no_dow',empId:emp.id,dow:d,text});
+      }
+
+      // Weekend
+      if(lo.includes('wochenende')&&(lo.includes('nicht')||lo.includes('nie')||lo.includes('kein')))
+        rules.push({type:'no_weekend',empId:emp.id,text});
+
+      // Shift type
+      if(lo.includes('nur')&&(lo.includes('schichttyp 1')||lo.includes(state.shift1.name.toLowerCase())))
+        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift1',text});
+      if(lo.includes('nur')&&(lo.includes('schichttyp 2')||lo.includes(state.shift2.name.toLowerCase())))
+        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift2',text});
+    }
+  }
+  // Also generate rules from employee profile fields
+  for(const emp of employees){
+    if(emp.noSaturday) rules.push({type:'no_dow',empId:emp.id,dow:6,text:'Profil: Nie samstags'});
+    if(emp.noSunday)   rules.push({type:'no_dow',empId:emp.id,dow:0,text:'Profil: Nie sonntags'});
   }
   return rules;
 }
 
-function isForbiddenByCorrections(rules, empId, dateS, role){
-  const d = parseDateStr(dateS);
-  const dow = d.getDay();
-  const isWE = dow===0||dow===6;
-
-  for(const r of rules){
-    if(r.empId !== empId) continue;
-    if(r.type==='no_weekend' && isWE) return true;
-    if(r.type==='no_dow' && r.dow===dow) return true;
-  }
-  return false;
-}
-
-// ============================================================
-// RENDER PLAN
-// ============================================================
-
-function renderPlan(){
-  if(!plan){ return; }
-
-  const y = plan.year, m = plan.month;
-  const title = `Dienstplan ${MONTH_NAMES[m]} ${y}`;
-  el('calendar-title').textContent = title;
-  el('print-title').textContent = title + (state.printExtraTitle ? ` – ${state.printExtraTitle}` : '');
-  el('print-meta').textContent = `Übergabe: ${state.handoverTime} Uhr`;
-  el('print-meta-right').textContent = `Erstellt: ${state.printAuthor||''} | ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
-
-  renderCalendarTable();
-  renderSummary();
-  renderAlerts();
-  renderCorrections();
-  updateBadge();
-
-  el('summary-card').style.display    = '';
-  el('corrections-card').style.display = '';
-}
-
-function getEmpName(empId){
-  const emp = state.employees.find(e=>e.id===empId);
-  return emp ? emp.name : '—';
-}
-
-function getShiftLabel(shiftKey){
-  if(shiftKey==='shift1') return `<span class="shift-tag" style="background:#dbeafe;color:#1e40af">${escHtml(state.shift1.name)}</span>`;
-  if(shiftKey==='shift2') return `<span class="shift-tag" style="background:#ede9fe;color:#5b21b6">${escHtml(state.shift2.name)}</span>`;
-  return '';
-}
-
-function renderCalendarTable(){
-  const y = plan.year, m = plan.month;
-  const empVacSets = {};
-  state.employees.forEach(emp => { empVacSets[emp.id] = vacationDates(emp); });
-
-  let html = `
-  <table class="calendar-table">
-    <thead>
-      <tr>
-        <th style="width:40px">Tag</th>
-        <th style="width:60px">Datum</th>
-        <th style="width:80px">Wochentag</th>
-        <th style="width:140px">Schichttyp</th>
-        <th style="width:180px">Dienst / Assistent/in</th>
-        <th style="width:180px">Backup / Vertretung</th>
-        <th>Hinweise</th>
-      </tr>
-    </thead>
-    <tbody>
-  `;
-
-  for(const day of plan.days){
-    const d = day.day;
-    const ds = day.date;
-    const emp = state.employees.find(e=>e.id===day.dienst);
-    const bkp = state.employees.find(e=>e.id===day.backup);
-
-    const isOpen = day.flags.includes('open_dienst') || day.flags.includes('open_backup');
-    const isBlockViol = day.flags.includes('blockday_violated');
-    const isOverWeek = day.flags.includes('over_week_dienst') || day.flags.includes('over_week_backup');
-
-    let rowClass = '';
-    if(isOpen) rowClass = 'row-open';
-    else if(isOverWeek) rowClass = 'row-overweek';
-    else if(isBlockViol) rowClass = 'row-blockday';
-
-    const bgExtra = day.isHoliday ? 'day-holiday' : (day.isWeekend ? 'day-weekend' : '');
-
-    // Dienst cell
-    let dienstCell = '';
-    if(day.flags.includes('open_dienst')){
-      dienstCell = `<span class="chip chip-red">⚠ OFFEN</span>`;
-    } else if(emp){
-      dienstCell = `<strong>${escHtml(emp.name)}</strong>`;
-    }
-
-    // Backup cell
-    let backupCell = '';
-    if(day.flags.includes('open_backup')){
-      backupCell = `<span class="chip chip-red">⚠ OFFEN</span>`;
-    } else if(bkp){
-      backupCell = `<strong>${escHtml(bkp.name)}</strong>`;
-    }
-
-    // Flags / hints
-    const hints = [];
-    if(isBlockViol) hints.push(`<span class="chip chip-amber">Sperrtag</span>`);
-    if(isOverWeek)  hints.push(`<span class="chip chip-orange">&gt;2/Woche</span>`);
-    if(day.holidayName) hints.push(`<span class="chip chip-blue">${escHtml(day.holidayName)}</span>`);
-
-    html += `
-      <tr class="${rowClass} ${bgExtra}">
-        <td class="font-mono">${d}</td>
-        <td class="font-mono">${String(d).padStart(2,'0')}.${String(m+1).padStart(2,'0')}.</td>
-        <td>${DAY_NAMES_FULL[day.dow]}${day.isWeekend?'&nbsp;<span style="color:#94a3b8;font-size:11px">WE</span>':''}</td>
-        <td>${getShiftLabel(day.dienstShift)}</td>
-        <td>${dienstCell}</td>
-        <td>${backupCell}</td>
-        <td>${hints.join(' ')}</td>
-      </tr>
-    `;
-  }
-
-  html += `</tbody></table>`;
-  el('calendar-content').innerHTML = html;
-}
-
-function renderSummary(){
-  const empStats = {};
-  plan.employees.forEach(e => {
-    empStats[e.id] = { dienstCount: e.dienstCount, backupCount: e.backupCount };
-  });
-
-  let html = `<table class="summary-table"><thead><tr>
-    <th>Mitarbeiter</th>
-    <th>Dienste (Ist/Soll)</th>
-    <th>Backups</th>
-    <th>Urlaubstage</th>
-    <th>Sperrtage eingehalten</th>
-    <th>Fortschritt</th>
-  </tr></thead><tbody>`;
-
-  for(const emp of state.employees){
-    const stat = empStats[emp.id] || { dienstCount:0, backupCount:0 };
-    const vacDays = [...vacationDates(emp)].filter(d => d.startsWith(`${plan.year}-${String(plan.month+1).padStart(2,'0')}`)).length;
-
-    // Count block day violations for this employee
-    const blockViolCount = plan.days.filter(day =>
-      (day.dienst===emp.id || day.backup===emp.id) &&
-      emp.blockDays.includes(day.date)
-    ).length;
-    const totalBlock = emp.blockDays.filter(d => d.startsWith(`${plan.year}-${String(plan.month+1).padStart(2,'0')}`)).length;
-    const blockOk = totalBlock - blockViolCount;
-
-    const total = stat.dienstCount + stat.backupCount;
-    const pct = emp.target > 0 ? Math.min(100, Math.round(total/emp.target*100)) : 0;
-    const barClass = pct >= 100 ? 'progress-ok' : (pct >= 70 ? 'progress-warn' : 'progress-over');
-
-    const dienstChipClass = stat.dienstCount === emp.target ? 'chip-green' : (stat.dienstCount > emp.target ? 'chip-orange' : 'chip-amber');
-
-    html += `<tr>
-      <td><strong>${escHtml(emp.name)}</strong></td>
-      <td><span class="chip ${dienstChipClass}">${stat.dienstCount} / ${emp.target}</span></td>
-      <td>${stat.backupCount}</td>
-      <td>${vacDays > 0 ? `<span class="chip chip-blue">${vacDays} Tage</span>` : '—'}</td>
-      <td>${totalBlock > 0 ? `${blockOk}/${totalBlock} <span class="text-muted text-sm">${blockViolCount>0?'⚠ '+blockViolCount+' verletzt':''}</span>` : '<span class="text-muted">—</span>'}</td>
-      <td style="min-width:120px">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${total}/${emp.target} (${pct}%)</div>
-        <div class="progress-bar"><div class="progress-fill ${barClass}" style="width:${pct}%"></div></div>
-      </td>
-    </tr>`;
-  }
-  html += `</tbody></table>`;
-  el('summary-content').innerHTML = html;
-
-  // Print summary short
-  const openD = plan.days.filter(d=>d.flags.includes('open_dienst')).length;
-  const openB = plan.days.filter(d=>d.flags.includes('open_backup')).length;
-  el('print-summary-short').innerHTML = openD+openB > 0
-    ? `<strong style="color:red">⚠ ${openD} offene Dienste, ${openB} offene Backups</strong>`
-    : '<strong style="color:green">✔ Vollständige Abdeckung</strong>';
-}
-
-function renderAlerts(){
-  const openD = plan.days.filter(d=>d.flags.includes('open_dienst')).length;
-  const openB = plan.days.filter(d=>d.flags.includes('open_backup')).length;
-  const blockViols = plan.days.filter(d=>d.flags.includes('blockday_violated')).length;
-  const overWeek  = plan.days.filter(d=>d.flags.includes('over_week_dienst')||d.flags.includes('over_week_backup')).length;
-
-  let html = '';
-  if(openD > 0 || openB > 0){
-    html += `<div class="alert alert-error"><span class="alert-icon">🔴</span>
-      <div><strong>${openD} Dienste und ${openB} Backups konnten nicht besetzt werden.</strong> Prüfen Sie die Soll-Schichten oder fügen Sie Mitarbeiter hinzu.</div></div>`;
-  }
-  if(blockViols > 0){
-    html += `<div class="alert alert-warning"><span class="alert-icon">🟡</span>
-      <div>${blockViols} Sperrtag(e) wurden nicht eingehalten, da sonst kein Dienst besetzt werden konnte.</div></div>`;
-  }
-  if(overWeek > 0){
-    html += `<div class="alert alert-warning"><span class="alert-icon">🟠</span>
-      <div>${overWeek} Tage mit mehr als 2 Schichten pro Woche für einen Mitarbeiter.</div></div>`;
-  }
-  if(!html){
-    html = `<div class="alert alert-success"><span class="alert-icon">✅</span>
-      <div>Plan vollständig generiert – alle Dienste und Backups besetzt, keine Regelverletzungen.</div></div>`;
-  }
-  el('plan-alerts').innerHTML = html;
-  el('plan-status').textContent = `Generiert: ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
-}
-
-function renderCorrections(){
-  const list = el('active-corrections');
-  if(!state.corrections.length){
-    list.innerHTML = '<div class="text-muted text-sm">Keine aktiven Korrekturen.</div>';
-    return;
-  }
-  list.innerHTML = '<div class="section-title mb-8">Aktive Korrekturen:</div>' +
-    state.corrections.map((c,i) => `
-      <div class="correction-item">
-        <span>${escHtml(c)}</span>
-        <button class="btn btn-sm btn-danger" onclick="removeCorrection(${i})">✕ Entfernen</button>
-      </div>
-    `).join('');
-}
-
-function updateBadge(){
-  const openCount = plan ? plan.days.filter(d=>
-    d.flags.includes('open_dienst')||d.flags.includes('open_backup')
-  ).length : 0;
-  const badge = el('open-badge');
-  badge.style.display = openCount > 0 ? '' : 'none';
-  badge.textContent = openCount;
-}
-
-// ============================================================
-// CORRECTIONS
-// ============================================================
-
 function applyCorrections(){
-  const text = el('correction-text').value.trim();
-  if(text){
-    state.corrections.push(text);
-    el('correction-text').value = '';
-  }
+  const txt=el('corr-text').value.trim();
+  if(txt){ state.corrections.push(txt); el('corr-text').value=''; }
   saveState();
   generatePlan();
 }
@@ -1809,111 +1163,335 @@ function removeCorrection(idx){
 }
 
 // ============================================================
-// UNDO
+// SECTION 8 – PLAN RENDERING
+// ============================================================
+
+function renderPlan(){
+  if(!plan) return;
+  const y=plan.year, m=plan.month;
+  const title=`Dienstplan ${MONTHS[m]} ${y}${state.printExtra?' – '+state.printExtra:''}`;
+  el('cal-title').textContent=`Monatsübersicht – ${MONTHS[m]} ${y}`;
+  el('ph-title').textContent=title;
+  el('ph-meta').textContent=`Übergabe: ${state.handoverTime} Uhr`;
+  el('ph-right').textContent=`Erstellt${state.printAuthor?' von '+state.printAuthor:''}: ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
+
+  renderCalendar();
+  renderRuleReport();
+  renderSummary();
+  renderCorrList();
+  updateBadge();
+
+  el('sum-card').style.display='';
+  el('rule-card').style.display='';
+  el('corr-card').style.display='';
+}
+
+function empName(id){
+  return state.employees.find(e=>e.id===id)?.name||'—';
+}
+
+function shiftTag(sk){
+  if(sk==='shift1') return `<span class="shift-tag st1">${esc(state.shift1.name)}<br><span style="font-size:10px;font-weight:400">${state.shift1.start}–${state.shift1.end}</span></span>`;
+  if(sk==='shift2') return `<span class="shift-tag st2">${esc(state.shift2.name)}<br><span style="font-size:10px;font-weight:400">${state.shift2.start}–${state.shift2.end}</span></span>`;
+  return '';
+}
+
+function renderCalendar(){
+  const y=plan.year, m=plan.month;
+
+  // Pre-build vacation and block day lookup per date
+  const vacByDate={}, blkByDate={};
+  state.employees.forEach(emp=>{
+    const vs=vacSet(emp);
+    vs.forEach(d=>{
+      if(!vacByDate[d]) vacByDate[d]=[];
+      vacByDate[d].push(emp);
+    });
+    emp.blockDays.forEach(d=>{
+      if(!blkByDate[d]) blkByDate[d]=[];
+      blkByDate[d].push(emp);
+    });
+  });
+
+  let html=`<table class="cal-table"><thead><tr>
+    <th style="width:32px">#</th>
+    <th style="width:72px">Datum</th>
+    <th style="width:85px">Wochentag</th>
+    <th style="width:130px">Schichttyp</th>
+    <th style="width:150px">Assistent/in</th>
+    <th style="width:150px">Vertretung</th>
+    <th>Urlaube</th>
+    <th>Sperrtage</th>
+    <th>Hinweise</th>
+  </tr></thead><tbody>`;
+
+  for(const day of plan.days){
+    const d=day.day;
+    const isOpen=day.flags.includes('open_dienst')||day.flags.includes('open_backup');
+    const isOver=day.flags.includes('over_week');
+    const isBlk =day.flags.includes('blockday');
+    const hasHardViol=day.hardViol&&day.hardViol.length>0;
+
+    let rowCls='r-ok';
+    if(isOpen||hasHardViol) rowCls='r-open';
+    else if(isOver)         rowCls='r-over';
+    else if(isBlk)          rowCls='r-block';
+
+    const weCls=day.isHol?'r-holiday':(day.isWE?'r-weekend':'');
+
+    // Dienst cell
+    let dienstCell='';
+    if(day.flags.includes('open_dienst')){
+      dienstCell=`<span class="chip c-red">⚠ OFFEN</span>`;
+    } else if(day.dienst){
+      const emp=state.employees.find(e=>e.id===day.dienst);
+      const lic=emp?.noLicense?` <span class="no-lic" title="Kein Führerschein">🚗</span>`:'';
+      dienstCell=`<strong>${esc(empName(day.dienst))}</strong>${lic}`;
+    }
+
+    // Backup cell
+    let backupCell='';
+    if(day.flags.includes('open_backup')){
+      backupCell=`<span class="chip c-red">⚠ OFFEN</span>`;
+    } else if(day.backup){
+      const emp=state.employees.find(e=>e.id===day.backup);
+      const lic=emp?.noLicense?` <span class="no-lic" title="Kein Führerschein">🚗</span>`:'';
+      backupCell=`<strong>${esc(empName(day.backup))}</strong>${lic}`;
+    }
+
+    // Vacation column
+    const vacEmps=vacByDate[day.date]||[];
+    const vacCell=vacEmps.length
+      ? vacEmps.map(e=>`<span class="chip c-blue" style="margin:1px">${esc(e.name)}</span>`).join(' ')
+      : '<span class="muted text-xs">—</span>';
+
+    // Block day column (show who, with check or warning)
+    const blkEmps=blkByDate[day.date]||[];
+    const blkCell=blkEmps.length
+      ? blkEmps.map(e=>{
+          const violated=day.dienst===e.id||day.backup===e.id;
+          return violated
+            ? `<span class="chip c-amber" title="Sperrtag nicht eingehalten">⚠ ${esc(e.name)}</span>`
+            : `<span class="chip c-gray" title="Sperrtag eingehalten">✓ ${esc(e.name)}</span>`;
+        }).join(' ')
+      : '<span class="muted text-xs">—</span>';
+
+    // Hints column
+    const hints=[];
+    if(day.holName) hints.push(`<span class="chip c-blue">${esc(day.holName)}</span>`);
+    if(isBlk)       hints.push(`<span class="chip c-amber">Sperrtag verletzt</span>`);
+    if(isOver)      hints.push(`<span class="chip c-orange">&gt;2/Woche</span>`);
+    if(day.manualOverride) hints.push(`<span class="chip c-red">Manuelle Ausnahme</span>`);
+    if(hasHardViol) day.hardViol.forEach(v=>hints.push(`<span class="chip c-red" title="${esc(v)}">${esc(v.split(':')[0])}</span>`));
+
+    html+=`<tr class="${rowCls} ${weCls}">
+      <td class="mono">${d}</td>
+      <td class="mono">${pad(d)}.${pad(m+1)}.</td>
+      <td>${DAYS_L[day.dow]}${day.isWE?'&thinsp;<span class="muted text-xs">WE</span>':''}</td>
+      <td>${day.dienst||day.flags.includes('open_dienst')?shiftTag(day.dienstShift):''}</td>
+      <td>${dienstCell}</td>
+      <td>${backupCell}</td>
+      <td class="vac-cell">${vacCell}</td>
+      <td class="vac-cell">${blkCell}</td>
+      <td class="vac-cell">${hints.join(' ')}</td>
+    </tr>`;
+  }
+  html+=`</tbody></table>`;
+  el('cal-content').innerHTML=html;
+}
+
+function renderRuleReport(){
+  const viols=plan.hardViolations||[];
+  const rc=el('rule-content');
+  if(!viols.length){
+    rc.innerHTML=`<div class="alert a-ok"><span class="ai">✅</span><strong>Alle harten Regeln eingehalten.</strong> H1–H5 wurden vollständig erfüllt.</div>`;
+  } else {
+    let html=`<div class="alert a-err mb-8"><span class="ai">🔴</span>
+      <div><strong>${viols.length} Verstöße gegen harte Regeln gefunden:</strong><br>
+      ${viols.map(v=>`<div style="margin-top:4px">• <span class="chip c-red">${v.rule}</span> ${esc(v.msg)}</div>`).join('')}
+      </div></div>`;
+    rc.innerHTML=html;
+  }
+  // Alerts section
+  const openD=plan.days.filter(d=>d.flags.includes('open_dienst')).length;
+  const openB=plan.days.filter(d=>d.flags.includes('open_backup')).length;
+  const blkV=plan.days.filter(d=>d.flags.includes('blockday')).length;
+  const owV=plan.days.filter(d=>d.flags.includes('over_week')).length;
+  let alertH='';
+  if(openD||openB) alertH+=`<div class="alert a-err"><span class="ai">🔴</span><div><strong>${openD} offene Dienste, ${openB} offene Backups.</strong> Team ggf. vergrößern oder Soll-Schichten anpassen.</div></div>`;
+  if(blkV) alertH+=`<div class="alert a-warn"><span class="ai">🟡</span><div>${blkV} Sperrtag(e) konnten nicht eingehalten werden.</div></div>`;
+  if(owV)  alertH+=`<div class="alert a-warn"><span class="ai">🟠</span><div>${owV} Tag(e) mit mehr als 2 Schichten/Woche für einen MA.</div></div>`;
+  if(!alertH) alertH=`<div class="alert a-ok"><span class="ai">✅</span><div>Plan vollständig – alle Dienste und Backups besetzt.</div></div>`;
+  el('plan-alerts').innerHTML=alertH;
+  el('plan-status').textContent=`Generiert: ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
+
+  // Print short summary
+  const pss=el('print-sum-short');
+  pss.innerHTML=(openD+openB)>0
+    ?`<strong style="color:red">⚠ ${openD} off. Dienste, ${openB} off. Backups</strong>`
+    :`<strong style="color:green">✔ Vollständige Abdeckung</strong>`;
+}
+
+function renderSummary(){
+  let html=`<table class="sum-table"><thead><tr>
+    <th>Name</th><th>Dienste Soll</th><th>Dienste Ist</th><th>Backups</th>
+    <th>Urlaubstage</th><th>Sperrtage</th><th>Besonderheiten</th><th>Fortschritt</th>
+  </tr></thead><tbody>`;
+
+  const mp=`${plan.year}-${pad(plan.month+1)}`;
+
+  for(const emp of state.employees){
+    const st=plan.empStats[emp.id]||{dienstCnt:0,backupCnt:0};
+    const vs=vacSet(emp);
+    const vacDays=[...vs].filter(d=>d.startsWith(mp)).length;
+
+    // Block stats
+    const blkThisMonth=emp.blockDays.filter(d=>d.startsWith(mp));
+    const blkViol=blkThisMonth.filter(d=>
+      plan.days.some(day=>day.date===d&&(day.dienst===emp.id||day.backup===emp.id))
+    ).length;
+    const blkOk=blkThisMonth.length-blkViol;
+
+    const total=st.dienstCnt+st.backupCnt;
+    const pct=emp.target>0?Math.min(100,Math.round(total/emp.target*100)):0;
+    const bc=pct>=100?'pf-ok':(pct>=70?'pf-warn':'pf-bad');
+    const dc=st.dienstCnt===emp.target?'c-green':(st.dienstCnt>emp.target?'c-orange':'c-amber');
+
+    // Besonderheiten
+    const bes=[];
+    if(emp.noSaturday) bes.push('Nie Sa');
+    if(emp.noSunday)   bes.push('Nie So');
+    if(emp.noLicense)  bes.push('🚗 Kein FS');
+    if(emp.preferredDays) bes.push(emp.preferredDays.slice(0,30));
+    if(emp.extraConstraints) bes.push(emp.extraConstraints.slice(0,30));
+
+    html+=`<tr>
+      <td><strong>${esc(emp.name)}</strong></td>
+      <td>${emp.target}</td>
+      <td><span class="chip ${dc}">${st.dienstCnt}</span></td>
+      <td>${st.backupCnt}</td>
+      <td>${vacDays>0?`<span class="chip c-blue">${vacDays}</span>`:'—'}</td>
+      <td>${blkThisMonth.length?`${blkOk}✓ ${blkViol?`<span class="chip c-amber">${blkViol}⚠</span>`:''}/${blkThisMonth.length}`:'—'}</td>
+      <td class="text-sm muted">${bes.join(', ')||'—'}</td>
+      <td style="min-width:100px">
+        <div class="text-xs muted">${total}/${emp.target} (${pct}%)</div>
+        <div class="prog"><div class="prog-fill ${bc}" style="width:${pct}%"></div></div>
+      </td>
+    </tr>`;
+  }
+  html+=`</tbody></table>`;
+  el('sum-content').innerHTML=html;
+}
+
+function renderCorrList(){
+  const ac=el('active-corr');
+  if(!state.corrections.length){
+    ac.innerHTML='<div class="muted text-sm">Keine aktiven Korrekturen.</div>'; return;
+  }
+  ac.innerHTML='<div class="sec-title mb-8">Aktive Korrekturen:</div>'+
+    state.corrections.map((c,i)=>`
+      <div class="corr-item">
+        <span>${esc(c)}</span>
+        <button class="btn btn-sm btn-danger" onclick="removeCorrection(${i})">✕</button>
+      </div>`).join('');
+}
+
+function updateBadge(){
+  const n=plan?plan.days.filter(d=>d.flags.includes('open_dienst')||d.flags.includes('open_backup')).length:0;
+  const b=el('open-badge');
+  b.style.display=n>0?'':'none'; b.textContent=n;
+}
+
+// ============================================================
+// SECTION 9 – UNDO
 // ============================================================
 
 function undoPlan(){
   if(!planHistory) return;
-  plan = planHistory;
-  planHistory = null;
-  el('btn-undo').disabled = true;
-  try{ localStorage.setItem('dienstplan_plan', JSON.stringify(plan)); }catch(e){}
+  plan=planHistory; planHistory=null;
+  el('btn-undo').disabled=true;
+  try{ localStorage.setItem('dp_plan',JSON.stringify(plan)); }catch(e){}
   renderPlan();
 }
 
 // ============================================================
-// EXPORT / IMPORT
+// SECTION 10 – IMPORT / EXPORT
 // ============================================================
 
 function exportJSON(){
-  const data = JSON.stringify(state, null, 2);
-  downloadFile('dienstplan_einstellungen.json', data, 'application/json');
+  readFormIntoState();
+  download('dienstplan_einstellungen.json',JSON.stringify(state,null,2),'application/json');
 }
-
 function exportPlanJSON(){
-  if(!plan){ alert('Kein Plan vorhanden. Bitte zuerst generieren.'); return; }
-  const data = JSON.stringify({ state, plan }, null, 2);
-  downloadFile('dienstplan_komplett.json', data, 'application/json');
+  if(!plan){alert('Kein Plan vorhanden.');return;}
+  download('dienstplan_plan.json',JSON.stringify({state,plan},null,2),'application/json');
 }
-
-function importJSON(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
+function triggerImport(){ el('file-import').click(); }
+function importJSON(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
     try{
-      const parsed = JSON.parse(e.target.result);
-      const imported = parsed.state || parsed;
-      // Keep employee list, clear vacations and block days
-      const asTemplate = confirm('Als Vorlage importieren?\n\n"Ja" = Mitarbeiterliste behalten, Urlaube & Sperrtage leeren.\n"Nein" = Alles überschreiben.');
-      if(asTemplate && imported.employees){
-        state.employees = imported.employees.map(emp => ({
-          ...emp,
-          vacations: [],
-          blockDays: [],
-        }));
-        if(imported.shift1) state.shift1 = imported.shift1;
-        if(imported.shift2) state.shift2 = imported.shift2;
-      } else {
-        Object.assign(state, imported);
-      }
-      state.corrections = [];
-      plan = null;
-      renderSetup();
+      const raw=JSON.parse(e.target.result);
+      const imp=raw.state||raw;
+      const asTemplate=confirm('Als Vorlage importieren?\n\nJa = Mitarbeiterliste behalten, Urlaube & Sperrtage leeren.\nNein = Alles überschreiben.');
+      if(asTemplate&&imp.employees){
+        state.employees=imp.employees.map(emp=>({...emp,vacations:[],blockDays:[]}));
+        if(imp.shift1) state.shift1=imp.shift1;
+        if(imp.shift2) state.shift2=imp.shift2;
+      } else { Object.assign(state,imp); }
+      state.corrections=[];
+      plan=null;
+      applyStateToForm();
+      renderEmpList();
+      updateDaysInfo();
+      updateValWarn();
       saveState();
       alert('Import erfolgreich!');
-    }catch(err){
-      alert('Fehler beim Import: ' + err.message);
-    }
+    }catch(err){alert('Import-Fehler: '+err.message);}
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  r.readAsText(f);
+  ev.target.value='';
 }
-
-function downloadFile(filename, content, mime){
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], {type:mime}));
-  a.download = filename;
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+function clearVacBlock(){
+  if(!confirm('Urlaube & Sperrtage aller Mitarbeiter leeren?')) return;
+  state.employees.forEach(emp=>{emp.vacations=[];emp.blockDays=[];});
+  state.corrections=[];plan=null;
+  renderEmpList();saveState();
 }
-
-function clearVacationsAndBlocks(){
-  if(!confirm('Urlaube und Sperrtage aller Mitarbeiter leeren?')) return;
-  state.employees.forEach(emp => { emp.vacations=[]; emp.blockDays=[]; });
-  state.corrections = [];
-  plan = null;
-  renderSetup();
-  saveState();
-}
-
 function resetAll(){
-  if(!confirm('ALLE Daten zurücksetzen? Dies kann nicht rückgängig gemacht werden.')) return;
-  localStorage.removeItem('dienstplan_state');
-  localStorage.removeItem('dienstplan_plan');
-  location.reload();
+  if(!confirm('Alle Daten zurücksetzen?')) return;
+  localStorage.removeItem('dp_state');localStorage.removeItem('dp_plan');location.reload();
+}
+function download(name,content,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
 // ============================================================
-// PRINT
+// SECTION 11 – TAB SWITCHING & PRINT
 // ============================================================
+
+function switchTab(t){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el('panel-'+t).classList.add('active');
+  el('tab-'+t).classList.add('active');
+}
 
 function printPlan(){
-  if(!plan){
-    alert('Bitte zuerst einen Plan generieren.');
-    switchTab('plan');
-    return;
-  }
-  // Switch to plan tab for printing
+  if(!plan){alert('Bitte zuerst einen Plan generieren.');switchTab('plan');return;}
   switchTab('plan');
-  setTimeout(() => window.print(), 200);
+  setTimeout(()=>window.print(),200);
 }
 
 // ============================================================
-// STARTUP
+// SECTION 12 – INIT
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded',initUI);
 </script>
 </body>
 </html>
