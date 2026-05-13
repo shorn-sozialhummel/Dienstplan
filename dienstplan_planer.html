@@ -6,246 +6,245 @@
 <title>Dienstplan-Planer – Pflegeassistenz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== RESET & BASE ===== */
+/* ===== RESET ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --navy:#1a3a5c;--navy-l:#2a5080;--navy-bg:#e8f0f8;
   --bg:#f5f6f8;--surface:#fff;--border:#dde2ea;
   --text:#1e2d3d;--muted:#6b7a8d;
-  --green:#1a7a4a;--green-bg:#e6f5ed;--green-b:#6ee7b7;
+  --green:#15803d;--green-bg:#dcfce7;--green-b:#86efac;
   --amber:#92400e;--amber-bg:#fef3c7;--amber-b:#fcd34d;
   --orange:#c2410c;--orange-bg:#ffedd5;--orange-b:#fed7aa;
   --red:#be123c;--red-bg:#ffe4e6;--red-b:#fca5a5;
   --blue:#1d4ed8;--blue-bg:#dbeafe;--blue-b:#93c5fd;
-  --r:8px;--sh:0 1px 3px rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.06)
+  --cyan:#0e7490;--cyan-bg:#cffafe;--cyan-b:#67e8f9;
+  --r:8px;
 }
 body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
 
 /* ===== HEADER ===== */
-.app-header{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.app-header h1{font-size:18px;font-weight:600;letter-spacing:-.3px}
-.app-header .sub{font-size:11px;opacity:.65;margin-top:1px}
-.hdr-sp{flex:1}
-.hdr-act{display:flex;gap:8px}
+.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:14px;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr h1{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.hdr .sub{font-size:11px;opacity:.6;margin-top:1px}
+.hdr-sp{flex:1}.hdr-act{display:flex;gap:7px}
 
 /* ===== TABS ===== */
-.tab-bar{background:var(--surface);border-bottom:2px solid var(--border);display:flex;padding:0 24px}
-.tab-btn{padding:13px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:7px}
-.tab-btn:hover{color:var(--navy)}
-.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy)}
-.tab-badge{background:var(--red);color:#fff;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:600}
+.tabs{background:var(--surface);border-bottom:2px solid var(--border);display:flex;padding:0 24px}
+.tab{padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--navy)}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tbadge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700}
 
 /* ===== LAYOUT ===== */
 .main{padding:20px 24px;max-width:1500px;margin:0 auto}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+.pane{display:none}.pane.on{display:block}
 
 /* ===== CARDS ===== */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px}
-.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
-.card-hdr h2{font-size:15px;font-weight:600}
-.card-hdr h3{font-size:13px;font-weight:600}
-.card-hdr .icon{font-size:17px}
-.card-hdr-act{margin-left:auto;display:flex;gap:8px;align-items:center}
-.card-body{padding:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:14px}
+.ch{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.ch h2{font-size:15px;font-weight:600}.ch h3{font-size:13px;font-weight:600}
+.ch-act{margin-left:auto;display:flex;gap:7px;align-items:center}
+.cb{padding:16px}
 
-/* ===== FORM ===== */
-.fg{display:flex;flex-direction:column;gap:4px}
+/* ===== FORMS ===== */
+.fg{display:flex;flex-direction:column;gap:3px}
 .fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.fg input,.fg select,.fg textarea{font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 11px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:var(--surface);width:100%;transition:border-color .15s}
+.fg input,.fg select,.fg textarea{font-family:'DM Sans',sans-serif;font-size:14px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:var(--surface);width:100%;transition:border-color .15s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,58,92,.1)}
-.fg input[type=checkbox]{width:auto;cursor:pointer}
-.frow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
-.cb-row{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
-.cb-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--navy)}
+.frow{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 
 /* ===== BUTTONS ===== */
-.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 15px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover{background:var(--navy-l)}
-.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover{background:var(--bg);border-color:var(--navy)}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
-.btn-danger:hover{background:#fecaca}
-.btn-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
-.btn-lg{padding:11px 22px;font-size:15px;font-weight:600}
-.btn-sm{padding:4px 9px;font-size:12px}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bp{background:var(--navy);color:#fff}.bp:hover{background:var(--navy-l)}
+.bs{background:var(--surface);color:var(--text);border:1px solid var(--border)}.bs:hover{background:var(--bg);border-color:var(--navy)}
+.bd{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}.bd:hover{background:#fecaca}
+.blg{padding:11px 22px;font-size:15px;font-weight:600}
+.bsm{padding:3px 8px;font-size:12px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ===== EMPLOYEE CARD ===== */
-.emp-list{display:flex;flex-direction:column;gap:12px}
-.emp-card{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.emp-card-hdr{background:var(--navy-bg);padding:9px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-.emp-num{background:var(--navy);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.emp-body{padding:14px;display:flex;flex-direction:column;gap:12px}
-
-/* ===== VACATION / BLOCK DAY ===== */
-.vac-list{display:flex;flex-direction:column;gap:5px}
-.vac-entry{display:flex;align-items:center;gap:7px;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:6px;padding:5px 9px;flex-wrap:wrap}
+.el{display:flex;flex-direction:column;gap:11px}
+.ec{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.ech{background:var(--navy-bg);padding:8px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.enum{background:var(--navy);color:#fff;border-radius:50%;width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ecb{padding:13px;display:flex;flex-direction:column;gap:11px}
+.vac-entry{display:flex;align-items:center;gap:6px;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:6px;padding:5px 8px;flex-wrap:wrap}
 .vac-lbl{font-size:11px;color:var(--blue);font-weight:600}
-.block-grid{display:flex;flex-wrap:wrap;gap:5px}
-.block-chip{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber);border-radius:20px;padding:3px 9px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px}
-.block-chip button{background:none;border:none;cursor:pointer;color:var(--amber);font-size:14px;line-height:1;padding:0;font-weight:600}
+.blk-grid{display:flex;flex-wrap:wrap;gap:5px}
+.blk-chip{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber);border-radius:20px;padding:3px 9px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:3px}
+.blk-chip button{background:none;border:none;cursor:pointer;color:var(--amber);font-size:14px;line-height:1;padding:0;font-weight:700}
 
 /* ===== SHIFT TYPE BOXES ===== */
-.shift-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.shift-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.shift-box.s1{border-left:4px solid #2563eb}
-.shift-box.s2{border-left:4px solid #7c3aed}
-.shift-box h4{font-size:13px;font-weight:600;margin-bottom:10px}
+.shift-grid-4{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.sbox{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:13px}
+.sbox.s1{border-left:4px solid #2563eb}.sbox.s2{border-left:4px solid #7c3aed}
+.sbox.s3{border-left:4px solid #0891b2}.sbox.s4{border-left:4px solid #16a34a}
+.sbox h4{font-size:13px;font-weight:600;margin-bottom:10px}
+
+/* Werkstatt day config */
+.wk-day-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.wk-day-row .day-lbl{width:82px;font-size:13px}
+.wk-day-row .times{display:flex;align-items:center;gap:5px;opacity:0;pointer-events:none;transition:opacity .15s}
+.wk-day-row.active .times{opacity:1;pointer-events:auto}
+
+/* Freischicht weekday pills */
+.dow-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.dow-pill{display:flex;align-items:center;gap:3px;cursor:pointer;font-size:12px}
+.dow-pill input[type=checkbox]{width:14px;height:14px;accent-color:var(--green)}
 
 /* ===== CALENDAR TABLE ===== */
 .cal-wrap{overflow-x:auto}
-.cal-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px}
-.cal-table th{background:var(--navy);color:#fff;padding:9px 10px;text-align:left;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:5}
-.cal-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-.cal-table tr:last-child td{border-bottom:none}
-.cal-table tr:hover td{background:rgba(26,58,92,.025)}
-/* row states */
+.ct{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px}
+.ct th{background:var(--navy);color:#fff;padding:8px 10px;text-align:left;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:5}
+.ct td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ct tbody tr:last-child td{border-bottom:none}
+.ct tbody tr:hover td{background:rgba(26,58,92,.025)}
+
+/* Row types */
 .r-ok{}
-.r-block td{background:#fffdf0}
+.r-blk td{background:#fffdf0}
 .r-over td{background:var(--orange-bg)}
 .r-open td{background:var(--red-bg)}
-.r-weekend td{background:#f8f9fb}
-.r-holiday td{background:#f0f4fa}
-/* Override: open takes priority */
-.r-open.r-weekend td,.r-open.r-holiday td{background:var(--red-bg)}
-.r-block.r-weekend td,.r-block.r-holiday td{background:#fffdf0}
+.r-werkstatt td{background:var(--cyan-bg)}
+.r-freischicht td{background:var(--green-bg)}
+.r-we td{background:#f8f9fb}
+.r-hol td{background:#f0f4fa}
+/* open overrides */
+.r-open.r-we td,.r-open.r-hol td,.r-open.r-werkstatt td{background:var(--red-bg)}
+.r-blk.r-we td,.r-blk.r-hol td{background:#fffdf0}
+/* werkstatt+we */
+.r-werkstatt.r-we td,.r-werkstatt.r-hol td{background:#e0f7fa}
 
 /* ===== CHIPS ===== */
-.chip{display:inline-flex;align-items:center;gap:3px;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap}
-.c-green{background:var(--green-bg);color:var(--green)}
-.c-amber{background:var(--amber-bg);color:var(--amber)}
-.c-orange{background:var(--orange-bg);color:var(--orange)}
-.c-red{background:var(--red-bg);color:var(--red)}
-.c-blue{background:var(--blue-bg);color:var(--blue)}
-.c-gray{background:#f1f5f9;color:#64748b}
-.c-purple{background:#ede9fe;color:#5b21b6}
-.shift-tag{display:inline-block;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
-.st1{background:#dbeafe;color:#1e40af}
-.st2{background:#ede9fe;color:#5b21b6}
+.chip{display:inline-flex;align-items:center;gap:3px;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.cg{background:var(--green-bg);color:var(--green)}
+.ca{background:var(--amber-bg);color:var(--amber)}
+.co{background:var(--orange-bg);color:var(--orange)}
+.cr{background:var(--red-bg);color:var(--red)}
+.cb2{background:var(--blue-bg);color:var(--blue)}
+.cc{background:var(--cyan-bg);color:var(--cyan)}
+.cgr{background:#f1f5f9;color:#475569}
+.cp{background:#ede9fe;color:#5b21b6}
+.shift-tag{display:inline-block;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
+.st1{background:#dbeafe;color:#1e40af}.st2{background:#ede9fe;color:#5b21b6}
+.st3{background:var(--cyan-bg);color:var(--cyan)}.st4{background:var(--green-bg);color:var(--green)}
 
 /* ===== ALERTS ===== */
-.alert{border-radius:6px;padding:11px 15px;display:flex;align-items:flex-start;gap:9px;font-size:13px;margin-bottom:10px}
-.a-warn{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber)}
-.a-err{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
-.a-ok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
-.a-info{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
-.ai{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert{border-radius:6px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;font-size:13px;margin-bottom:9px}
+.aw{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber)}
+.ae{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.aok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+.ai{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.aic{font-size:15px;flex-shrink:0;margin-top:1px}
 
 /* ===== SECTION TITLE ===== */
-.sec-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.stitle{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:9px}
 
 /* ===== SUMMARY TABLE ===== */
-.sum-table{width:100%;border-collapse:collapse;font-size:13px}
-.sum-table th{background:var(--navy-bg);color:var(--navy);padding:8px 11px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
-.sum-table td{padding:8px 11px;border-bottom:1px solid var(--border)}
-.sum-table tr:last-child td{border-bottom:none}
+.sum-t{width:100%;border-collapse:collapse;font-size:13px}
+.sum-t th{background:var(--navy-bg);color:var(--navy);padding:7px 10px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
+.sum-t td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.sum-t tr:last-child td{border-bottom:none}
 
-/* ===== PROGRESS ===== */
-.prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px}
-.prog-fill{height:100%;border-radius:3px}
-.pf-ok{background:var(--green)}.pf-warn{background:var(--amber)}.pf-bad{background:var(--red)}
+/* ===== PROGRESS BAR ===== */
+.prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:2px}
+.pf{height:100%;border-radius:3px}
+.pok{background:var(--green)}.pwarn{background:var(--amber)}.pbad{background:var(--red)}
 
-/* ===== CORRECTIONS ===== */
-.corr-item{display:flex;align-items:center;gap:8px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:6px;padding:7px 11px;font-size:13px;margin-bottom:5px}
+/* ===== CORRECTION LIST ===== */
+.corr-item{display:flex;align-items:center;gap:7px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:6px;padding:6px 10px;font-size:13px;margin-bottom:5px}
 .corr-item span{flex:1}
 
-/* ===== LICENSE ICON ===== */
-.no-lic{display:inline-block;font-size:14px;cursor:help;vertical-align:middle}
-
-/* ===== EMPTY STATE ===== */
-.empty{text-align:center;padding:44px 24px;color:var(--muted)}
-.empty .ei{font-size:44px;margin-bottom:10px}
-.empty h3{font-size:16px;font-weight:600;margin-bottom:5px;color:var(--text)}
+/* ===== TOOLTIP ===== */
+.info-icon{cursor:help;font-size:13px}
 
 /* ===== UTILS ===== */
-.flex{display:flex}.flex-col{display:flex;flex-direction:column}
-.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}.gap-16{gap:16px}
-.items-c{align-items:center}.just-b{justify-content:space-between}.ml-auto{margin-left:auto}
-.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
-.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
-.text-sm{font-size:12px}.text-xs{font-size:11px}.muted{color:var(--muted)}
-.bold{font-weight:600}.mono{font-family:'DM Mono',monospace}.w-full{width:100%}
+.flex{display:flex}.fc{display:flex;flex-direction:column}
+.g4{gap:4px}.g6{gap:6px}.g8{gap:8px}.g10{gap:10px}.g12{gap:12px}.g16{gap:16px}
+.ac{align-items:center}.jb{justify-content:space-between}.mla{margin-left:auto}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+.ts{font-size:12px}.tx{font-size:11px}.muted{color:var(--muted)}
+.bold{font-weight:600}.mono{font-family:'DM Mono',monospace}.wf{width:100%}
 .vac-cell{font-size:11px;font-family:'DM Sans',sans-serif}
+.hint-text{font-size:11px;color:var(--muted);margin-top:3px;font-style:italic}
+.emp-name-inp{font-weight:600;border:none;background:transparent;font-size:14px;color:var(--navy);flex:1;padding:2px 0}
+.emp-name-inp:focus{outline:none;border-bottom:1px solid var(--navy)}
 
 /* ===== PRINT ===== */
 @media print{
   @page{size:A4 landscape;margin:.8cm}
   body{background:#fff;font-size:10px}
-  .app-header,.tab-bar,.no-print,.tab-panel:not(.active){display:none!important}
-  .tab-panel.active{display:block!important}
+  .hdr,.tabs,.no-print,.pane:not(.on){display:none!important}
+  .pane.on{display:block!important}
   .main{padding:0;max-width:100%}
-  .card{box-shadow:none;border:1px solid #ccc;margin-bottom:10px;break-inside:avoid}
-  .card-body{padding:10px}
-  .print-hdr{display:flex!important;justify-content:space-between;align-items:flex-end;margin-bottom:12px;border-bottom:2px solid #1a3a5c;padding-bottom:6px}
-  .print-hdr h1{font-size:18px;font-weight:700;color:#1a3a5c}
-  .print-hdr .pm{font-size:10px;color:#666}
-  .cal-table{font-size:9px}
-  .cal-table th{background:#1a3a5c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:5px 7px}
-  .cal-table td{padding:3px 7px}
-  .r-weekend td{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .r-holiday td{background:#eef2f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .r-block td{background:#fffdf0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card{box-shadow:none;border:1px solid #ccc;margin-bottom:9px;break-inside:avoid}
+  .cb{padding:9px}
+  .print-hdr{display:flex!important;justify-content:space-between;align-items:flex-end;margin-bottom:10px;border-bottom:2px solid #1a3a5c;padding-bottom:5px}
+  .print-hdr h1{font-size:17px;font-weight:700;color:#1a3a5c}
+  .print-hdr .pm{font-size:10px;color:#555}
+  .ct{font-size:9px}
+  .ct th{background:#1a3a5c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:4px 7px}
+  .ct td{padding:3px 7px}
+  .r-we td{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-hol td{background:#eef2f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-werkstatt td{background:#cffafe!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-freischicht td{background:#dcfce7!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .r-open td{background:#ffe4e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-blk td{background:#fffdf0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .chip,.shift-tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .print-ftr{display:flex!important;justify-content:space-between;margin-top:10px;border-top:1px solid #ccc;padding-top:6px;font-size:9px}
-  #summary-card,#corrections-card{display:none!important}
-  #plan-alerts{display:none}
+  .print-ftr{display:flex!important;justify-content:space-between;margin-top:9px;border-top:1px solid #ccc;padding-top:5px;font-size:9px}
+  #sum-card,#corr-card,#rule-card{break-inside:avoid}
 }
-.print-hdr{display:none}
-.print-ftr{display:none}
+.print-hdr{display:none}.print-ftr{display:none}
 
-@media(max-width:768px){
-  .shift-grid{grid-template-columns:1fr}
+@media(max-width:800px){
+  .shift-grid-4{grid-template-columns:1fr}
   .main{padding:12px}
-  .card-hdr,.card-body{padding:12px}
+  .ch,.cb{padding:11px}
 }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="app-header">
-  <div>
-    <h1>Dienstplan-Planer</h1>
-    <div class="sub">Pflegeassistenz · Vorplanung</div>
-  </div>
+<header class="hdr">
+  <div><h1>Dienstplan-Planer</h1><div class="sub">Pflegeassistenz · NRW</div></div>
   <div class="hdr-sp"></div>
   <div class="hdr-act no-print">
-    <button class="btn btn-secondary btn-sm" onclick="exportJSON()">⬇ JSON</button>
-    <button class="btn btn-secondary btn-sm" onclick="triggerImport()">⬆ Import</button>
-    <input type="file" id="file-import" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button class="btn bs bsm" onclick="exportJSON()">⬇ JSON</button>
+    <button class="btn bs bsm" onclick="triggerImport()">⬆ Import</button>
+    <input type="file" id="file-imp" accept=".json" style="display:none" onchange="importJSON(event)">
   </div>
 </header>
 
 <!-- TAB BAR -->
-<nav class="tab-bar no-print">
-  <button class="tab-btn active" onclick="switchTab('setup')" id="tab-setup">⚙ Einrichtung</button>
-  <button class="tab-btn" onclick="switchTab('plan')" id="tab-plan">
-    📅 Planung &amp; Vorschau
-    <span class="tab-badge" id="open-badge" style="display:none">!</span>
+<nav class="tabs no-print">
+  <button class="tab on" onclick="switchTab('setup')" id="tab-setup">⚙ Einrichtung</button>
+  <button class="tab" onclick="switchTab('plan')" id="tab-plan">
+    📅 Planung
+    <span class="tbadge" id="open-badge" style="display:none">!</span>
   </button>
-  <button class="tab-btn" onclick="switchTab('export')" id="tab-export">🖨 Export</button>
+  <button class="tab" onclick="switchTab('export')" id="tab-export">🖨 Export</button>
 </nav>
 
 <div class="main">
 
-<!-- ======================================================
-     TAB 1 – EINRICHTUNG
-     ====================================================== -->
-<div class="tab-panel active" id="panel-setup">
+<!-- =========================================================
+     PANEL 1 – EINRICHTUNG
+     ========================================================= -->
+<div class="pane on" id="pane-setup">
 
-  <!-- Month/Year -->
+  <!-- Month selection -->
   <div class="card">
-    <div class="card-hdr"><span class="icon">📆</span><h2>Monatsauswahl</h2></div>
-    <div class="card-body">
+    <div class="ch"><span>📆</span><h2>Monatsauswahl</h2></div>
+    <div class="cb">
       <div class="frow">
-        <div class="fg" style="min-width:130px"><label>Jahr</label><select id="sel-year" onchange="onMonthChange()"></select></div>
-        <div class="fg" style="min-width:150px"><label>Monat</label>
+        <div class="fg" style="min-width:125px"><label>Jahr</label><select id="sel-year" onchange="onMonthChange()"></select></div>
+        <div class="fg" style="min-width:145px"><label>Monat</label>
           <select id="sel-month" onchange="onMonthChange()">
             <option value="0">Januar</option><option value="1">Februar</option><option value="2">März</option>
             <option value="3">April</option><option value="4">Mai</option><option value="5">Juni</option>
@@ -253,67 +252,96 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text)
             <option value="9">Oktober</option><option value="10">November</option><option value="11">Dezember</option>
           </select>
         </div>
-        <div class="fg" style="min-width:170px"><label>Übergabe-Uhrzeit</label><input type="time" id="handover-time" value="08:00" oninput="saveState()"></div>
-        <div style="align-self:flex-end"><span class="chip c-gray mono" id="days-info">30 Tage</span></div>
+        <div class="fg" style="min-width:160px"><label>Übergabe-Uhrzeit</label><input type="time" id="handover" value="08:00" oninput="saveState()"></div>
+        <div style="align-self:flex-end"><span class="chip cgr mono" id="days-info">30 Tage</span></div>
       </div>
     </div>
   </div>
 
-  <!-- Shift types -->
+  <!-- Shift types (4) -->
   <div class="card">
-    <div class="card-hdr"><span class="icon">🕐</span><h2>Schichttypen</h2></div>
-    <div class="card-body">
-      <div class="shift-grid">
-        <div class="shift-box s1">
-          <h4>Schichttyp 1</h4>
-          <div class="flex flex-col gap-8">
-            <div class="fg"><label>Bezeichnung</label><input type="text" id="s1-name" value="Tagdienst" oninput="saveState()"></div>
+    <div class="ch"><span>🕐</span><h2>Schichttypen</h2></div>
+    <div class="cb">
+      <div class="shift-grid-4">
+
+        <!-- Typ 1 -->
+        <div class="sbox s1">
+          <h4>Typ 1 – Regulärer Dienst A</h4>
+          <div class="fc g8">
+            <div class="fg"><label>Name</label><input type="text" id="s1n" value="Tagdienst" oninput="saveState()"></div>
             <div class="frow">
-              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s1-start" value="08:00" oninput="saveState()"></div>
-              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s1-end" value="20:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s1s" value="08:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s1e" value="20:00" oninput="saveState()"></div>
             </div>
+            <div class="tx muted">Haupt-Dienst und Backup möglich</div>
           </div>
         </div>
-        <div class="shift-box s2">
-          <h4>Schichttyp 2</h4>
-          <div class="flex flex-col gap-8">
-            <div class="fg"><label>Bezeichnung</label><input type="text" id="s2-name" value="24h-Dienst" oninput="saveState()"></div>
+
+        <!-- Typ 2 -->
+        <div class="sbox s2">
+          <h4>Typ 2 – Regulärer Dienst B <span class="chip cp" style="font-size:10px">Standard</span></h4>
+          <div class="fc g8">
+            <div class="fg"><label>Name</label><input type="text" id="s2n" value="24h-Dienst" oninput="saveState()"></div>
             <div class="frow">
-              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s2-start" value="20:00" oninput="saveState()"></div>
-              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s2-end" value="20:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Start</label><input type="time" id="s2s" value="20:00" oninput="saveState()"></div>
+              <div class="fg" style="flex:1"><label>Ende</label><input type="time" id="s2e" value="20:00" oninput="saveState()"></div>
             </div>
+            <div class="tx muted">Haupt-Dienst und Backup möglich · Standard-Präferenz</div>
           </div>
         </div>
+
+        <!-- Typ 3 – Werkstatt -->
+        <div class="sbox s3">
+          <h4>Typ 3 – Werkstattschicht 🔧</h4>
+          <div class="fc g8">
+            <div class="fg"><label>Name</label><input type="text" id="s3n" value="Werkstatt" oninput="saveState()"></div>
+            <div class="tx muted mb8">Aktive Wochentage (Mo–Fr) mit individuellen Zeiten:</div>
+            <div id="wk-days"><!-- rendered by JS --></div>
+            <div class="tx muted mt4">Nur Backup-Slot · kein Haupt-Dienst</div>
+          </div>
+        </div>
+
+        <!-- Typ 4 – Freischicht -->
+        <div class="sbox s4">
+          <h4>Typ 4 – Freischicht 🌿</h4>
+          <div class="fc g8">
+            <div class="fg"><label>Name</label><input type="text" id="s4n" value="Freischicht" oninput="saveState()"></div>
+            <div class="tx muted">Aktive Wochentage – kein MA wird eingeplant:</div>
+            <div class="dow-pills" id="free-days"><!-- rendered by JS --></div>
+            <div class="tx muted mt4">Weder Haupt-Dienst noch Backup</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
   <!-- Employees -->
   <div class="card">
-    <div class="card-hdr">
-      <span class="icon">👥</span><h2>Mitarbeiter</h2>
-      <div class="card-hdr-act">
-        <span class="muted text-sm" id="emp-count-lbl"></span>
-        <button class="btn btn-primary btn-sm" onclick="addEmployee()" id="btn-add-emp">+ Mitarbeiter</button>
+    <div class="ch">
+      <span>👥</span><h2>Mitarbeiter</h2>
+      <div class="ch-act">
+        <span class="muted ts" id="emp-cnt"></span>
+        <button class="btn bp bsm" onclick="addEmp()" id="btn-add">+ Mitarbeiter</button>
       </div>
     </div>
-    <div class="card-body">
-      <div id="val-warn" style="display:none"></div>
-      <div class="emp-list" id="emp-list"></div>
+    <div class="cb">
+      <div id="val-warn"></div>
+      <div class="el" id="emp-list"></div>
     </div>
   </div>
 
-  <div class="flex gap-10 no-print" style="justify-content:flex-end;margin-top:6px">
-    <button class="btn btn-primary btn-lg" onclick="switchTab('plan');generatePlan()">📅 Zur Planung →</button>
+  <div class="flex g10 no-print" style="justify-content:flex-end;margin-top:4px">
+    <button class="btn bp blg" onclick="switchTab('plan');generatePlan()">📅 Zur Planung →</button>
   </div>
 </div>
 
-<!-- ======================================================
-     TAB 2 – PLANUNG
-     ====================================================== -->
-<div class="tab-panel" id="panel-plan">
+<!-- =========================================================
+     PANEL 2 – PLANUNG
+     ========================================================= -->
+<div class="pane" id="pane-plan">
 
-  <!-- Print header -->
+  <!-- Print header (only visible when printing) -->
   <div class="print-hdr" id="print-hdr">
     <div><h1 id="ph-title">Dienstplan</h1><div class="pm" id="ph-meta"></div></div>
     <div class="pm" id="ph-right"></div>
@@ -321,11 +349,11 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text)
 
   <!-- Action bar -->
   <div class="card no-print">
-    <div class="card-body" style="padding:11px 18px">
-      <div class="flex gap-10 items-c flex-wrap">
-        <button class="btn btn-primary btn-lg" onclick="generatePlan()" id="btn-gen">⚡ Dienstplan generieren</button>
-        <button class="btn btn-secondary" onclick="undoPlan()" id="btn-undo" disabled>↩ Rückgängig</button>
-        <div class="muted text-sm" id="plan-status"></div>
+    <div class="cb" style="padding:10px 18px">
+      <div class="flex g10 ac flex-wrap">
+        <button class="btn bp blg" onclick="generatePlan()" id="btn-gen">⚡ Dienstplan generieren</button>
+        <button class="btn bs" onclick="undoPlan()" id="btn-undo" disabled>↩ Rückgängig</button>
+        <div class="muted ts" id="plan-status"></div>
       </div>
     </div>
   </div>
@@ -334,47 +362,53 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text)
 
   <!-- Calendar -->
   <div class="card" id="cal-card">
-    <div class="card-hdr">
-      <span class="icon">📋</span><h2 id="cal-title">Monatsübersicht</h2>
-      <div class="card-hdr-act no-print">
-        <div class="flex gap-8 items-c text-xs muted flex-wrap">
-          <span>🟢 OK</span><span>🟡 Sperrtag</span><span>🟠 Überwoche</span><span>🔴 Offen/Regelverstoß</span><span>📋 Feiertag/WE</span>
+    <div class="ch">
+      <span>📋</span><h2 id="cal-title">Monatsübersicht</h2>
+      <div class="ch-act no-print">
+        <div class="flex g8 ac ts muted flex-wrap">
+          <span>🟢 OK</span><span>🟡 Sperrtag</span><span>🟠 Überwoche</span>
+          <span>🔴 Offen</span><span style="color:var(--cyan)">🔧 Werkstatt</span>
+          <span style="color:var(--green)">🌿 Freischicht</span>
         </div>
       </div>
     </div>
-    <div class="card-body" style="padding:0">
+    <div class="cb" style="padding:0">
       <div class="cal-wrap">
         <div id="cal-content">
-          <div class="empty"><div class="ei">📅</div><h3>Noch kein Plan generiert</h3><p>Einrichtung ausfüllen, dann „Dienstplan generieren".</p></div>
+          <div style="text-align:center;padding:40px;color:var(--muted)">
+            <div style="font-size:40px;margin-bottom:8px">📅</div>
+            <strong>Noch kein Plan generiert</strong><br>
+            <span class="ts">Einrichtung ausfüllen, dann „Dienstplan generieren".</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Rule validation report -->
+  <!-- Rule validation -->
   <div class="card" id="rule-card" style="display:none">
-    <div class="card-hdr"><span class="icon">✅</span><h2>Regelprüfung</h2></div>
-    <div class="card-body" id="rule-content"></div>
+    <div class="ch"><span>✅</span><h2>Regelprüfung (H1–H7)</h2></div>
+    <div class="cb" id="rule-content"></div>
   </div>
 
   <!-- Summary -->
   <div class="card" id="sum-card" style="display:none">
-    <div class="card-hdr"><span class="icon">📊</span><h2>Mitarbeiter-Zusammenfassung</h2></div>
-    <div class="card-body" style="padding:0"><div id="sum-content"></div></div>
+    <div class="ch"><span>📊</span><h2>Mitarbeiter-Zusammenfassung</h2></div>
+    <div class="cb" style="padding:0"><div id="sum-content"></div></div>
   </div>
 
   <!-- Corrections -->
   <div class="card no-print" id="corr-card" style="display:none">
-    <div class="card-hdr"><span class="icon">✏️</span><h2>Korrekturen &amp; Ausnahmen</h2></div>
-    <div class="card-body">
-      <div class="fg mb-8">
+    <div class="ch"><span>✏️</span><h2>Korrekturen &amp; Ausnahmen</h2></div>
+    <div class="cb">
+      <div class="fg mb8">
         <label>Korrekturen (Freitext)</label>
-        <textarea id="corr-text" rows="4" style="resize:vertical;min-height:80px"
-          placeholder="z.B.: Maria darf nie samstags arbeiten.&#10;Klaus soll am 15. auf jeden Fall frei haben.&#10;Fatima soll ausnahmsweise am 10. und 11. Dienst machen.&#10;Thomas nur Schichttyp 1."></textarea>
+        <textarea id="corr-txt" rows="4" style="resize:vertical;min-height:80px"
+          placeholder="z.B.: Klaus soll am 20. frei haben.&#10;Am 15. ist der Kunde krank – bitte 24h-Schicht statt Werkstattschicht.&#10;Fatima soll ausnahmsweise am 3. und 4. hintereinander arbeiten.&#10;Maria nie samstags."></textarea>
       </div>
-      <div class="flex gap-8 mb-12">
-        <button class="btn btn-primary" onclick="applyCorrections()">✔ Anwenden &amp; Plan neu generieren</button>
-        <button class="btn btn-secondary" onclick="el('corr-text').value=''">✕ Leeren</button>
+      <div class="flex g8 mb12">
+        <button class="btn bp" onclick="applyCorr()">✔ Anwenden &amp; neu generieren</button>
+        <button class="btn bs" onclick="E('corr-txt').value=''">✕ Leeren</button>
       </div>
       <div id="active-corr"></div>
     </div>
@@ -382,50 +416,51 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text)
 
   <!-- Print footer -->
   <div class="print-ftr" id="print-ftr">
-    <div><strong>Legende:</strong> 🟢 OK &nbsp; 🟡 Sperrtag &nbsp; 🟠 &gt;2 Schichten/Woche &nbsp; 🔴 Offen / Regelverstoß &nbsp; 🔵 Urlaub</div>
+    <div><strong>Legende:</strong> 🟢 OK · 🟡 Sperrtag · 🟠 &gt;2/Woche · 🔴 Offen/Verstoß · 🔧 Werkstatt · 🌿 Freischicht</div>
     <div id="print-sum-short"></div>
   </div>
 </div>
 
-<!-- ======================================================
-     TAB 3 – EXPORT
-     ====================================================== -->
-<div class="tab-panel" id="panel-export">
+<!-- =========================================================
+     PANEL 3 – EXPORT
+     ========================================================= -->
+<div class="pane" id="pane-export">
   <div class="card">
-    <div class="card-hdr"><span class="icon">🖨</span><h2>PDF-Export</h2></div>
-    <div class="card-body">
-      <div class="alert a-info mb-12"><span class="ai">ℹ</span>
-        <div>Druckdialog öffnen → <strong>„Als PDF speichern"</strong>, Format <strong>A4 Querformat</strong>. Kopf-/Fußzeilen des Browsers deaktivieren.</div>
+    <div class="ch"><span>🖨</span><h2>PDF-Export</h2></div>
+    <div class="cb">
+      <div class="alert ai mb12"><span class="aic">ℹ</span>
+        <div>Druckdialog → <strong>„Als PDF speichern"</strong>, Format <strong>A4 Querformat</strong>. Browser-Kopf-/Fußzeilen deaktivieren.</div>
       </div>
-      <div class="frow mb-12">
-        <div class="fg" style="min-width:220px"><label>Titel-Zusatz</label><input type="text" id="print-extra" placeholder="z.B. Station 3A" oninput="saveState()"></div>
-        <div class="fg" style="min-width:200px"><label>Erstellt von</label><input type="text" id="print-author" placeholder="Name" oninput="saveState()"></div>
+      <div class="frow mb12">
+        <div class="fg" style="min-width:210px"><label>Titel-Zusatz</label><input type="text" id="print-extra" placeholder="z.B. Station 3A" oninput="saveState()"></div>
+        <div class="fg" style="min-width:190px"><label>Erstellt von</label><input type="text" id="print-author" placeholder="Name" oninput="saveState()"></div>
       </div>
-      <button class="btn btn-primary btn-lg" onclick="printPlan()">🖨 Druckdialog öffnen</button>
+      <button class="btn bp blg" onclick="doPrint()">🖨 Druckdialog öffnen</button>
     </div>
   </div>
+
   <div class="card">
-    <div class="card-hdr"><span class="icon">💾</span><h2>Datenverwaltung</h2></div>
-    <div class="card-body flex flex-col gap-12">
+    <div class="ch"><span>💾</span><h2>Datenverwaltung</h2></div>
+    <div class="cb fc g12">
       <div>
-        <div class="sec-title">Export</div>
-        <div class="flex gap-8 flex-wrap">
-          <button class="btn btn-secondary" onclick="exportJSON()">⬇ Einstellungen als JSON</button>
-          <button class="btn btn-secondary" onclick="exportPlanJSON()">⬇ Plan als JSON</button>
+        <div class="stitle">Export</div>
+        <div class="flex g8 flex-wrap">
+          <button class="btn bs" onclick="exportJSON()">⬇ Einstellungen als JSON</button>
+          <button class="btn bs" onclick="exportPlanJSON()">⬇ Plan als JSON</button>
         </div>
       </div>
       <div>
-        <div class="sec-title">Import</div>
-        <div class="flex gap-8 items-c flex-wrap">
-          <button class="btn btn-secondary" onclick="triggerImport()">⬆ JSON importieren</button>
-          <span class="muted text-sm">Mitarbeiterliste bleibt, Urlaube/Sperrtage werden geleert</span>
+        <div class="stitle">Import</div>
+        <div class="flex g8 ac flex-wrap">
+          <button class="btn bs" onclick="triggerImport()">⬆ JSON importieren</button>
+          <span class="muted ts">Mitarbeiterliste + Schichttypen bleiben; Urlaube/Sperrtage werden geleert</span>
         </div>
       </div>
       <div>
-        <div class="sec-title">Reset</div>
-        <div class="flex gap-8 flex-wrap">
-          <button class="btn btn-danger" onclick="clearVacBlock()">🗑 Urlaube &amp; Sperrtage leeren</button>
-          <button class="btn btn-danger" onclick="resetAll()">⚠ Alle Daten zurücksetzen</button>
+        <div class="stitle">Reset</div>
+        <div class="flex g8 flex-wrap">
+          <button class="btn bd" onclick="clearVB()">🗑 Urlaube &amp; Sperrtage leeren</button>
+          <button class="btn bd" onclick="resetAll()">⚠ Alle Daten zurücksetzen</button>
         </div>
       </div>
     </div>
@@ -439,119 +474,104 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text)
 // SECTION 1 – CONSTANTS
 // ============================================================
 
-const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-const DAYS_S  = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-const DAYS_L  = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DAYS_S=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const DAYS_L=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
-/** NRW Feiertage 2024–2027 fest einkodiert */
-const HOLIDAYS = {
-  2024:{
-    '2024-01-01':'Neujahr','2024-03-29':'Karfreitag','2024-04-01':'Ostermontag',
-    '2024-05-01':'Tag der Arbeit','2024-05-09':'Christi Himmelfahrt',
-    '2024-05-20':'Pfingstmontag','2024-05-30':'Fronleichnam',
-    '2024-10-03':'Tag der deutschen Einheit','2024-11-01':'Allerheiligen',
-    '2024-12-25':'1. Weihnachtstag','2024-12-26':'2. Weihnachtstag'
-  },
-  2025:{
-    '2025-01-01':'Neujahr','2025-04-18':'Karfreitag','2025-04-21':'Ostermontag',
-    '2025-05-01':'Tag der Arbeit','2025-05-29':'Christi Himmelfahrt',
-    '2025-06-09':'Pfingstmontag','2025-06-19':'Fronleichnam',
-    '2025-10-03':'Tag der deutschen Einheit','2025-11-01':'Allerheiligen',
-    '2025-12-25':'1. Weihnachtstag','2025-12-26':'2. Weihnachtstag'
-  },
-  2026:{
-    '2026-01-01':'Neujahr','2026-04-03':'Karfreitag','2026-04-06':'Ostermontag',
-    '2026-05-01':'Tag der Arbeit','2026-05-14':'Christi Himmelfahrt',
-    '2026-05-25':'Pfingstmontag','2026-06-04':'Fronleichnam',
-    '2026-10-03':'Tag der deutschen Einheit','2026-11-01':'Allerheiligen',
-    '2026-12-25':'1. Weihnachtstag','2026-12-26':'2. Weihnachtstag'
-  },
-  2027:{
-    '2027-01-01':'Neujahr','2027-03-26':'Karfreitag','2027-03-29':'Ostermontag',
-    '2027-05-01':'Tag der Arbeit','2027-05-06':'Christi Himmelfahrt',
-    '2027-05-17':'Pfingstmontag','2027-05-27':'Fronleichnam',
-    '2027-10-03':'Tag der deutschen Einheit','2027-11-01':'Allerheiligen',
-    '2027-12-25':'1. Weihnachtstag','2027-12-26':'2. Weihnachtstag'
-  }
+/** NRW Feiertage 2024–2027 */
+const HOLS={
+  2024:{'2024-01-01':'Neujahr','2024-03-29':'Karfreitag','2024-04-01':'Ostermontag','2024-05-01':'Tag der Arbeit','2024-05-09':'Christi Himmelfahrt','2024-05-20':'Pfingstmontag','2024-05-30':'Fronleichnam','2024-10-03':'Tag der deutschen Einheit','2024-11-01':'Allerheiligen','2024-12-25':'1. Weihnachtstag','2024-12-26':'2. Weihnachtstag'},
+  2025:{'2025-01-01':'Neujahr','2025-04-18':'Karfreitag','2025-04-21':'Ostermontag','2025-05-01':'Tag der Arbeit','2025-05-29':'Christi Himmelfahrt','2025-06-09':'Pfingstmontag','2025-06-19':'Fronleichnam','2025-10-03':'Tag der deutschen Einheit','2025-11-01':'Allerheiligen','2025-12-25':'1. Weihnachtstag','2025-12-26':'2. Weihnachtstag'},
+  2026:{'2026-01-01':'Neujahr','2026-04-03':'Karfreitag','2026-04-06':'Ostermontag','2026-05-01':'Tag der Arbeit','2026-05-14':'Christi Himmelfahrt','2026-05-25':'Pfingstmontag','2026-06-04':'Fronleichnam','2026-10-03':'Tag der deutschen Einheit','2026-11-01':'Allerheiligen','2026-12-25':'1. Weihnachtstag','2026-12-26':'2. Weihnachtstag'},
+  2027:{'2027-01-01':'Neujahr','2027-03-26':'Karfreitag','2027-03-29':'Ostermontag','2027-05-01':'Tag der Arbeit','2027-05-06':'Christi Himmelfahrt','2027-05-17':'Pfingstmontag','2027-05-27':'Fronleichnam','2027-10-03':'Tag der deutschen Einheit','2027-11-01':'Allerheiligen','2027-12-25':'1. Weihnachtstag','2027-12-26':'2. Weihnachtstag'}
 };
 
 // ============================================================
 // SECTION 2 – STATE
 // ============================================================
 
-let state = {
-  year: new Date().getFullYear(),
-  month: new Date().getMonth(),
-  handoverTime: '08:00',
-  shift1: { name:'Tagdienst', start:'08:00', end:'20:00' },
-  shift2: { name:'24h-Dienst', start:'20:00', end:'20:00' },
-  employees: [],
-  corrections: [],
-  printExtra: '',
-  printAuthor: ''
+let ST={
+  year:new Date().getFullYear(), month:new Date().getMonth(),
+  handoverTime:'08:00',
+  shift1:{name:'Tagdienst',start:'08:00',end:'20:00'},
+  shift2:{name:'24h-Dienst',start:'20:00',end:'20:00'},
+  // shift3: Werkstatt – activeDays=[dow,...], dayConfig={dow:{start,end}}
+  shift3:{name:'Werkstatt',activeDays:[],dayConfig:{}},
+  // shift4: Freischicht – activeDays=[dow,...]
+  shift4:{name:'Freischicht',activeDays:[]},
+  employees:[],
+  corrections:[],
+  printExtra:'',printAuthor:''
 };
 
-let plan = null;
-let planHistory = null;
+let PLAN=null, HISTORY=null;
 
 // ============================================================
 // SECTION 3 – UTILITIES
 // ============================================================
 
-const el = id => document.getElementById(id);
+const E=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+function dStr(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
+function parseD(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function dim(y,m){return new Date(y,m+1,0).getDate();}
+function DOW(y,m,d){return new Date(y,m,d).getDay();}
+function isWE(y,m,d){const w=DOW(y,m,d);return w===0||w===6;}
+function isHol(y,m,d){return !!(HOLS[y]&&HOLS[y][dStr(y,m,d)]);}
+function holName(y,m,d){return(HOLS[y]&&HOLS[y][dStr(y,m,d)])||'';}
+function isWkday(y,m,d){const w=DOW(y,m,d);return w>=1&&w<=5;}
 
-function dStr(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
-function pad(n){ return String(n).padStart(2,'0'); }
-function parseD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
-function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
-function dow(y,m,d){ return new Date(y,m,d).getDay(); }
-function isWE(y,m,d){ const w=dow(y,m,d); return w===0||w===6; }
-function isHol(y,m,d){ return !!(HOLIDAYS[y]&&HOLIDAYS[y][dStr(y,m,d)]); }
-function holName(y,m,d){ return (HOLIDAYS[y]&&HOLIDAYS[y][dStr(y,m,d)])||''; }
-function isWkday(y,m,d){ const w=dow(y,m,d); return w>=1&&w<=5; }
-
-function getMonday(ds){
-  const d=parseD(ds), dw=d.getDay(), diff=dw===0?-6:1-dw;
-  const mon=new Date(d.getTime()+diff*86400000);
-  return `${mon.getFullYear()}-${pad(mon.getMonth()+1)}-${pad(mon.getDate())}`;
+function getMon(ds){
+  const d=parseD(ds),dw=d.getDay(),diff=dw===0?-6:1-dw;
+  const m=new Date(d.getTime()+diff*86400000);
+  return`${m.getFullYear()}-${pad(m.getMonth()+1)}-${pad(m.getDate())}`;
 }
-function weekKey(ds){ return getMonday(ds); }
+function wkKey(ds){return getMon(ds);}
 
-function dateRange(a,b){
-  const res=[]; let cur=parseD(a); const end=parseD(b);
-  while(cur<=end){ res.push(dStr(cur.getFullYear(),cur.getMonth(),cur.getDate())); cur=new Date(cur.getTime()+86400000); }
-  return res;
+function dRange(a,b){
+  const r=[];let c=parseD(a);const e=parseD(b);
+  while(c<=e){r.push(dStr(c.getFullYear(),c.getMonth(),c.getDate()));c=new Date(c.getTime()+86400000);}
+  return r;
 }
-function wkdaysInRange(a,b){
-  return dateRange(a,b).filter(s=>{ const d=parseD(s); return isWkday(d.getFullYear(),d.getMonth(),d.getDate()); }).length;
+function wkdCount(a,b){
+  return dRange(a,b).filter(s=>{const d=parseD(s);return isWkday(d.getFullYear(),d.getMonth(),d.getDate());}).length;
 }
-
 function vacSet(emp){
   const s=new Set();
-  for(const v of emp.vacations) for(const d of dateRange(v.from,v.to)) s.add(d);
+  for(const v of emp.vacations)for(const d of dRange(v.from,v.to))s.add(d);
   return s;
 }
-
 function allowedBlocks(emp){
   let n=4;
-  for(const v of emp.vacations){ n-=Math.floor(wkdaysInRange(v.from,v.to)/5); }
+  for(const v of emp.vacations)n-=Math.floor(wkdCount(v.from,v.to)/5);
   return Math.max(0,n);
 }
+function fmtShort(s){
+  if(!s)return'';const d=parseD(s);
+  return`${DAYS_S[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function newId(){return'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 
-function fmtDateShort(s){
-  if(!s) return '';
-  const d=parseD(s);
-  return `${DAYS_S[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`;
+/**
+ * Classify a day: 'freischicht' | 'werkstatt' | 'regular'
+ * Freischicht takes priority over Werkstatt.
+ */
+function dayType(y,m,d){
+  const dw=DOW(y,m,d);
+  if(ST.shift4.activeDays.includes(dw)) return'freischicht';
+  if(ST.shift3.activeDays.includes(dw)) return'werkstatt';
+  return'regular';
 }
 
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function newEmpId(){ return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function werkstattTime(dw){
+  const cfg=ST.shift3.dayConfig[dw];
+  return cfg||{start:'08:00',end:'15:00'};
+}
 
 function mkEmp(name=''){
-  return { id:newEmpId(), name, target:8, vacations:[], blockDays:[],
-           prefShift:'', noSaturday:false, noSunday:false, noLicense:false,
-           preferredDays:'', extraConstraints:'' };
+  return{id:newId(),name,target:8,hasLicense:false,vacations:[],blockDays:[],
+         prefShift:'shift2',extraConstraints:''};
 }
 
 // ============================================================
@@ -559,38 +579,42 @@ function mkEmp(name=''){
 // ============================================================
 
 function saveState(){
-  readFormIntoState();
-  try{ localStorage.setItem('dp_state', JSON.stringify(state)); }catch(e){}
-  if(plan) try{ localStorage.setItem('dp_plan', JSON.stringify(plan)); }catch(e){}
+  readFormToState();
+  try{localStorage.setItem('dp4_st',JSON.stringify(ST));}catch(e){}
+  if(PLAN)try{localStorage.setItem('dp4_pl',JSON.stringify(PLAN));}catch(e){}
 }
 
 function loadState(){
   try{
-    const s=localStorage.getItem('dp_state'); if(s) Object.assign(state,JSON.parse(s));
-    const p=localStorage.getItem('dp_plan');  if(p) plan=JSON.parse(p);
-  }catch(e){ console.warn(e); }
-  if(!state.employees||!state.employees.length){
-    state.employees=[mkEmp('Mitarbeiter 1'),mkEmp('Mitarbeiter 2'),mkEmp('Mitarbeiter 3')];
-  }
-  // Ensure new fields exist on loaded employees
-  state.employees.forEach(emp=>{
-    if(emp.noSaturday===undefined) emp.noSaturday=false;
-    if(emp.noSunday===undefined)   emp.noSunday=false;
-    if(emp.noLicense===undefined)  emp.noLicense=false;
-    if(!emp.preferredDays)    emp.preferredDays='';
-    if(!emp.extraConstraints) emp.extraConstraints='';
+    const s=localStorage.getItem('dp4_st');if(s)Object.assign(ST,JSON.parse(s));
+    const p=localStorage.getItem('dp4_pl');if(p)PLAN=JSON.parse(p);
+  }catch(e){console.warn(e);}
+  if(!ST.employees||!ST.employees.length)
+    ST.employees=[mkEmp('Mitarbeiter 1'),mkEmp('Mitarbeiter 2'),mkEmp('Mitarbeiter 3')];
+  // Ensure shift3/4 exist (migrate old saves)
+  if(!ST.shift3) ST.shift3={name:'Werkstatt',activeDays:[],dayConfig:{}};
+  if(!ST.shift4) ST.shift4={name:'Freischicht',activeDays:[]};
+  ST.employees.forEach(e=>{
+    if(e.hasLicense===undefined)e.hasLicense=false;
+    if(!e.extraConstraints)e.extraConstraints='';
+    if(!e.prefShift)e.prefShift='shift2';
+    // Remove old fields
+    delete e.noSaturday;delete e.noSunday;delete e.noLicense;delete e.preferredDays;
   });
 }
 
-function readFormIntoState(){
-  state.year  = parseInt(el('sel-year').value);
-  state.month = parseInt(el('sel-month').value);
-  state.handoverTime = el('handover-time').value;
-  state.shift1 = { name:el('s1-name').value, start:el('s1-start').value, end:el('s1-end').value };
-  state.shift2 = { name:el('s2-name').value, start:el('s2-start').value, end:el('s2-end').value };
-  state.printExtra  = (el('print-extra')||{}).value||'';
-  state.printAuthor = (el('print-author')||{}).value||'';
-  // Employees read via event handlers
+function readFormToState(){
+  ST.year=parseInt(E('sel-year').value);
+  ST.month=parseInt(E('sel-month').value);
+  ST.handoverTime=E('handover').value;
+  ST.shift1={name:E('s1n').value,start:E('s1s').value,end:E('s1e').value};
+  ST.shift2={name:E('s2n').value,start:E('s2s').value,end:E('s2e').value};
+  ST.shift3.name=E('s3n').value;
+  ST.shift4.name=E('s4n').value;
+  ST.printExtra=(E('print-extra')||{}).value||'';
+  ST.printAuthor=(E('print-author')||{}).value||'';
+  readWerkstattFromDOM();
+  readFreischichtFromDOM();
 }
 
 // ============================================================
@@ -598,568 +622,625 @@ function readFormIntoState(){
 // ============================================================
 
 function initUI(){
-  const ySel=el('sel-year'), cy=new Date().getFullYear();
-  for(let y=cy-2;y<=cy+2;y++){
-    const o=document.createElement('option');
-    o.value=y; o.textContent=y; if(y===cy) o.selected=true;
-    ySel.appendChild(o);
-  }
+  const ys=E('sel-year'),cy=new Date().getFullYear();
+  for(let y=cy-2;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===cy)o.selected=true;ys.appendChild(o);}
   loadState();
   applyStateToForm();
+  renderWerkstattUI();
+  renderFreischichtUI();
   renderEmpList();
   updateDaysInfo();
   updateValWarn();
-  if(plan) renderPlan();
+  if(PLAN)renderPlan();
 }
 
 function applyStateToForm(){
-  el('sel-year').value=state.year;
-  el('sel-month').value=state.month;
-  el('handover-time').value=state.handoverTime||'08:00';
-  el('s1-name').value=state.shift1.name;
-  el('s1-start').value=state.shift1.start;
-  el('s1-end').value=state.shift1.end;
-  el('s2-name').value=state.shift2.name;
-  el('s2-start').value=state.shift2.start;
-  el('s2-end').value=state.shift2.end;
-  if(el('print-extra'))  el('print-extra').value=state.printExtra||'';
-  if(el('print-author')) el('print-author').value=state.printAuthor||'';
+  E('sel-year').value=ST.year;E('sel-month').value=ST.month;
+  E('handover').value=ST.handoverTime||'08:00';
+  E('s1n').value=ST.shift1.name;E('s1s').value=ST.shift1.start;E('s1e').value=ST.shift1.end;
+  E('s2n').value=ST.shift2.name;E('s2s').value=ST.shift2.start;E('s2e').value=ST.shift2.end;
+  E('s3n').value=ST.shift3.name;E('s4n').value=ST.shift4.name;
+  if(E('print-extra'))E('print-extra').value=ST.printExtra||'';
+  if(E('print-author'))E('print-author').value=ST.printAuthor||'';
 }
 
 function onMonthChange(){
-  state.year=parseInt(el('sel-year').value);
-  state.month=parseInt(el('sel-month').value);
-  updateDaysInfo();
-  renderEmpList();
+  ST.year=parseInt(E('sel-year').value);ST.month=parseInt(E('sel-month').value);
+  updateDaysInfo();renderEmpList();saveState();
+}
+
+function updateDaysInfo(){E('days-info').textContent=dim(ST.year,ST.month)+' Tage';}
+
+function updateValWarn(){
+  const total=ST.employees.reduce((s,e)=>s+e.target,0);
+  const nd=dim(ST.year,ST.month);
+  // Count regular days (neither werkstatt nor freischicht)
+  let regDays=0;
+  for(let d=1;d<=nd;d++){if(dayType(ST.year,ST.month,d)==='regular')regDays++;}
+  const need=regDays*2;
+  const w=E('val-warn');
+  if(total<need){
+    w.innerHTML=`<div class="alert aw mb8"><span class="aic">⚠</span>
+      <div>Soll-Schichten gesamt: <strong>${total}</strong> – benötigt für vollständige Abdeckung: <strong>${need}</strong> (${regDays} reguläre Tage × 2). Es fehlen mindestens <strong>${need-total} Schichten</strong>.</div></div>`;
+  }else{w.innerHTML='';}
+}
+
+// ===== WERKSTATT UI =====
+
+function renderWerkstattUI(){
+  const c=E('wk-days');c.innerHTML='';
+  const wkDays=[1,2,3,4,5]; // Mon-Fri
+  const names=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
+  wkDays.forEach((dw,i)=>{
+    const active=ST.shift3.activeDays.includes(dw);
+    const cfg=ST.shift3.dayConfig[dw]||{start:'08:00',end:'15:00'};
+    const row=document.createElement('div');
+    row.className='wk-day-row'+(active?' active':'');
+    row.id=`wkr-${dw}`;
+    row.innerHTML=`
+      <label class="day-lbl flex ac g6" style="cursor:pointer">
+        <input type="checkbox" id="wkc-${dw}" data-dw="${dw}" ${active?'checked':''} onchange="onWkCheck(event)"
+          style="width:14px;height:14px;accent-color:var(--cyan)">
+        ${names[i]}
+      </label>
+      <div class="times">
+        <input type="time" id="wks-${dw}" value="${cfg.start}" style="width:90px" oninput="onWkTime(event)" data-dw="${dw}" data-field="start">
+        <span class="muted">–</span>
+        <input type="time" id="wke-${dw}" value="${cfg.end}" style="width:90px" oninput="onWkTime(event)" data-dw="${dw}" data-field="end">
+      </div>`;
+    c.appendChild(row);
+  });
+}
+
+function onWkCheck(e){
+  const dw=parseInt(e.target.dataset.dw);
+  const row=E(`wkr-${dw}`);
+  if(e.target.checked){
+    if(!ST.shift3.activeDays.includes(dw))ST.shift3.activeDays.push(dw);
+    ST.shift3.activeDays.sort();
+    if(!ST.shift3.dayConfig[dw])ST.shift3.dayConfig[dw]={start:'08:00',end:'15:00'};
+    row.classList.add('active');
+  }else{
+    ST.shift3.activeDays=ST.shift3.activeDays.filter(x=>x!==dw);
+    row.classList.remove('active');
+  }
+  updateValWarn();saveState();
+}
+
+function onWkTime(e){
+  const dw=parseInt(e.target.dataset.dw),field=e.target.dataset.field;
+  if(!ST.shift3.dayConfig[dw])ST.shift3.dayConfig[dw]={start:'08:00',end:'15:00'};
+  ST.shift3.dayConfig[dw][field]=e.target.value;
   saveState();
 }
 
-function updateDaysInfo(){
-  el('days-info').textContent=daysInMonth(state.year,state.month)+' Tage';
+function readWerkstattFromDOM(){
+  [1,2,3,4,5].forEach(dw=>{
+    const cb=E(`wkc-${dw}`);if(!cb)return;
+    if(cb.checked){
+      if(!ST.shift3.activeDays.includes(dw))ST.shift3.activeDays.push(dw);
+      const s=E(`wks-${dw}`),en=E(`wke-${dw}`);
+      if(s&&en)ST.shift3.dayConfig[dw]={start:s.value,end:en.value};
+    }else{
+      ST.shift3.activeDays=ST.shift3.activeDays.filter(x=>x!==dw);
+    }
+  });
+  ST.shift3.activeDays.sort();
 }
 
-function updateValWarn(){
-  const total=state.employees.reduce((s,e)=>s+e.target,0);
-  const need=daysInMonth(state.year,state.month)*2;
-  const w=el('val-warn');
-  if(total<need){
-    w.style.display='';
-    w.innerHTML=`<div class="alert a-warn mb-8"><span class="ai">⚠</span>
-      <div>Soll-Schichten gesamt: <strong>${total}</strong> — benötigt: <strong>${need}</strong> (${daysInMonth(state.year,state.month)} Tage × 2). Es fehlen mindestens <strong>${need-total} Schichten</strong>. Team möglicherweise zu klein.</div></div>`;
-  } else { w.style.display='none'; }
+// ===== FREISCHICHT UI =====
+
+function renderFreischichtUI(){
+  const c=E('free-days');c.innerHTML='';
+  const all=[1,2,3,4,5,6,0]; // Mon-Fri, Sat, Sun
+  const labels=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  all.forEach((dw,i)=>{
+    const active=ST.shift4.activeDays.includes(dw);
+    const lbl=document.createElement('label');
+    lbl.className='dow-pill';
+    lbl.innerHTML=`<input type="checkbox" id="frc-${dw}" data-dw="${dw}" ${active?'checked':''} onchange="onFrCheck(event)">${labels[i]}`;
+    c.appendChild(lbl);
+  });
+}
+
+function onFrCheck(e){
+  const dw=parseInt(e.target.dataset.dw);
+  if(e.target.checked){if(!ST.shift4.activeDays.includes(dw))ST.shift4.activeDays.push(dw);}
+  else{ST.shift4.activeDays=ST.shift4.activeDays.filter(x=>x!==dw);}
+  updateValWarn();saveState();
+}
+
+function readFreischichtFromDOM(){
+  ST.shift4.activeDays=[];
+  [1,2,3,4,5,6,0].forEach(dw=>{
+    const cb=E(`frc-${dw}`);if(cb&&cb.checked)ST.shift4.activeDays.push(dw);
+  });
 }
 
 // ===== EMPLOYEE LIST =====
 
 function renderEmpList(){
-  const c=el('emp-list'); c.innerHTML='';
-  state.employees.forEach((emp,idx)=>c.appendChild(buildEmpCard(emp,idx)));
-  el('emp-count-lbl').textContent=state.employees.length+' Mitarbeiter';
-  el('btn-add-emp').disabled=state.employees.length>=10;
+  const c=E('emp-list');c.innerHTML='';
+  ST.employees.forEach((emp,i)=>c.appendChild(buildEmpCard(emp,i)));
+  E('emp-cnt').textContent=ST.employees.length+' Mitarbeiter';
+  E('btn-add').disabled=ST.employees.length>=10;
 }
 
-function buildEmpCard(emp, idx){
-  const y=state.year, m=state.month;
-  const ms=`${y}-${pad(m+1)}`;
-  const md=daysInMonth(y,m);
+function buildEmpCard(emp,idx){
+  const y=ST.year,m=ST.month,ms=`${y}-${pad(m+1)}`,md=dim(y,m);
   const abl=allowedBlocks(emp);
 
-  const wrap=document.createElement('div');
-  wrap.className='emp-card'; wrap.id=`ec-${emp.id}`;
-
-  // vacation HTML
   let vacH=emp.vacations.map((v,vi)=>`
     <div class="vac-entry">
       <span class="vac-lbl">Urlaub ${vi+1}</span>
-      <input type="date" class="vac-from" data-id="${emp.id}" data-vi="${vi}"
-        value="${v.from}" min="${ms}-01" max="${ms}-${pad(md)}"
-        onchange="onVacChange(event)" style="width:140px">
+      <input type="date" class="vf" data-id="${emp.id}" data-vi="${vi}"
+        value="${v.from}" min="${ms}-01" max="${ms}-${pad(md)}" onchange="onVac(event)" style="width:138px">
       <span class="muted">bis</span>
-      <input type="date" class="vac-to" data-id="${emp.id}" data-vi="${vi}"
-        value="${v.to}" min="${ms}-01" max="${ms}-${pad(md)}"
-        onchange="onVacChange(event)" style="width:140px">
-      <button class="btn btn-sm btn-danger" onclick="removeVac('${emp.id}',${vi})">✕</button>
+      <input type="date" class="vt" data-id="${emp.id}" data-vi="${vi}"
+        value="${v.to}" min="${ms}-01" max="${ms}-${pad(md)}" onchange="onVac(event)" style="width:138px">
+      <button class="btn bd bsm" onclick="rmVac('${emp.id}',${vi})">✕</button>
     </div>`).join('');
 
-  // block day chips
   let blkH=emp.blockDays.map((bd,bi)=>`
-    <div class="block-chip">${fmtDateShort(bd)}<button onclick="removeBlk('${emp.id}',${bi})">×</button></div>`).join('');
+    <div class="blk-chip">${fmtShort(bd)}<button onclick="rmBlk('${emp.id}',${bi})">×</button></div>`).join('');
 
   const blkWarn=emp.blockDays.length>abl
-    ? `<span style="color:var(--red);font-size:11px"> ⚠ Limit überschritten (${emp.blockDays.length}/${abl})</span>`
-    : `<span class="muted text-xs"> (${emp.blockDays.length}/${abl})</span>`;
+    ?`<span style="color:var(--red);font-size:11px"> ⚠ Limit (${emp.blockDays.length}/${abl})</span>`
+    :`<span class="muted tx"> (${emp.blockDays.length}/${abl})</span>`;
 
-  wrap.innerHTML=`
-  <div class="emp-card-hdr">
-    <div class="emp-num">${idx+1}</div>
-    <input type="text" class="en" data-id="${emp.id}" value="${esc(emp.name)}" placeholder="Name"
-      oninput="onEmpField(event)"
-      style="font-weight:600;border:none;background:transparent;font-size:14px;color:var(--navy);flex:1;padding:2px 0">
-    ${state.employees.length>1?`<button class="btn btn-sm btn-danger ml-auto" onclick="removeEmp('${emp.id}')">🗑 Entfernen</button>`:''}
+  const div=document.createElement('div');
+  div.className='ec';div.id=`ec-${emp.id}`;
+  div.innerHTML=`
+  <div class="ech">
+    <div class="enum">${idx+1}</div>
+    <input type="text" class="emp-name-inp en" data-id="${emp.id}" value="${esc(emp.name)}"
+      placeholder="Name" oninput="onEF(event)">
+    ${ST.employees.length>1?`<button class="btn bd bsm mla" onclick="rmEmp('${emp.id}')">🗑</button>`:''}
   </div>
-  <div class="emp-body">
+  <div class="ecb">
     <div class="fgrid">
-      <div class="fg"><label>Soll-Schichten</label>
-        <input type="number" class="et" data-id="${emp.id}" value="${emp.target}" min="0" max="${md*2}" oninput="onEmpField(event)">
+      <div class="fg">
+        <label>Soll-Dienste (excl. Werkstatt-Backup)</label>
+        <input type="number" class="et" data-id="${emp.id}" value="${emp.target}" min="0" max="${md*2}" oninput="onEF(event)">
       </div>
-      <div class="fg"><label>Schichttyp-Präferenz</label>
-        <select class="ep" data-id="${emp.id}" onchange="onEmpField(event)">
-          <option value="">Keine Präferenz</option>
-          <option value="shift1" ${emp.prefShift==='shift1'?'selected':''}>${esc(state.shift1.name)}</option>
-          <option value="shift2" ${emp.prefShift==='shift2'?'selected':''}>${esc(state.shift2.name)}</option>
+      <div class="fg">
+        <label>Schichttyp-Präferenz</label>
+        <select class="ep" data-id="${emp.id}" onchange="onEF(event)">
+          <option value="shift1" ${emp.prefShift==='shift1'?'selected':''}>${esc(ST.shift1.name)}</option>
+          <option value="shift2" ${emp.prefShift==='shift2'?'selected':''}>${esc(ST.shift2.name)}</option>
         </select>
       </div>
-    </div>
-
-    <div>
-      <div class="sec-title">Besonderheiten &amp; Einschränkungen</div>
-      <div class="flex flex-col gap-6">
-        <label class="cb-row"><input type="checkbox" class="e-nosat" data-id="${emp.id}" ${emp.noSaturday?'checked':''} onchange="onEmpField(event)"> Nie samstags</label>
-        <label class="cb-row"><input type="checkbox" class="e-nosun" data-id="${emp.id}" ${emp.noSunday?'checked':''} onchange="onEmpField(event)"> Nie sonntags</label>
-        <label class="cb-row"><input type="checkbox" class="e-nolic" data-id="${emp.id}" ${emp.noLicense?'checked':''} onchange="onEmpField(event)"> 🚗 Kein Führerschein <span class="muted text-xs">(Info im Plan sichtbar)</span></label>
-        <div class="fg"><label>Bevorzugte Tage / Zeiten</label>
-          <input type="text" class="e-prefdays" data-id="${emp.id}" value="${esc(emp.preferredDays)}" placeholder="z.B. bevorzugt Mittwoch auf Donnerstag" oninput="onEmpField(event)">
-        </div>
-        <div class="fg"><label>Weitere Einschränkungen</label>
-          <input type="text" class="e-extra" data-id="${emp.id}" value="${esc(emp.extraConstraints)}" placeholder="z.B. nie zwei Wochenenden hintereinander" oninput="onEmpField(event)">
-        </div>
+      <div class="fg ac" style="flex-direction:row;gap:8px;padding-top:18px">
+        <input type="checkbox" class="elic" data-id="${emp.id}" ${emp.hasLicense?'checked':''}
+          onchange="onEF(event)" style="width:16px;height:16px;accent-color:var(--navy)">
+        <label style="font-size:13px;cursor:pointer">🚗 Führerschein vorhanden</label>
       </div>
     </div>
 
     <div>
-      <div class="sec-title">Urlaub (FIXE Sperren – kein Dienst, kein Backup an Urlaubstagen)</div>
-      <div class="vac-list" id="vl-${emp.id}">${vacH}</div>
-      <button class="btn btn-sm btn-secondary mt-8" onclick="addVac('${emp.id}')">+ Urlaub hinzufügen</button>
+      <div class="stitle">Einschränkungen &amp; Wünsche (Freitext)</div>
+      <div class="fg">
+        <textarea class="eex" data-id="${emp.id}" rows="2" style="resize:vertical"
+          placeholder="z.B.: Nie samstags · Bevorzugt Mittwoch auf Donnerstag · Keine Feiertage · Nie zwei Wochenenden hintereinander"
+          oninput="onEF(event)">${esc(emp.extraConstraints)}</textarea>
+        <div class="hint-text">Freitext: „Nie samstags", „bevorzugt Mittwoch auf Donnerstag", „keine Feiertage", „nur Tagdienste"</div>
+      </div>
     </div>
 
     <div>
-      <div class="sec-title">Sperrtage (weich) – max. ${abl} ${blkWarn}</div>
-      <div class="block-grid mb-8" id="bg-${emp.id}">${blkH}</div>
+      <div class="stitle">Urlaub (FIXE Sperren)</div>
+      <div id="vl-${emp.id}">${vacH}</div>
+      <button class="btn bs bsm mt8" onclick="addVac('${emp.id}')">+ Urlaub</button>
+    </div>
+
+    <div>
+      <div class="stitle">Sperrtage (weich) – max. ${abl}${blkWarn}</div>
+      <div class="blk-grid mb8" id="bg-${emp.id}">${blkH}</div>
       <div class="frow">
-        <input type="date" id="bp-${emp.id}" min="${ms}-01" max="${ms}-${pad(md)}" style="width:160px">
-        <button class="btn btn-sm btn-secondary" onclick="addBlk('${emp.id}')">+ Sperrtag</button>
+        <input type="date" id="bp-${emp.id}" min="${ms}-01" max="${ms}-${pad(md)}" style="width:155px">
+        <button class="btn bs bsm" onclick="addBlk('${emp.id}')">+ Sperrtag</button>
       </div>
     </div>
   </div>`;
-  return wrap;
+  return div;
 }
 
-// ===== EMPLOYEE FIELD EVENTS =====
-
-function onEmpField(e){
-  const id=e.target.dataset.id;
-  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
-  if(e.target.classList.contains('en'))       emp.name=e.target.value;
-  if(e.target.classList.contains('et'))       emp.target=parseInt(e.target.value)||0;
-  if(e.target.classList.contains('ep'))       emp.prefShift=e.target.value;
-  if(e.target.classList.contains('e-nosat'))  emp.noSaturday=e.target.checked;
-  if(e.target.classList.contains('e-nosun'))  emp.noSunday=e.target.checked;
-  if(e.target.classList.contains('e-nolic'))  emp.noLicense=e.target.checked;
-  if(e.target.classList.contains('e-prefdays'))emp.preferredDays=e.target.value;
-  if(e.target.classList.contains('e-extra'))  emp.extraConstraints=e.target.value;
-  updateValWarn();
-  saveState();
+function onEF(e){
+  const id=e.target.dataset.id,emp=ST.employees.find(x=>x.id===id);if(!emp)return;
+  if(e.target.classList.contains('en'))    emp.name=e.target.value;
+  if(e.target.classList.contains('et'))    emp.target=parseInt(e.target.value)||0;
+  if(e.target.classList.contains('ep'))    emp.prefShift=e.target.value;
+  if(e.target.classList.contains('elic'))  emp.hasLicense=e.target.checked;
+  if(e.target.classList.contains('eex'))   emp.extraConstraints=e.target.value;
+  updateValWarn();saveState();
 }
-
-function onVacChange(e){
-  const id=e.target.dataset.id, vi=parseInt(e.target.dataset.vi);
-  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
-  if(e.target.classList.contains('vac-from')) emp.vacations[vi].from=e.target.value;
-  if(e.target.classList.contains('vac-to'))   emp.vacations[vi].to=e.target.value;
-  saveState();
-  refreshEmpCard(emp);
+function onVac(e){
+  const id=e.target.dataset.id,vi=parseInt(e.target.dataset.vi);
+  const emp=ST.employees.find(x=>x.id===id);if(!emp)return;
+  if(e.target.classList.contains('vf'))emp.vacations[vi].from=e.target.value;
+  if(e.target.classList.contains('vt'))emp.vacations[vi].to=e.target.value;
+  saveState();refreshEC(emp);
 }
-
-function refreshEmpCard(emp){
-  const old=document.getElementById(`ec-${emp.id}`); if(!old) return;
-  const idx=state.employees.findIndex(x=>x.id===emp.id);
-  old.replaceWith(buildEmpCard(emp,idx));
+function refreshEC(emp){
+  const old=E(`ec-${emp.id}`);if(!old)return;
+  const i=ST.employees.findIndex(x=>x.id===emp.id);
+  old.replaceWith(buildEmpCard(emp,i));
 }
-
-function addEmployee(){
-  if(state.employees.length>=10) return;
-  state.employees.push(mkEmp('Mitarbeiter '+(state.employees.length+1)));
-  renderEmpList(); saveState();
+function addEmp(){
+  if(ST.employees.length>=10)return;
+  ST.employees.push(mkEmp('Mitarbeiter '+(ST.employees.length+1)));
+  renderEmpList();saveState();
 }
-function removeEmp(id){
-  if(state.employees.length<=1){alert('Mindestens 1 Mitarbeiter.');return;}
-  state.employees=state.employees.filter(x=>x.id!==id);
-  renderEmpList(); saveState();
+function rmEmp(id){
+  if(ST.employees.length<=1){alert('Mindestens 1 MA.');return;}
+  ST.employees=ST.employees.filter(x=>x.id!==id);renderEmpList();saveState();
 }
 function addVac(id){
-  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
-  const d1=dStr(state.year,state.month,1);
-  emp.vacations.push({from:d1,to:d1});
-  refreshEmpCard(emp); saveState();
+  const emp=ST.employees.find(x=>x.id===id);if(!emp)return;
+  const d1=dStr(ST.year,ST.month,1);
+  emp.vacations.push({from:d1,to:d1});refreshEC(emp);saveState();
 }
-function removeVac(id,vi){
-  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
-  emp.vacations.splice(vi,1); refreshEmpCard(emp); saveState();
+function rmVac(id,vi){
+  const emp=ST.employees.find(x=>x.id===id);if(!emp)return;
+  emp.vacations.splice(vi,1);refreshEC(emp);saveState();
 }
 function addBlk(id){
-  const emp=state.employees.find(x=>x.id===id);
-  const pick=el('bp-'+id); if(!emp||!pick.value) return;
-  if(!emp.blockDays.includes(pick.value)){ emp.blockDays.push(pick.value); emp.blockDays.sort(); }
-  pick.value=''; refreshEmpCard(emp); saveState();
+  const emp=ST.employees.find(x=>x.id===id),pick=E('bp-'+id);
+  if(!emp||!pick.value)return;
+  if(!emp.blockDays.includes(pick.value)){emp.blockDays.push(pick.value);emp.blockDays.sort();}
+  pick.value='';refreshEC(emp);saveState();
 }
-function removeBlk(id,bi){
-  const emp=state.employees.find(x=>x.id===id); if(!emp) return;
-  emp.blockDays.splice(bi,1); refreshEmpCard(emp); saveState();
+function rmBlk(id,bi){
+  const emp=ST.employees.find(x=>x.id===id);if(!emp)return;
+  emp.blockDays.splice(bi,1);refreshEC(emp);saveState();
 }
 
 // ============================================================
-// SECTION 6 – SCHEDULING ALGORITHM
+// SECTION 6 – CORRECTIONS PARSING
 // ============================================================
 
 /**
- * Hard-rule check: can this employee take this role on dayIdx?
- * asgn: { [dayIdx]: 'dienst'|'backup' }  (employee's own history so far)
- * Returns { ok:true } or { ok:false, rule:'H2'|'H3'|'H4'|'H5', msg:string }
+ * Parse all correction texts into rule objects.
+ * Types: force_free, force_dienst, force_backup, override_werkstatt,
+ *        no_dow, no_weekend, no_holiday, force_shift_type,
+ *        pref_dow, pref_weekend, no_consec_weekend
  */
-function canAssign(asgn, dayIdx, role){
-  const p1 = dayIdx>0 ? asgn[dayIdx-1] : null;
-  const p2 = dayIdx>1 ? asgn[dayIdx-2] : null;
+function parseCorrections(texts){
+  const rules=[];
+  for(const text of texts){
+    const lo=text.toLowerCase();
+    for(const emp of ST.employees){
+      const nm=emp.name.toLowerCase();
+      if(!lo.includes(nm))continue;
 
+      // Date detection: "am 15." or "am 3." etc.
+      let tDate=null;
+      const dm=text.match(/am\s+(\d{1,2})\.?/i);
+      if(dm){const d=parseInt(dm[1]);if(d>=1&&d<=31)tDate=dStr(ST.year,ST.month,d);}
+
+      // Force free
+      if(tDate&&(lo.includes('frei')||lo.includes('kein dienst'))){
+        rules.push({type:'force_free',empId:emp.id,date:tDate,text});
+      }
+      // Explicit override (ausnahmsweise)
+      if(tDate&&lo.includes('ausnahmsweise')){
+        if(lo.includes('dienst')||lo.includes('schicht'))
+          rules.push({type:'force_dienst',empId:emp.id,date:tDate,text,manual:true});
+        if(lo.includes('backup')||lo.includes('vertretung'))
+          rules.push({type:'force_backup',empId:emp.id,date:tDate,text,manual:true});
+      }
+      // Weekday restrictions
+      [{n:'montag',d:1},{n:'dienstag',d:2},{n:'mittwoch',d:3},
+       {n:'donnerstag',d:4},{n:'freitag',d:5},{n:'samstag',d:6},{n:'sonntag',d:0}].forEach(({n,d})=>{
+        if(lo.includes(n)&&(lo.includes('nicht')||lo.includes('nie')||lo.includes('kein')))
+          rules.push({type:'no_dow',empId:emp.id,dow:d,text});
+      });
+      if(lo.includes('wochenende')&&(lo.includes('nicht')||lo.includes('nie')))
+        rules.push({type:'no_weekend',empId:emp.id,text});
+      // Shift type
+      if(lo.includes('nur')&&(lo.includes('typ 1')||lo.includes(ST.shift1.name.toLowerCase())))
+        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift1',text});
+      if(lo.includes('nur')&&(lo.includes('typ 2')||lo.includes(ST.shift2.name.toLowerCase())))
+        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift2',text});
+    }
+    // Werkstatt override to 24h
+    if((lo.includes('krank')||lo.includes('24h')||lo.includes('24-h'))&&lo.includes('werkstatt')){
+      const dm2=text.match(/am\s+(\d{1,2})\.?/i);
+      if(dm2){const d=parseInt(dm2[1]);if(d>=1&&d<=31)
+        rules.push({type:'override_werkstatt',date:dStr(ST.year,ST.month,d),text});
+      }
+    }
+  }
+  return rules;
+}
+
+/**
+ * Parse employee's extraConstraints free text into soft rule objects.
+ */
+function parseEmpRules(emp){
+  const lo=(emp.extraConstraints||'').toLowerCase();
+  const rules=[];
+  if(/nie\s+samstag/.test(lo))     rules.push({type:'no_dow',dow:6});
+  if(/nie\s+sonntag/.test(lo))     rules.push({type:'no_dow',dow:0});
+  if(/keine?\s+feiertag/.test(lo)) rules.push({type:'no_holiday'});
+  if(/bevorzugt\s+wochenende?/.test(lo))rules.push({type:'pref_weekend'});
+  if(/nie\s+zwei\s+wochenende?n/.test(lo))rules.push({type:'no_consec_weekend'});
+  if(/nur\s+(tag|früh|typ\s*1)/.test(lo))rules.push({type:'force_shift',shiftType:'shift1'});
+  if(/nur\s+(24h?|typ\s*2)/.test(lo))    rules.push({type:'force_shift',shiftType:'shift2'});
+  // Day preference: "bevorzugt mittwoch"
+  const dowMap={montag:1,dienstag:2,mittwoch:3,donnerstag:4,freitag:5,samstag:6,sonntag:0};
+  const pm=lo.match(/bevorzugt\s+(montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)/);
+  if(pm)rules.push({type:'pref_dow',dow:dowMap[pm[1]]});
+  return rules;
+}
+
+// ============================================================
+// SECTION 7 – SCHEDULING ALGORITHM
+// ============================================================
+
+/**
+ * Hard-rule check: can this employee take 'role' on dayIdx?
+ * asgn: { [dayIdx]: 'dienst'|'backup' }
+ * Returns {ok:true} or {ok:false, rule:'Hx', msg:string}
+ */
+function canAssign(asgn, di, role){
+  const p1=di>0?asgn[di-1]:null;
+  const p2=di>1?asgn[di-2]:null;
   if(role==='dienst'){
-    // H2: No consecutive Dienst
-    if(p1==='dienst') return {ok:false,rule:'H2',msg:'Zwei Dienste hintereinander'};
-    // H3: No 3 consecutive any
-    if(p1 && p2) return {ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
-    // H4: Dienst-Backup-Dienst pattern
-    if(p2==='dienst' && p1==='backup') return {ok:false,rule:'H4',msg:'Dienst-Backup-Dienst-Muster'};
+    if(p1==='dienst')           return{ok:false,rule:'H2',msg:'Zwei Dienste hintereinander'};
+    if(p1&&p2)                  return{ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
+    if(p2==='dienst'&&p1==='backup')return{ok:false,rule:'H4',msg:'Dienst-Backup-Dienst-Muster'};
   }
   if(role==='backup'){
-    // H3
-    if(p1 && p2) return {ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
-    // H5: already dienst today
-    if(asgn[dayIdx]==='dienst') return {ok:false,rule:'H5',msg:'Bereits als Dienst eingeplant'};
+    if(p1&&p2)                  return{ok:false,rule:'H3',msg:'Drei aufeinanderfolgende Tage'};
+    if(asgn[di]==='dienst')     return{ok:false,rule:'H5',msg:'Bereits als Dienst eingeplant'};
   }
-  return {ok:true};
+  return{ok:true};
 }
 
 /**
- * Score an employee for assignment (lower = preferred)
+ * Scoring function for candidate assignment (lower = preferred)
  */
-function score(empId, dayIdx, role, day, empData, corrRules){
-  const ed=empData[empId];
+function scoreCandidate(empId, di, role, day, ed, corrRules, empRules, allDays){
   const emp=ed.emp;
   let s=0;
 
-  // Prefer employees with most remaining capacity relative to target
-  const used=ed.dienstCnt+ed.backupCnt;
-  const rem=emp.target-used;
-  s -= rem*10;
-
-  // Balance: backup should roughly equal dienst count (W4)
-  if(role==='backup') s += (ed.backupCnt-ed.dienstCnt)*8;
-
-  // Soft block day (W2)
-  if(ed.blkSet.has(day.date)) s+=30;
-
-  // Week limit (W1)
-  const wc=ed.weekCounts[day.wk]||0;
-  if(wc>=2) s+=50;
-  if(wc>=3) s+=100;
-
-  // W3: for backup – penalise if last assignment as dienst was yesterday (risky for H4)
-  if(role==='backup' && dayIdx>0 && ed.asgn[dayIdx-1]==='dienst') s+=35;
-
-  // W5: individual constraints
-  if(emp.noSaturday && day.dow===6) s+=45;
-  if(emp.noSunday   && day.dow===0) s+=45;
-
-  // Correction-based soft penalties
-  for(const r of corrRules){
-    if(r.empId!==empId) continue;
-    if(r.type==='no_dow' && r.dow===day.dow) s+=50;
-    if(r.type==='no_weekend' && (day.dow===0||day.dow===6)) s+=50;
-    if(r.type==='force_shift_type' && role==='dienst') {/* handled elsewhere */}
+  // Capacity vs target (for regular dienst only)
+  const remDienst=emp.target-ed.dienstCnt;
+  if(role==='dienst') s -= remDienst*10;
+  if(role==='backup'){
+    // Balance backup vs dienst (W4)
+    s += (ed.backupCnt - ed.dienstCnt)*8;
+  }
+  if(role==='werkstatt_backup'){
+    // Prefer employees with fewer werkstatt backups and fewer total assignments
+    s += ed.wkBkpCnt*6;
+    s += (ed.dienstCnt+ed.backupCnt)*2;
   }
 
-  // Small random tiebreaker
-  s += Math.random()*0.4;
+  // Soft block day (W2)
+  if(ed.blkSet.has(day.date)) s+=28;
+
+  // Week limit (W1)
+  const wc=(ed.weekCounts[day.wk]||0);
+  if(wc>=2) s+=50;if(wc>=3) s+=100;
+
+  // W3: Backup should come AFTER own dienst (penalise backup before first dienst)
+  if(role==='backup'||role==='werkstatt_backup'){
+    if(di>0&&ed.asgn[di-1]==='dienst') s+=30; // risky for H4
+  }
+
+  // W5: individual constraints
+  for(const r of empRules){
+    if(r.type==='no_dow'&&r.dow===day.dow)              s+=50;
+    if(r.type==='no_holiday'&&isHol(ST.year,ST.month,day.day)) s+=50;
+    if(r.type==='pref_dow'&&r.dow===day.dow)            s-=20;
+    if(r.type==='pref_weekend'&&isWE(ST.year,ST.month,day.day)) s-=15;
+    if(r.type==='no_consec_weekend'&&isWE(ST.year,ST.month,day.day)&&ed.lastWeekendAssigned) s+=45;
+    if(r.type==='force_shift'){}// handled in resolveShift
+  }
+
+  // Correction-based soft rules
+  for(const r of corrRules){
+    if(r.empId!==empId)continue;
+    if(r.type==='no_dow'&&r.dow===day.dow)       s+=50;
+    if(r.type==='no_weekend'&&(day.dow===0||day.dow===6)) s+=50;
+  }
+
+  s+=Math.random()*0.4;
   return s;
 }
 
-// Main generation function
+function resolveShiftType(empId, corrRules){
+  const cfr=corrRules.find(r=>r.type==='force_shift_type'&&r.empId===empId);
+  if(cfr) return cfr.shiftType;
+  const emp=ST.employees.find(e=>e.id===empId);
+  const er=parseEmpRules(emp);
+  const efr=er.find(r=>r.type==='force_shift');
+  if(efr) return efr.shiftType;
+  return emp?.prefShift||'shift2';
+}
+
 function generatePlan(){
   saveState();
-  planHistory = plan ? JSON.parse(JSON.stringify(plan)) : null;
-  el('btn-undo').disabled = !planHistory;
+  HISTORY=PLAN?JSON.parse(JSON.stringify(PLAN)):null;
+  E('btn-undo').disabled=!HISTORY;
 
-  const y=state.year, m=state.month, nd=daysInMonth(y,m);
+  const y=ST.year,m=ST.month,nd=dim(y,m);
+  const corrRules=parseCorrections(ST.corrections);
 
-  // Parse corrections
-  const corrRules = parseAllCorrections(state.corrections, state.employees);
-
-  // Build employee runtime data
-  const empData={};
-  state.employees.forEach(emp=>{
-    empData[emp.id]={
+  // Build per-employee runtime data
+  const ed={};
+  ST.employees.forEach(emp=>{
+    ed[emp.id]={
       emp,
-      vacSt: vacSet(emp),
-      blkSet: new Set(emp.blockDays),
-      asgn: {},         // { [dayIdx]: 'dienst'|'backup' }
-      dienstCnt:0, backupCnt:0,
-      weekCounts:{}     // { weekKey: count }
+      vacSt:vacSet(emp),
+      blkSet:new Set(emp.blockDays),
+      asgn:{},            // {[dayIdx]: 'dienst'|'backup'|'wkbkp'}
+      dienstCnt:0,
+      backupCnt:0,
+      wkBkpCnt:0,
+      weekCounts:{},
+      lastWeekendAssigned:false,
+      empRules:parseEmpRules(emp)
     };
   });
 
-  // Build days array
+  // Build day array
   const days=[];
   for(let d=1;d<=nd;d++){
     const ds=dStr(y,m,d);
+    const dw=DOW(y,m,d);
+    const dt=dayType(y,m,d);
     days.push({
-      date:ds, day:d, dayIdx:d-1,
-      dow:dow(y,m,d),
-      isWE:isWE(y,m,d), isHol:isHol(y,m,d),
-      holName:holName(y,m,d),
-      wk:weekKey(ds),
-      dienst:null, backup:null,
-      dienstShift:'shift1',
-      flags:[],         // soft violations
-      hardViol:[],      // hard rule violations (manual overrides only)
-      manualOverride:false
+      date:ds,day:d,dayIdx:d-1,dow:dw,wk:wkKey(ds),
+      type:dt,           // 'regular'|'werkstatt'|'freischicht'
+      isWE:isWE(y,m,d),isHol:isHol(y,m,d),holName:holName(y,m,d),
+      dienst:null,backup:null,
+      dienstShift:'shift2',
+      flags:[],hardViol:[],manualOverride:false
     });
   }
 
-  // ── ASSIGNMENT LOOP ──
+  // ── MAIN ASSIGNMENT LOOP ──
   for(let di=0;di<days.length;di++){
     const day=days[di];
 
-    // Check for manual force-free corrections (force day off for employee)
-    const forceFree = corrRules.filter(r=>r.type==='force_free'&&r.date===day.date).map(r=>r.empId);
+    // H6: Freischicht – nothing assigned
+    if(day.type==='freischicht') continue;
 
-    // ── Assign DIENST ──
-    const manDienst=corrRules.find(r=>r.type==='force_dienst'&&r.date===day.date);
-    if(manDienst){
-      // Manual override – may violate hard rules
-      day.dienst=manDienst.empId;
-      day.manualOverride=true;
-      const ed=empData[manDienst.empId];
-      const chk=canAssign(ed.asgn,di,'dienst');
-      if(!chk.ok) day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
-      ed.asgn[di]='dienst'; ed.dienstCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
-      day.dienstShift=resolveShiftType(manDienst.empId,corrRules);
-    } else {
-      // Auto-assign
-      const cands=state.employees
-        .filter(emp=>{
-          const ed=empData[emp.id];
-          if(ed.vacSt.has(day.date)) return false; // H1
-          if(forceFree.includes(emp.id)) return false;
-          const chk=canAssign(ed.asgn,di,'dienst');
-          if(!chk.ok) return false;
-          return true;
-        })
-        .sort((a,b)=>score(a.id,di,'dienst',day,empData,corrRules)-score(b.id,di,'dienst',day,empData,corrRules));
+    // Check for werkstatt override correction (customer sick, switch to 24h)
+    const wkOverride=corrRules.find(r=>r.type==='override_werkstatt'&&r.date===day.date);
+    const effectiveType=(day.type==='werkstatt'&&wkOverride)?'regular':day.type;
+    if(wkOverride){day.manualOverride=true;day.dienstShift='shift2';}
 
-      if(cands.length){
-        const ch=cands[0]; const ed=empData[ch.id];
-        day.dienst=ch.id;
-        day.dienstShift=resolveShiftType(ch.id,corrRules);
-        ed.asgn[di]='dienst'; ed.dienstCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
-        // Soft flags
-        if(ed.blkSet.has(day.date)) day.flags.push('blockday');
-        const wc=ed.weekCounts[day.wk];
-        if(wc>2) day.flags.push('over_week');
-        if(ch.noSaturday&&day.dow===6) day.flags.push('soft_viol');
-        if(ch.noSunday&&day.dow===0)   day.flags.push('soft_viol');
+    // Force-free list
+    const forceFree=corrRules.filter(r=>r.type==='force_free'&&r.date===day.date).map(r=>r.empId);
+    // Manual force-dienst/backup
+    const manD=corrRules.find(r=>r.type==='force_dienst'&&r.date===day.date);
+    const manB=corrRules.find(r=>r.type==='force_backup'&&r.date===day.date);
+
+    // ── DIENST assignment (regular days only; also werkstatt overrides) ──
+    if(effectiveType==='regular'){
+      if(manD){
+        // Manual override – may break hard rules
+        day.dienst=manD.empId;day.manualOverride=true;
+        const emp_d=ed[manD.empId];
+        const chk=canAssign(emp_d.asgn,di,'dienst');
+        if(!chk.ok) day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
+        emp_d.asgn[di]='dienst';emp_d.dienstCnt++;
+        emp_d.weekCounts[day.wk]=(emp_d.weekCounts[day.wk]||0)+1;
+        day.dienstShift=resolveShiftType(manD.empId,corrRules);
       } else {
-        day.flags.push('open_dienst');
+        const cands=ST.employees
+          .filter(emp=>{
+            const e=ed[emp.id];
+            if(e.vacSt.has(day.date))return false;       // H1
+            if(forceFree.includes(emp.id))return false;
+            return canAssign(e.asgn,di,'dienst').ok;     // H2–H4
+          })
+          .sort((a,b)=>scoreCandidate(a.id,di,'dienst',day,ed[a.id],corrRules,ed[a.id].empRules,days)
+                      -scoreCandidate(b.id,di,'dienst',day,ed[b.id],corrRules,ed[b.id].empRules,days));
+
+        if(cands.length){
+          const ch=cands[0],e=ed[ch.id];
+          day.dienst=ch.id;
+          day.dienstShift=resolveShiftType(ch.id,corrRules);
+          e.asgn[di]='dienst';e.dienstCnt++;
+          e.weekCounts[day.wk]=(e.weekCounts[day.wk]||0)+1;
+          if(day.isWE)e.lastWeekendAssigned=true;
+          if(e.blkSet.has(day.date))day.flags.push('blockday');
+          if((e.weekCounts[day.wk]||0)>2)day.flags.push('over_week');
+        } else {
+          day.flags.push('open_dienst');
+        }
       }
     }
 
-    // ── Assign BACKUP ──
-    const manBackup=corrRules.find(r=>r.type==='force_backup'&&r.date===day.date);
-    if(manBackup && manBackup.empId!==day.dienst){
-      day.backup=manBackup.empId;
-      day.manualOverride=true;
-      const ed=empData[manBackup.empId];
-      const chk=canAssign(ed.asgn,di,'backup');
-      if(!chk.ok) day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
-      ed.asgn[di]='backup'; ed.backupCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
+    // ── BACKUP assignment (regular + werkstatt) ──
+    const backupRole=day.type==='werkstatt'&&!wkOverride?'werkstatt_backup':'backup';
+
+    if(manB&&manB.empId!==day.dienst){
+      day.backup=manB.empId;day.manualOverride=true;
+      const e=ed[manB.empId];
+      const chk=canAssign(e.asgn,di,'backup');
+      if(!chk.ok)day.hardViol.push(`Manuelle Ausnahme ${chk.rule}: ${chk.msg}`);
+      e.asgn[di]='backup';
+      if(backupRole==='werkstatt_backup')e.wkBkpCnt++;else e.backupCnt++;
+      e.weekCounts[day.wk]=(e.weekCounts[day.wk]||0)+1;
     } else {
-      const cands=state.employees
+      const cands=ST.employees
         .filter(emp=>{
-          const ed=empData[emp.id];
-          if(ed.vacSt.has(day.date)) return false; // H1
-          if(emp.id===day.dienst) return false;     // H5
-          if(forceFree.includes(emp.id)) return false;
-          const chk=canAssign(ed.asgn,di,'backup');
-          if(!chk.ok) return false;
-          return true;
+          const e=ed[emp.id];
+          if(e.vacSt.has(day.date))return false;    // H1
+          if(emp.id===day.dienst)return false;       // H5
+          if(forceFree.includes(emp.id))return false;
+          return canAssign(e.asgn,di,'backup').ok;  // H3, H5
         })
-        .sort((a,b)=>score(a.id,di,'backup',day,empData,corrRules)-score(b.id,di,'backup',day,empData,corrRules));
+        .sort((a,b)=>scoreCandidate(a.id,di,backupRole,day,ed[a.id],corrRules,ed[a.id].empRules,days)
+                    -scoreCandidate(b.id,di,backupRole,day,ed[b.id],corrRules,ed[b.id].empRules,days));
 
       if(cands.length){
-        const ch=cands[0]; const ed=empData[ch.id];
+        const ch=cands[0],e=ed[ch.id];
         day.backup=ch.id;
-        ed.asgn[di]='backup'; ed.backupCnt++; ed.weekCounts[day.wk]=(ed.weekCounts[day.wk]||0)+1;
-        if(ed.blkSet.has(day.date)&&!day.flags.includes('blockday')) day.flags.push('blockday');
-        const wc=ed.weekCounts[day.wk];
-        if(wc>2&&!day.flags.includes('over_week')) day.flags.push('over_week');
+        e.asgn[di]='backup';
+        if(backupRole==='werkstatt_backup')e.wkBkpCnt++;else e.backupCnt++;
+        e.weekCounts[day.wk]=(e.weekCounts[day.wk]||0)+1;
+        if(day.isWE)e.lastWeekendAssigned=true;
+        if(e.blkSet.has(day.date)&&!day.flags.includes('blockday'))day.flags.push('blockday');
+        if((e.weekCounts[day.wk]||0)>2&&!day.flags.includes('over_week'))day.flags.push('over_week');
       } else {
         day.flags.push('open_backup');
       }
     }
   }
 
-  // Build plan stats per employee
+  // Build stats snapshot
   const empStats={};
-  state.employees.forEach(emp=>{
-    const ed=empData[emp.id];
-    empStats[emp.id]={ dienstCnt:ed.dienstCnt, backupCnt:ed.backupCnt };
+  ST.employees.forEach(emp=>{
+    const e=ed[emp.id];
+    empStats[emp.id]={dienstCnt:e.dienstCnt,backupCnt:e.backupCnt,wkBkpCnt:e.wkBkpCnt};
   });
 
-  plan={
-    year:y, month:m, days, empStats,
-    generatedAt:new Date().toISOString()
-  };
+  PLAN={year:y,month:m,days,empStats,generatedAt:new Date().toISOString()};
+  PLAN.hardViolations=validateHardRules(days,ed);
 
-  // Post-generation hard rule validation
-  plan.hardViolations = validateHardRules(days, empData);
-
-  try{ localStorage.setItem('dp_plan',JSON.stringify(plan)); }catch(e){}
+  try{localStorage.setItem('dp4_pl',JSON.stringify(PLAN));}catch(e){}
   renderPlan();
 }
 
-function resolveShiftType(empId, corrRules){
-  const forced=corrRules.find(r=>r.type==='force_shift_type'&&r.empId===empId);
-  if(forced) return forced.shiftType;
-  const emp=state.employees.find(e=>e.id===empId);
-  if(emp&&emp.prefShift) return emp.prefShift;
-  return 'shift1';
-}
-
-/**
- * Post-generation hard rule check across all days.
- * Returns array of violation objects.
- */
-function validateHardRules(days, empData){
-  const viols=[];
-
+/** Post-generation hard rule validation sweep */
+function validateHardRules(days,ed){
+  const v=[];
   for(let di=0;di<days.length;di++){
     const day=days[di];
-    const prev=di>0?days[di-1]:null;
-    const prev2=di>1?days[di-2]:null;
+    const p1=di>0?days[di-1]:null,p2=di>1?days[di-2]:null;
 
-    // H1: Vacation check (belt-and-suspenders)
-    state.employees.forEach(emp=>{
-      const ed=empData[emp.id];
-      if(ed.vacSt.has(day.date)&&(day.dienst===emp.id||day.backup===emp.id)){
-        viols.push({rule:'H1',date:day.date,empId:emp.id,
-          msg:`${emp.name} ist am ${day.date} im Urlaub, wurde aber eingeplant`});
-      }
+    // H1 vacation
+    ST.employees.forEach(emp=>{
+      const e=ed[emp.id];
+      if(e.vacSt.has(day.date)&&(day.dienst===emp.id||day.backup===emp.id)&&!day.manualOverride)
+        v.push({rule:'H1',date:day.date,empId:emp.id,msg:`${emp.name} Urlaub, aber eingeplant`});
     });
 
-    if(day.dienst){
-      const empName=state.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
-      // H2: consecutive dienst
-      if(prev&&prev.dienst===day.dienst&&!day.manualOverride&&!prev.manualOverride)
-        viols.push({rule:'H2',date:day.date,empId:day.dienst,
-          msg:`${empName}: Zwei Dienste hintereinander (${prev.date} + ${day.date})`});
-      // H3: 3 consecutive
-      if(prev&&prev2&&!day.manualOverride){
-        const wasPrev =(prev.dienst===day.dienst||prev.backup===day.dienst);
-        const wasPrev2=(prev2.dienst===day.dienst||prev2.backup===day.dienst);
-        if(wasPrev&&wasPrev2)
-          viols.push({rule:'H3',date:day.date,empId:day.dienst,
-            msg:`${empName}: Drei aufeinanderfolgende Tage (${prev2.date}–${day.date})`});
+    if(day.dienst&&!day.manualOverride){
+      const nm=ST.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
+      if(p1&&p1.dienst===day.dienst)
+        v.push({rule:'H2',date:day.date,empId:day.dienst,msg:`${nm}: Zwei Dienste hintereinander (${p1.date}/${day.date})`});
+      if(p1&&p2){
+        const w1=p1.dienst===day.dienst||p1.backup===day.dienst;
+        const w2=p2.dienst===day.dienst||p2.backup===day.dienst;
+        if(w1&&w2)v.push({rule:'H3',date:day.date,empId:day.dienst,msg:`${nm}: 3 Tage hintereinander (${p2.date}–${day.date})`});
       }
-      // H4: Dienst-Backup-Dienst
-      if(prev&&prev2&&!day.manualOverride){
-        if(prev2.dienst===day.dienst&&prev.backup===day.dienst)
-          viols.push({rule:'H4',date:day.date,empId:day.dienst,
-            msg:`${empName}: Dienst-Backup-Dienst-Muster (${prev2.date}/${prev.date}/${day.date})`});
-      }
+      if(p1&&p2&&p2.dienst===day.dienst&&p1.backup===day.dienst)
+        v.push({rule:'H4',date:day.date,empId:day.dienst,msg:`${nm}: Dienst-Backup-Dienst (${p2.date}/${p1.date}/${day.date})`});
     }
-
-    // H5: Double role same day
     if(day.dienst&&day.backup&&day.dienst===day.backup&&!day.manualOverride){
-      const n=state.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
-      viols.push({rule:'H5',date:day.date,empId:day.dienst,
-        msg:`${n}: Gleichzeitig Dienst und Backup am ${day.date}`});
+      const nm=ST.employees.find(e=>e.id===day.dienst)?.name||day.dienst;
+      v.push({rule:'H5',date:day.date,empId:day.dienst,msg:`${nm}: Dienst+Backup am selben Tag`});
     }
   }
-  return viols;
-}
-
-// ============================================================
-// SECTION 7 – CORRECTIONS PARSING
-// ============================================================
-
-function parseAllCorrections(corrTexts, employees){
-  const rules=[];
-  for(const text of corrTexts){
-    const lo=text.toLowerCase();
-    for(const emp of employees){
-      const nm=emp.name.toLowerCase();
-      if(!lo.includes(nm)) continue;
-
-      // Date detection: "am 15.", "am 10.06.", "am 3"
-      const dm=text.match(/am\s+(\d{1,2})\.?(\d{1,2})?\.?/i);
-      let tDate=null;
-      if(dm){
-        const day=parseInt(dm[1]);
-        if(day>=1&&day<=31){
-          tDate=dStr(state.year,state.month,day);
-        }
-      }
-
-      // Force free
-      if(tDate&&(lo.includes('frei')&&lo.includes(nm)||
-                 lo.includes('freistellen')||lo.includes('auf jeden fall frei')||
-                 (lo.includes('kein dienst')&&lo.includes(nm)))){
-        rules.push({type:'force_free',empId:emp.id,date:tDate,text});
-      }
-
-      // Force dienst/backup (manual overrides)
-      if(tDate&&lo.includes('ausnahmsweise')){
-        if(lo.includes('dienst')||lo.includes('schicht'))
-          rules.push({type:'force_dienst',empId:emp.id,date:tDate,text,manualOverride:true});
-        if(lo.includes('backup')||lo.includes('vertretung'))
-          rules.push({type:'force_backup',empId:emp.id,date:tDate,text,manualOverride:true});
-      }
-
-      // Weekday restrictions
-      const dows=[{n:'montag',d:1},{n:'dienstag',d:2},{n:'mittwoch',d:3},
-                  {n:'donnerstag',d:4},{n:'freitag',d:5},{n:'samstag',d:6},{n:'sonntag',d:0}];
-      for(const {n,d} of dows){
-        if(lo.includes(n)&&(lo.includes('nicht')||lo.includes('nie')||lo.includes('kein')))
-          rules.push({type:'no_dow',empId:emp.id,dow:d,text});
-      }
-
-      // Weekend
-      if(lo.includes('wochenende')&&(lo.includes('nicht')||lo.includes('nie')||lo.includes('kein')))
-        rules.push({type:'no_weekend',empId:emp.id,text});
-
-      // Shift type
-      if(lo.includes('nur')&&(lo.includes('schichttyp 1')||lo.includes(state.shift1.name.toLowerCase())))
-        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift1',text});
-      if(lo.includes('nur')&&(lo.includes('schichttyp 2')||lo.includes(state.shift2.name.toLowerCase())))
-        rules.push({type:'force_shift_type',empId:emp.id,shiftType:'shift2',text});
-    }
-  }
-  // Also generate rules from employee profile fields
-  for(const emp of employees){
-    if(emp.noSaturday) rules.push({type:'no_dow',empId:emp.id,dow:6,text:'Profil: Nie samstags'});
-    if(emp.noSunday)   rules.push({type:'no_dow',empId:emp.id,dow:0,text:'Profil: Nie sonntags'});
-  }
-  return rules;
-}
-
-function applyCorrections(){
-  const txt=el('corr-text').value.trim();
-  if(txt){ state.corrections.push(txt); el('corr-text').value=''; }
-  saveState();
-  generatePlan();
-}
-
-function removeCorrection(idx){
-  state.corrections.splice(idx,1);
-  saveState();
-  generatePlan();
+  return v;
 }
 
 // ============================================================
@@ -1167,13 +1248,13 @@ function removeCorrection(idx){
 // ============================================================
 
 function renderPlan(){
-  if(!plan) return;
-  const y=plan.year, m=plan.month;
-  const title=`Dienstplan ${MONTHS[m]} ${y}${state.printExtra?' – '+state.printExtra:''}`;
-  el('cal-title').textContent=`Monatsübersicht – ${MONTHS[m]} ${y}`;
-  el('ph-title').textContent=title;
-  el('ph-meta').textContent=`Übergabe: ${state.handoverTime} Uhr`;
-  el('ph-right').textContent=`Erstellt${state.printAuthor?' von '+state.printAuthor:''}: ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
+  if(!PLAN)return;
+  const y=PLAN.year,m=PLAN.month;
+  const titleMain=`Dienstplan ${MONTHS[m]} ${y}${ST.printExtra?' – '+ST.printExtra:''}`;
+  E('cal-title').textContent=`Monatsübersicht – ${MONTHS[m]} ${y}`;
+  E('ph-title').textContent=titleMain;
+  E('ph-meta').textContent=`Übergabe: ${ST.handoverTime} Uhr`;
+  E('ph-right').textContent=`Erstellt${ST.printAuthor?' von '+ST.printAuthor:''}: ${new Date(PLAN.generatedAt).toLocaleString('de-DE')}`;
 
   renderCalendar();
   renderRuleReport();
@@ -1181,42 +1262,38 @@ function renderPlan(){
   renderCorrList();
   updateBadge();
 
-  el('sum-card').style.display='';
-  el('rule-card').style.display='';
-  el('corr-card').style.display='';
+  E('sum-card').style.display='';
+  E('rule-card').style.display='';
+  E('corr-card').style.display='';
 }
 
-function empName(id){
-  return state.employees.find(e=>e.id===id)?.name||'—';
-}
+function empName(id){return ST.employees.find(e=>e.id===id)?.name||'—';}
 
-function shiftTag(sk){
-  if(sk==='shift1') return `<span class="shift-tag st1">${esc(state.shift1.name)}<br><span style="font-size:10px;font-weight:400">${state.shift1.start}–${state.shift1.end}</span></span>`;
-  if(sk==='shift2') return `<span class="shift-tag st2">${esc(state.shift2.name)}<br><span style="font-size:10px;font-weight:400">${state.shift2.start}–${state.shift2.end}</span></span>`;
-  return '';
+function shiftTagHTML(sk,dt){
+  if(dt==='werkstatt') return`<span class="shift-tag st3">🔧 ${esc(ST.shift3.name)}</span>`;
+  if(dt==='freischicht') return`<span class="shift-tag st4">🌿 ${esc(ST.shift4.name)}</span>`;
+  if(sk==='shift1') return`<span class="shift-tag st1">${esc(ST.shift1.name)}<br><span style="font-size:10px;font-weight:400">${ST.shift1.start}–${ST.shift1.end}</span></span>`;
+  return`<span class="shift-tag" style="background:#ede9fe;color:#5b21b6">${esc(ST.shift2.name)}<br><span style="font-size:10px;font-weight:400">${ST.shift2.start}–${ST.shift2.end}</span></span>`;
 }
 
 function renderCalendar(){
-  const y=plan.year, m=plan.month;
-
-  // Pre-build vacation and block day lookup per date
-  const vacByDate={}, blkByDate={};
-  state.employees.forEach(emp=>{
-    const vs=vacSet(emp);
-    vs.forEach(d=>{
-      if(!vacByDate[d]) vacByDate[d]=[];
-      vacByDate[d].push(emp);
+  const y=PLAN.year,m=PLAN.month;
+  // Build vacation/block lookup per date
+  const vacByDate={},blkByDate={};
+  ST.employees.forEach(emp=>{
+    vacSet(emp).forEach(d=>{
+      if(!d.startsWith(`${y}-${pad(m+1)}`))return;
+      if(!vacByDate[d])vacByDate[d]=[];vacByDate[d].push(emp);
     });
     emp.blockDays.forEach(d=>{
-      if(!blkByDate[d]) blkByDate[d]=[];
-      blkByDate[d].push(emp);
+      if(!blkByDate[d])blkByDate[d]=[];blkByDate[d].push(emp);
     });
   });
 
-  let html=`<table class="cal-table"><thead><tr>
-    <th style="width:32px">#</th>
-    <th style="width:72px">Datum</th>
-    <th style="width:85px">Wochentag</th>
+  let html=`<table class="ct"><thead><tr>
+    <th style="width:30px">#</th>
+    <th style="width:68px">Datum</th>
+    <th style="width:82px">Wochentag</th>
     <th style="width:130px">Schichttyp</th>
     <th style="width:150px">Assistent/in</th>
     <th style="width:150px">Vertretung</th>
@@ -1225,270 +1302,267 @@ function renderCalendar(){
     <th>Hinweise</th>
   </tr></thead><tbody>`;
 
-  for(const day of plan.days){
-    const d=day.day;
+  for(const day of PLAN.days){
     const isOpen=day.flags.includes('open_dienst')||day.flags.includes('open_backup');
     const isOver=day.flags.includes('over_week');
-    const isBlk =day.flags.includes('blockday');
-    const hasHardViol=day.hardViol&&day.hardViol.length>0;
+    const isBlk=day.flags.includes('blockday');
+    const hasHV=day.hardViol&&day.hardViol.length>0;
 
-    let rowCls='r-ok';
-    if(isOpen||hasHardViol) rowCls='r-open';
-    else if(isOver)         rowCls='r-over';
-    else if(isBlk)          rowCls='r-block';
+    let rc='r-ok';
+    if(day.type==='freischicht') rc='r-freischicht';
+    else if(day.type==='werkstatt'&&!isOpen) rc='r-werkstatt';
+    else if(isOpen||hasHV) rc='r-open';
+    else if(isOver) rc='r-over';
+    else if(isBlk) rc='r-blk';
 
-    const weCls=day.isHol?'r-holiday':(day.isWE?'r-weekend':'');
+    const wrc=day.isHol?'r-hol':(day.isWE?'r-we':'');
 
     // Dienst cell
-    let dienstCell='';
-    if(day.flags.includes('open_dienst')){
-      dienstCell=`<span class="chip c-red">⚠ OFFEN</span>`;
+    let dCell='';
+    if(day.type==='freischicht'){
+      dCell=`<span class="chip" style="background:var(--green-bg);color:var(--green)">🌿 Freischicht</span>`;
+    } else if(day.type==='werkstatt'&&!day.manualOverride){
+      dCell=`<span class="muted tx">– (Werkstatt)</span>`;
+    } else if(day.flags.includes('open_dienst')){
+      dCell=`<span class="chip cr">⚠ OFFEN</span>`;
     } else if(day.dienst){
-      const emp=state.employees.find(e=>e.id===day.dienst);
-      const lic=emp?.noLicense?` <span class="no-lic" title="Kein Führerschein">🚗</span>`:'';
-      dienstCell=`<strong>${esc(empName(day.dienst))}</strong>${lic}`;
+      const emp=ST.employees.find(e=>e.id===day.dienst);
+      const lic=emp?.hasLicense?` <span title="Führerschein vorhanden">🚗</span>`:'';
+      const info=emp?.extraConstraints?` <span class="info-icon" title="${esc(emp.extraConstraints)}">ℹ️</span>`:'';
+      dCell=`<strong>${esc(empName(day.dienst))}</strong>${lic}${info}`;
     }
 
     // Backup cell
-    let backupCell='';
-    if(day.flags.includes('open_backup')){
-      backupCell=`<span class="chip c-red">⚠ OFFEN</span>`;
+    let bCell='';
+    if(day.type==='freischicht'){
+      bCell=`<span class="muted tx">–</span>`;
+    } else if(day.flags.includes('open_backup')){
+      bCell=`<span class="chip cr">⚠ OFFEN</span>`;
     } else if(day.backup){
-      const emp=state.employees.find(e=>e.id===day.backup);
-      const lic=emp?.noLicense?` <span class="no-lic" title="Kein Führerschein">🚗</span>`:'';
-      backupCell=`<strong>${esc(empName(day.backup))}</strong>${lic}`;
+      const emp=ST.employees.find(e=>e.id===day.backup);
+      const lic=emp?.hasLicense?` <span title="Führerschein">🚗</span>`:'';
+      bCell=`<strong>${esc(empName(day.backup))}</strong>${lic}`;
     }
 
     // Vacation column
     const vacEmps=vacByDate[day.date]||[];
     const vacCell=vacEmps.length
-      ? vacEmps.map(e=>`<span class="chip c-blue" style="margin:1px">${esc(e.name)}</span>`).join(' ')
-      : '<span class="muted text-xs">—</span>';
+      ?vacEmps.map(e=>`<span class="chip cb2" style="margin:1px">${esc(e.name)}</span>`).join('')
+      :'<span class="muted tx">—</span>';
 
-    // Block day column (show who, with check or warning)
+    // Block day column
     const blkEmps=blkByDate[day.date]||[];
     const blkCell=blkEmps.length
-      ? blkEmps.map(e=>{
-          const violated=day.dienst===e.id||day.backup===e.id;
-          return violated
-            ? `<span class="chip c-amber" title="Sperrtag nicht eingehalten">⚠ ${esc(e.name)}</span>`
-            : `<span class="chip c-gray" title="Sperrtag eingehalten">✓ ${esc(e.name)}</span>`;
-        }).join(' ')
-      : '<span class="muted text-xs">—</span>';
+      ?blkEmps.map(e=>{
+          const viol=day.dienst===e.id||day.backup===e.id;
+          return viol
+            ?`<span class="chip ca" title="Sperrtag nicht eingehalten">⚠ ${esc(e.name)}</span>`
+            :`<span class="chip cgr" title="Sperrtag eingehalten">✓ ${esc(e.name)}</span>`;
+        }).join('')
+      :'<span class="muted tx">—</span>';
 
-    // Hints column
+    // Hints
     const hints=[];
-    if(day.holName) hints.push(`<span class="chip c-blue">${esc(day.holName)}</span>`);
-    if(isBlk)       hints.push(`<span class="chip c-amber">Sperrtag verletzt</span>`);
-    if(isOver)      hints.push(`<span class="chip c-orange">&gt;2/Woche</span>`);
-    if(day.manualOverride) hints.push(`<span class="chip c-red">Manuelle Ausnahme</span>`);
-    if(hasHardViol) day.hardViol.forEach(v=>hints.push(`<span class="chip c-red" title="${esc(v)}">${esc(v.split(':')[0])}</span>`));
+    if(day.holName) hints.push(`<span class="chip cb2">${esc(day.holName)}</span>`);
+    if(isBlk)       hints.push(`<span class="chip ca">Sperrtag verletzt</span>`);
+    if(isOver)      hints.push(`<span class="chip co">&gt;2/Woche</span>`);
+    if(day.manualOverride) hints.push(`<span class="chip cr">Manuelle Ausnahme</span>`);
+    if(hasHV) day.hardViol.forEach(hv=>hints.push(`<span class="chip cr" title="${esc(hv)}">${esc(hv.split(':')[0])}</span>`));
 
-    html+=`<tr class="${rowCls} ${weCls}">
-      <td class="mono">${d}</td>
-      <td class="mono">${pad(d)}.${pad(m+1)}.</td>
-      <td>${DAYS_L[day.dow]}${day.isWE?'&thinsp;<span class="muted text-xs">WE</span>':''}</td>
-      <td>${day.dienst||day.flags.includes('open_dienst')?shiftTag(day.dienstShift):''}</td>
-      <td>${dienstCell}</td>
-      <td>${backupCell}</td>
+    // Shift type display
+    const stHTML=day.type==='freischicht'?shiftTagHTML('',day.type)
+      :(day.dienst||day.flags.includes('open_dienst')
+        ?shiftTagHTML(day.dienstShift,day.type==='werkstatt'?'werkstatt':'regular')
+        :(day.backup?shiftTagHTML('',day.type==='werkstatt'?'werkstatt':'regular'):''));
+
+    html+=`<tr class="${rc} ${wrc}">
+      <td class="mono">${day.day}</td>
+      <td class="mono">${pad(day.day)}.${pad(m+1)}.</td>
+      <td>${DAYS_L[day.dow]}${day.isWE?'<span class="muted tx"> WE</span>':''}</td>
+      <td>${stHTML}</td>
+      <td>${dCell}</td>
+      <td>${bCell}</td>
       <td class="vac-cell">${vacCell}</td>
       <td class="vac-cell">${blkCell}</td>
       <td class="vac-cell">${hints.join(' ')}</td>
     </tr>`;
   }
+
   html+=`</tbody></table>`;
-  el('cal-content').innerHTML=html;
+  E('cal-content').innerHTML=html;
 }
 
 function renderRuleReport(){
-  const viols=plan.hardViolations||[];
-  const rc=el('rule-content');
+  const viols=PLAN.hardViolations||[];
+  const rc=E('rule-content');
   if(!viols.length){
-    rc.innerHTML=`<div class="alert a-ok"><span class="ai">✅</span><strong>Alle harten Regeln eingehalten.</strong> H1–H5 wurden vollständig erfüllt.</div>`;
-  } else {
-    let html=`<div class="alert a-err mb-8"><span class="ai">🔴</span>
-      <div><strong>${viols.length} Verstöße gegen harte Regeln gefunden:</strong><br>
-      ${viols.map(v=>`<div style="margin-top:4px">• <span class="chip c-red">${v.rule}</span> ${esc(v.msg)}</div>`).join('')}
+    rc.innerHTML=`<div class="alert aok"><span class="aic">✅</span><strong>Alle harten Regeln eingehalten (H1–H7).</strong></div>`;
+  }else{
+    rc.innerHTML=`<div class="alert ae"><span class="aic">🔴</span>
+      <div><strong>${viols.length} Verstöße:</strong>
+      ${viols.map(v=>`<div style="margin-top:3px">• <span class="chip cr">${v.rule}</span> ${esc(v.msg)}</div>`).join('')}
       </div></div>`;
-    rc.innerHTML=html;
   }
-  // Alerts section
-  const openD=plan.days.filter(d=>d.flags.includes('open_dienst')).length;
-  const openB=plan.days.filter(d=>d.flags.includes('open_backup')).length;
-  const blkV=plan.days.filter(d=>d.flags.includes('blockday')).length;
-  const owV=plan.days.filter(d=>d.flags.includes('over_week')).length;
-  let alertH='';
-  if(openD||openB) alertH+=`<div class="alert a-err"><span class="ai">🔴</span><div><strong>${openD} offene Dienste, ${openB} offene Backups.</strong> Team ggf. vergrößern oder Soll-Schichten anpassen.</div></div>`;
-  if(blkV) alertH+=`<div class="alert a-warn"><span class="ai">🟡</span><div>${blkV} Sperrtag(e) konnten nicht eingehalten werden.</div></div>`;
-  if(owV)  alertH+=`<div class="alert a-warn"><span class="ai">🟠</span><div>${owV} Tag(e) mit mehr als 2 Schichten/Woche für einen MA.</div></div>`;
-  if(!alertH) alertH=`<div class="alert a-ok"><span class="ai">✅</span><div>Plan vollständig – alle Dienste und Backups besetzt.</div></div>`;
-  el('plan-alerts').innerHTML=alertH;
-  el('plan-status').textContent=`Generiert: ${new Date(plan.generatedAt).toLocaleString('de-DE')}`;
 
-  // Print short summary
-  const pss=el('print-sum-short');
-  pss.innerHTML=(openD+openB)>0
+  const openD=PLAN.days.filter(d=>d.flags.includes('open_dienst')).length;
+  const openB=PLAN.days.filter(d=>d.flags.includes('open_backup')).length;
+  const blkV=PLAN.days.filter(d=>d.flags.includes('blockday')).length;
+  const owV=PLAN.days.filter(d=>d.flags.includes('over_week')).length;
+  let ah='';
+  if(openD||openB)ah+=`<div class="alert ae"><span class="aic">🔴</span><div><strong>${openD} offene Dienste, ${openB} offene Backups.</strong></div></div>`;
+  if(blkV)ah+=`<div class="alert aw"><span class="aic">🟡</span><div>${blkV} Sperrtag(e) nicht eingehalten.</div></div>`;
+  if(owV) ah+=`<div class="alert aw"><span class="aic">🟠</span><div>${owV} Tag(e) mit &gt;2 Schichten/Woche.</div></div>`;
+  if(!ah)ah=`<div class="alert aok"><span class="aic">✅</span><div>Vollständige Abdeckung – alle Dienste besetzt.</div></div>`;
+  E('plan-alerts').innerHTML=ah;
+  E('plan-status').textContent=`Generiert: ${new Date(PLAN.generatedAt).toLocaleString('de-DE')}`;
+  E('print-sum-short').innerHTML=(openD+openB)>0
     ?`<strong style="color:red">⚠ ${openD} off. Dienste, ${openB} off. Backups</strong>`
     :`<strong style="color:green">✔ Vollständige Abdeckung</strong>`;
 }
 
 function renderSummary(){
-  let html=`<table class="sum-table"><thead><tr>
-    <th>Name</th><th>Dienste Soll</th><th>Dienste Ist</th><th>Backups</th>
-    <th>Urlaubstage</th><th>Sperrtage</th><th>Besonderheiten</th><th>Fortschritt</th>
+  const mp=`${PLAN.year}-${pad(PLAN.month+1)}`;
+  let html=`<table class="sum-t"><thead><tr>
+    <th>Name</th><th>🚗</th><th>Dienste Soll</th><th>Dienste Ist</th>
+    <th>Reg. Backups</th><th>Werkst.-Backups</th><th>Urlaub</th>
+    <th>Sperrtage</th><th>Einschränkungen</th><th>Fortschritt</th>
   </tr></thead><tbody>`;
 
-  const mp=`${plan.year}-${pad(plan.month+1)}`;
-
-  for(const emp of state.employees){
-    const st=plan.empStats[emp.id]||{dienstCnt:0,backupCnt:0};
+  for(const emp of ST.employees){
+    const st=PLAN.empStats[emp.id]||{dienstCnt:0,backupCnt:0,wkBkpCnt:0};
     const vs=vacSet(emp);
-    const vacDays=[...vs].filter(d=>d.startsWith(mp)).length;
-
-    // Block stats
-    const blkThisMonth=emp.blockDays.filter(d=>d.startsWith(mp));
-    const blkViol=blkThisMonth.filter(d=>
-      plan.days.some(day=>day.date===d&&(day.dienst===emp.id||day.backup===emp.id))
-    ).length;
-    const blkOk=blkThisMonth.length-blkViol;
-
+    const vacD=[...vs].filter(d=>d.startsWith(mp)).length;
+    const blkM=emp.blockDays.filter(d=>d.startsWith(mp));
+    const blkViol=blkM.filter(d=>PLAN.days.some(day=>day.date===d&&(day.dienst===emp.id||day.backup===emp.id))).length;
+    const blkOk=blkM.length-blkViol;
     const total=st.dienstCnt+st.backupCnt;
-    const pct=emp.target>0?Math.min(100,Math.round(total/emp.target*100)):0;
-    const bc=pct>=100?'pf-ok':(pct>=70?'pf-warn':'pf-bad');
-    const dc=st.dienstCnt===emp.target?'c-green':(st.dienstCnt>emp.target?'c-orange':'c-amber');
-
-    // Besonderheiten
-    const bes=[];
-    if(emp.noSaturday) bes.push('Nie Sa');
-    if(emp.noSunday)   bes.push('Nie So');
-    if(emp.noLicense)  bes.push('🚗 Kein FS');
-    if(emp.preferredDays) bes.push(emp.preferredDays.slice(0,30));
-    if(emp.extraConstraints) bes.push(emp.extraConstraints.slice(0,30));
+    const pct=emp.target>0?Math.min(100,Math.round(st.dienstCnt/emp.target*100)):0;
+    const bc=pct>=100?'pok':(pct>=70?'pwarn':'pbad');
+    const dc=st.dienstCnt===emp.target?'cg':(st.dienstCnt>emp.target?'co':'ca');
+    const ex=emp.extraConstraints?`<span class="info-icon ts" title="${esc(emp.extraConstraints)}">ℹ️ ${esc(emp.extraConstraints.slice(0,25))}${emp.extraConstraints.length>25?'…':''}</span>`:'—';
 
     html+=`<tr>
       <td><strong>${esc(emp.name)}</strong></td>
+      <td>${emp.hasLicense?'🚗':'—'}</td>
       <td>${emp.target}</td>
       <td><span class="chip ${dc}">${st.dienstCnt}</span></td>
       <td>${st.backupCnt}</td>
-      <td>${vacDays>0?`<span class="chip c-blue">${vacDays}</span>`:'—'}</td>
-      <td>${blkThisMonth.length?`${blkOk}✓ ${blkViol?`<span class="chip c-amber">${blkViol}⚠</span>`:''}/${blkThisMonth.length}`:'—'}</td>
-      <td class="text-sm muted">${bes.join(', ')||'—'}</td>
+      <td>${st.wkBkpCnt>0?`<span class="chip cc">${st.wkBkpCnt}</span>`:'—'}</td>
+      <td>${vacD>0?`<span class="chip cb2">${vacD}</span>`:'—'}</td>
+      <td>${blkM.length?`${blkOk}✓ ${blkViol?`<span class="chip ca">${blkViol}⚠</span>`:''}/${blkM.length}`:'—'}</td>
+      <td class="ts muted">${ex}</td>
       <td style="min-width:100px">
-        <div class="text-xs muted">${total}/${emp.target} (${pct}%)</div>
-        <div class="prog"><div class="prog-fill ${bc}" style="width:${pct}%"></div></div>
+        <div class="tx muted">${st.dienstCnt}/${emp.target} (${pct}%)</div>
+        <div class="prog"><div class="pf ${bc}" style="width:${pct}%"></div></div>
       </td>
     </tr>`;
   }
   html+=`</tbody></table>`;
-  el('sum-content').innerHTML=html;
+  E('sum-content').innerHTML=html;
 }
 
 function renderCorrList(){
-  const ac=el('active-corr');
-  if(!state.corrections.length){
-    ac.innerHTML='<div class="muted text-sm">Keine aktiven Korrekturen.</div>'; return;
-  }
-  ac.innerHTML='<div class="sec-title mb-8">Aktive Korrekturen:</div>'+
-    state.corrections.map((c,i)=>`
+  const ac=E('active-corr');
+  if(!ST.corrections.length){ac.innerHTML='<div class="muted ts">Keine aktiven Korrekturen.</div>';return;}
+  ac.innerHTML='<div class="stitle mb8">Aktive Korrekturen:</div>'+
+    ST.corrections.map((c,i)=>`
       <div class="corr-item">
         <span>${esc(c)}</span>
-        <button class="btn btn-sm btn-danger" onclick="removeCorrection(${i})">✕</button>
+        <button class="btn bd bsm" onclick="rmCorr(${i})">✕</button>
       </div>`).join('');
 }
 
 function updateBadge(){
-  const n=plan?plan.days.filter(d=>d.flags.includes('open_dienst')||d.flags.includes('open_backup')).length:0;
-  const b=el('open-badge');
-  b.style.display=n>0?'':'none'; b.textContent=n;
+  const n=PLAN?PLAN.days.filter(d=>d.flags.includes('open_dienst')||d.flags.includes('open_backup')).length:0;
+  const b=E('open-badge');b.style.display=n>0?'':'none';b.textContent=n;
 }
 
 // ============================================================
-// SECTION 9 – UNDO
+// SECTION 9 – CORRECTIONS
+// ============================================================
+
+function applyCorr(){
+  const txt=E('corr-txt').value.trim();
+  if(txt){ST.corrections.push(txt);E('corr-txt').value='';}
+  saveState();generatePlan();
+}
+function rmCorr(i){ST.corrections.splice(i,1);saveState();generatePlan();}
+
+// ============================================================
+// SECTION 10 – UNDO
 // ============================================================
 
 function undoPlan(){
-  if(!planHistory) return;
-  plan=planHistory; planHistory=null;
-  el('btn-undo').disabled=true;
-  try{ localStorage.setItem('dp_plan',JSON.stringify(plan)); }catch(e){}
+  if(!HISTORY)return;
+  PLAN=HISTORY;HISTORY=null;E('btn-undo').disabled=true;
+  try{localStorage.setItem('dp4_pl',JSON.stringify(PLAN));}catch(e){}
   renderPlan();
 }
 
 // ============================================================
-// SECTION 10 – IMPORT / EXPORT
+// SECTION 11 – IMPORT / EXPORT
 // ============================================================
 
 function exportJSON(){
-  readFormIntoState();
-  download('dienstplan_einstellungen.json',JSON.stringify(state,null,2),'application/json');
+  readFormToState();
+  dl('dienstplan_einstellungen.json',JSON.stringify(ST,null,2),'application/json');
 }
 function exportPlanJSON(){
-  if(!plan){alert('Kein Plan vorhanden.');return;}
-  download('dienstplan_plan.json',JSON.stringify({state,plan},null,2),'application/json');
+  if(!PLAN){alert('Kein Plan vorhanden.');return;}
+  dl('dienstplan_plan.json',JSON.stringify({state:ST,plan:PLAN},null,2),'application/json');
 }
-function triggerImport(){ el('file-import').click(); }
+function triggerImport(){E('file-imp').click();}
 function importJSON(ev){
-  const f=ev.target.files[0]; if(!f) return;
+  const f=ev.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
     try{
       const raw=JSON.parse(e.target.result);
       const imp=raw.state||raw;
-      const asTemplate=confirm('Als Vorlage importieren?\n\nJa = Mitarbeiterliste behalten, Urlaube & Sperrtage leeren.\nNein = Alles überschreiben.');
-      if(asTemplate&&imp.employees){
-        state.employees=imp.employees.map(emp=>({...emp,vacations:[],blockDays:[]}));
-        if(imp.shift1) state.shift1=imp.shift1;
-        if(imp.shift2) state.shift2=imp.shift2;
-      } else { Object.assign(state,imp); }
-      state.corrections=[];
-      plan=null;
-      applyStateToForm();
-      renderEmpList();
-      updateDaysInfo();
-      updateValWarn();
-      saveState();
-      alert('Import erfolgreich!');
-    }catch(err){alert('Import-Fehler: '+err.message);}
+      const tmpl=confirm('Als Vorlage?\n\nJa = MA-Liste + Schichttypen + Werkstatttage behalten, Urlaube/Sperrtage leeren.\nNein = Alles überschreiben.');
+      if(tmpl&&imp.employees){
+        ST.employees=imp.employees.map(emp=>({...emp,vacations:[],blockDays:[]}));
+        if(imp.shift1)ST.shift1=imp.shift1;if(imp.shift2)ST.shift2=imp.shift2;
+        if(imp.shift3)ST.shift3=imp.shift3;if(imp.shift4)ST.shift4=imp.shift4;
+      }else{Object.assign(ST,imp);}
+      ST.corrections=[];PLAN=null;
+      applyStateToForm();renderWerkstattUI();renderFreischichtUI();renderEmpList();
+      updateDaysInfo();updateValWarn();saveState();alert('Import erfolgreich!');
+    }catch(err){alert('Fehler: '+err.message);}
   };
-  r.readAsText(f);
-  ev.target.value='';
+  r.readAsText(f);ev.target.value='';
 }
-function clearVacBlock(){
-  if(!confirm('Urlaube & Sperrtage aller Mitarbeiter leeren?')) return;
-  state.employees.forEach(emp=>{emp.vacations=[];emp.blockDays=[];});
-  state.corrections=[];plan=null;
-  renderEmpList();saveState();
+function clearVB(){
+  if(!confirm('Urlaube & Sperrtage leeren?'))return;
+  ST.employees.forEach(e=>{e.vacations=[];e.blockDays=[];});
+  ST.corrections=[];PLAN=null;renderEmpList();saveState();
 }
 function resetAll(){
-  if(!confirm('Alle Daten zurücksetzen?')) return;
-  localStorage.removeItem('dp_state');localStorage.removeItem('dp_plan');location.reload();
+  if(!confirm('Alle Daten zurücksetzen?'))return;
+  localStorage.removeItem('dp4_st');localStorage.removeItem('dp4_pl');location.reload();
 }
-function download(name,content,mime){
+function dl(name,content,mime){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([content],{type:mime}));
-  a.download=name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
 // ============================================================
-// SECTION 11 – TAB SWITCHING & PRINT
+// SECTION 12 – TAB SWITCHING & PRINT
 // ============================================================
 
 function switchTab(t){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  el('panel-'+t).classList.add('active');
-  el('tab-'+t).classList.add('active');
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  E('pane-'+t).classList.add('on');E('tab-'+t).classList.add('on');
 }
-
-function printPlan(){
-  if(!plan){alert('Bitte zuerst einen Plan generieren.');switchTab('plan');return;}
-  switchTab('plan');
-  setTimeout(()=>window.print(),200);
+function doPrint(){
+  if(!PLAN){alert('Bitte zuerst Plan generieren.');switchTab('plan');return;}
+  switchTab('plan');setTimeout(()=>window.print(),200);
 }
 
 // ============================================================
-// SECTION 12 – INIT
+// SECTION 13 – INIT
 // ============================================================
 
 document.addEventListener('DOMContentLoaded',initUI);
