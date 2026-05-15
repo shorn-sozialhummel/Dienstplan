@@ -326,6 +326,7 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
     </div>
     <button class="btn btn-primary" onclick="generatePlan()">▶ Plan generieren</button>
     <button class="btn btn-sec" onclick="generatePlanSafe()">↺ Plan neu generieren</button>
+    <button class="btn btn-sec" onclick="generatePlanFillEmpty()">＋ Nur leere Tage füllen</button>
     <button class="btn btn-amber" onclick="doUndo()" id="btn-undo" disabled>↩ Rückgängig</button>
   </div>
   <div id="plan-cfg-wrap"></div>
@@ -1238,6 +1239,24 @@ function renderSKOverview(){
 }
 
 // ─── ALGORITHM ───
+function generatePlanFillEmpty(){
+  const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
+  const plan=getOrInitPlan();
+  const oldDays=JSON.parse(JSON.stringify(plan.days||[]));
+  const manualSet=new Set((plan.manualOverrides||[]).map(o=>o.dayIdx+':'+o.field));
+  generatePlan();
+  const newPlan=ST.plans[planKey()];
+  const fields=['hauptD','backupD','waBkp','waBkp2'];
+  (newPlan.days||[]).forEach((day,di)=>{
+    const old=oldDays[di]||{};
+    fields.forEach(f=>{if(!manualSet.has(di+':'+f)&&old[f]!=null) day[f]=old[f];});
+  });
+  dismissStaleBanner();
+  autoSave('Leere Tage gefüllt: '+fmtMonthDisp(ST.aktiverMonat));
+  renderSKOverview();
+  renderPlanTable();
+}
+
 function generatePlanSafe(){
   const plan=ST.plans&&ST.plans[planKey()];
   const hasManual=plan&&plan.manualOverrides&&plan.manualOverrides.length>0;
