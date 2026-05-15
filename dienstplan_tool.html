@@ -1447,18 +1447,25 @@ function generatePlan(){
   for(let di=0;di<dim;di++){
     const day=days[di];
     if(day.type==='werkstatt'){
+      const _dwk=getDowKey(day.ds);const _wc=ei.werkstatttage[_dwk];const _split=!!(_wc&&_wc.splitBackup);
       // hauptD zuerst (nötig für waBkp-Präferenz)
       const hCands=mas.filter(ma=>canAssignDienst(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
       if(hCands.length){setHaupt(hCands[0].id,di);}else{
         const fb=mas.filter(ma=>canAssignDienstNoLimit(ma.id,di)).sort((a,b)=>dienstZaehler[a.id]-dienstZaehler[b.id]);
         if(fb.length){setHaupt(fb[0].id,di);warningDays.add(day.ds);}
       }
-      // waBkp: bevorzugt aktueller hauptD (weiche Regel)
-      if(day.hauptD&&canAssignWABkp(day.hauptD,di)){
-        setWABkp(day.hauptD,di);
+      if(_split){
+        // W1: bevorzugt Vortag-hauptD (ist noch vor Ort bis Block-A-Start)
+        const prevHD=di>0?days[di-1].hauptD:null;
+        if(prevHD&&canAssignWABkp(prevHD,di)){setWABkp(prevHD,di);}
+        else{const c=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp(c[0].id,di);}
+        // W2: bevorzugt aktueller hauptD (kommt sowieso für Block B)
+        if(day.hauptD&&canAssignWABkp2(day.hauptD,di)){setWABkp2(day.hauptD,di);}
+        else{const c=mas.filter(ma=>canAssignWABkp2(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp2(c[0].id,di);}
       } else {
-        const waCands=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
-        if(waCands.length) setWABkp(waCands[0].id,di);
+        // non-split: waBkp bevorzugt aktueller hauptD
+        if(day.hauptD&&canAssignWABkp(day.hauptD,di)){setWABkp(day.hauptD,di);}
+        else{const c=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp(c[0].id,di);}
       }
       // backupD
       const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD).sort((a,b)=>score(a.id,di)-score(b.id,di));
@@ -1480,23 +1487,6 @@ function generatePlan(){
     }
   }
 
-  // Zweiter Durchlauf: waBkp2 für Split-Backup-Werkstatttage
-  for(let di=0;di<dim;di++){
-    const day=days[di];
-    if(day.type==='werkstatt'){
-      const _dwk=getDowKey(day.ds);const _wc=ei.werkstatttage[_dwk];
-      if(_wc&&_wc.splitBackup){
-        // bevorzugt nächster hauptD (weiche Regel)
-        const nextHD=di+1<dim?days[di+1].hauptD:null;
-        if(nextHD&&canAssignWABkp2(nextHD,di)){
-          setWABkp2(nextHD,di);
-        } else {
-          const cands=mas.filter(ma=>canAssignWABkp2(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
-          if(cands.length) setWABkp2(cands[0].id,di);
-        }
-      }
-    }
-  }
 
   const plan=getOrInitPlan();
   const overrides=plan.manualOverrides||[];
