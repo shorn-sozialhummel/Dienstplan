@@ -784,6 +784,9 @@ function renderMonatDetail(){
   const sk=md.stundenkonto||0;
   const skCls=sk>0?'sk-pos':sk<0?'sk-neg':'sk-zero';
   const skHint=sk>0?` (≈ ${Math.round(sk/24)} Dienst-Äquivalent – weniger einplanen)`:sk<0?` (Minusstunden – mehr einplanen)`:'';
+  const teamD=ma.schichtenTeam||0;
+  const recSoll=teamD>0?Math.round(teamD*Math.max(0,30-urlaubTage)/30):null;
+  const sollInputVal=(md.sollDienste||0)===0&&recSoll!==null?recSoll:(md.sollDienste||0);
 
   el.innerHTML=`
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
@@ -811,7 +814,8 @@ function renderMonatDetail(){
           <div class="row">
             <div class="field" style="max-width:120px">
               <label>Soll-Dienste</label>
-              <input type="number" id="md-soll" value="${md.sollDienste||0}" min="0" max="31" onchange="saveMonatField('sollDienste',this.value,'number')">
+              <input type="number" id="md-soll" value="${sollInputVal}" min="0" max="31" onchange="saveMonatField('sollDienste',this.value,'number')">
+              ${recSoll!==null?`<div style="margin-top:4px;font-size:11px;color:var(--green)">Empfehlung: ${recSoll} Schichten (basierend auf ${urlaubTage} Urlaubstagen)</div>`:''}
             </div>
             <div class="field" style="max-width:140px">
               <label>Stundenkonto (h)</label>
