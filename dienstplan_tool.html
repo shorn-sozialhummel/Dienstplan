@@ -379,7 +379,7 @@ function allMAs(){const t=activeTeam();return t?t.mitarbeitende:[];}
 
 function getMAMonat(ma,mk){
   if(!ma.monatsdaten) ma.monatsdaten={};
-  if(!ma.monatsdaten[mk]) ma.monatsdaten[mk]={sollDienste:0,stundenkonto:0,schichttyp:'beide',monatEinschraenkungen:'',urlaube:[],sperrtage:[]};
+  if(!ma.monatsdaten[mk]) ma.monatsdaten[mk]={sollDienste:0,stundenkonto:0,monatEinschraenkungen:'',urlaube:[],sperrtage:[]};
   if(ma.monatsdaten[mk].stundenkonto===undefined) ma.monatsdaten[mk].stundenkonto=0;
   return ma.monatsdaten[mk];
 }
@@ -757,14 +757,6 @@ function renderMonatDetail(){
             <div class="field" style="max-width:140px">
               <label>Stundenkonto (h)</label>
               <input type="number" id="md-sk" value="${sk}" step="1" onchange="saveMonatField('stundenkonto',this.value,'number')">
-            </div>
-            <div class="field" style="max-width:200px">
-              <label>Schichttyp bevorzugt</label>
-              <select id="md-typ" onchange="saveMonatField('schichttyp',this.value)">
-                <option value="beide" ${md.schichttyp==='beide'?'selected':''}>Beide möglich</option>
-                <option value="nur24h" ${md.schichttyp==='nur24h'?'selected':''}>Nur 24h</option>
-                <option value="nurAusser" ${md.schichttyp==='nurAusser'?'selected':''}>Nur Außerhalb</option>
-              </select>
             </div>
           </div>
           ${sk!==0?`<div class="alert alert-info sk-bar"><span class="${skCls}">${sk>0?'+':''}${sk}h</span> Stundenkonto${skHint}</div>`:''}
