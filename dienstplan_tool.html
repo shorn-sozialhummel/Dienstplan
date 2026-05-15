@@ -313,6 +313,11 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 
 <!-- TAB 3 DIENSTPLAN -->
 <div id="pane-plan" class="pane">
+  <div id="plan-stale-banner" style="display:none;background:#fef3c7;border-bottom:2px solid #fcd34d;color:#92400e;padding:8px 18px;font-size:13px;font-weight:500;align-items:center;gap:10px;flex-wrap:wrap">
+    <span>⚠ Stamm- oder Monatsdaten wurden geändert – Dienstplan eventuell veraltet</span>
+    <button class="btn btn-primary btn-sm" onclick="generatePlan();dismissStaleBanner()">▶ Plan neu generieren</button>
+    <button class="btn btn-sec btn-sm" onclick="dismissStaleBanner()">Bestehenden Plan behalten</button>
+  </div>
   <div style="padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div class="month-sw">
       <button onclick="changeMonth(-1)">←</button>
@@ -483,12 +488,16 @@ function autoSave(desc){
     if(ST.verlauf.length>10) ST.verlauf.length=10;
   }
   try{localStorage.setItem(LS_KEY,JSON.stringify(ST));}catch(e){alert('LocalStorage voll! Bitte exportieren.');}
+  if(activeTab==='stamm'||activeTab==='monat') window.planVeraltet=true;
   updateSaveTab();
 }
 
 let bannerTimeout=null;
 function showBanner(){const b=document.getElementById('banner');b.classList.add('show');clearTimeout(bannerTimeout);bannerTimeout=setTimeout(hideBanner,8000);}
 function hideBanner(){document.getElementById('banner').classList.remove('show');}
+
+window.planVeraltet=false;
+function dismissStaleBanner(){window.planVeraltet=false;document.getElementById('plan-stale-banner').style.display='none';}
 
 function pdfExport(){
   const t=activeTeam();
@@ -525,7 +534,7 @@ function switchTab(tab){
   if(tab==='save'){savePane.style.display='block';savePane.classList.add('on');renderSaveTab();}
   if(tab==='stamm'){renderSidebar('sb-stamm');renderMADetail();}
   if(tab==='monat'){renderSidebar('sb-monat');renderMonatDetail();}
-  if(tab==='plan'){renderPlanTab();}
+  if(tab==='plan'){renderPlanTab();const sb=document.getElementById('plan-stale-banner');if(sb) sb.style.display=window.planVeraltet?'flex':'none';}
 }
 
 function changeMonth(delta){
