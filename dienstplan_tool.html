@@ -1364,7 +1364,8 @@ function generatePlan(){
   }
 
   const dienstTage={};
-  mas.forEach(ma=>{dienstTage[ma.id]=new Set();});
+  const dienstZaehler={};
+  mas.forEach(ma=>{dienstTage[ma.id]=new Set();dienstZaehler[ma.id]=0;});
 
   const asgn=(maId,di)=>ed[maId].asgn[di]||{};
   const isAvail=(maId,di)=>!ed[maId].vacSet.has(days[di].ds)&&!ed[maId].sperSet.has(days[di].ds);
@@ -1378,7 +1379,19 @@ function generatePlan(){
     if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
     if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
     if(di+2<dim&&asgn(maId,di+1).hasBackup&&asgn(maId,di+2).hasHaupt) return false;
-    if(ed[maId].cnt24h>=ed[maId].maxD) return false;
+    if(dienstZaehler[maId]>=ed[maId].maxD) return false;
+    return true;
+  }
+
+  function canAssignDienstNoLimit(maId,di){
+    if(!isAvail(maId,di)) return false;
+    const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
+    const d=days[di].d;
+    if(dienstTage[maId].has(d-1)||dienstTage[maId].has(d+1)) return false;
+    if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
+    if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
+    if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
+    if(di+2<dim&&asgn(maId,di+1).hasBackup&&asgn(maId,di+2).hasHaupt) return false;
     return true;
   }
 
@@ -1401,7 +1414,7 @@ function generatePlan(){
     if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
     ed[maId].asgn[di].hasHaupt=true;ed[maId].asgn[di].hasBelegt=true;
     ed[maId].cnt24h++;ed[maId].lastDay=di;days[di].hauptD=maId;
-    dienstTage[maId].add(days[di].d);
+    dienstTage[maId].add(days[di].d);dienstZaehler[maId]++;
   }
   function setBackup(maId,di){
     if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
@@ -1430,12 +1443,16 @@ function generatePlan(){
     return -(e.soll-e.cnt24h)*100+(e.pref.includes(days[di].dow)?-10:0)+e.lastDay;
   }
 
+  const warningDays=new Set();
   for(let di=0;di<dim;di++){
     const day=days[di];
     if(day.type==='werkstatt'){
       // hauptD zuerst (nötig für waBkp-Präferenz)
       const hCands=mas.filter(ma=>canAssignDienst(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
-      if(hCands.length) setHaupt(hCands[0].id,di);
+      if(hCands.length){setHaupt(hCands[0].id,di);}else{
+        const fb=mas.filter(ma=>canAssignDienstNoLimit(ma.id,di)).sort((a,b)=>dienstZaehler[a.id]-dienstZaehler[b.id]);
+        if(fb.length){setHaupt(fb[0].id,di);warningDays.add(day.ds);}
+      }
       // waBkp: bevorzugt aktueller hauptD (weiche Regel)
       if(day.hauptD&&canAssignWABkp(day.hauptD,di)){
         setWABkp(day.hauptD,di);
@@ -1451,7 +1468,10 @@ function generatePlan(){
       if(prefH.length) setHaupt(prefH[0].id,di);
       if(!day.hauptD){
         const hCands=mas.filter(ma=>canAssignDienst(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
-        if(hCands.length) setHaupt(hCands[0].id,di);
+        if(hCands.length){setHaupt(hCands[0].id,di);}else{
+          const fb=mas.filter(ma=>canAssignDienstNoLimit(ma.id,di)).sort((a,b)=>dienstZaehler[a.id]-dienstZaehler[b.id]);
+          if(fb.length){setHaupt(fb[0].id,di);warningDays.add(day.ds);}
+        }
       }
       if(!day.backupD){
         const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD).sort((a,b)=>score(a.id,di)-score(b.id,di));
@@ -1481,6 +1501,14 @@ function generatePlan(){
   const plan=getOrInitPlan();
   const overrides=plan.manualOverrides||[];
   plan.days=days;
+  if(warningDays.size){
+    if(!plan.notizen) plan.notizen={};
+    const warnText='⚠ Alle MA haben Obergrenze erreicht';
+    warningDays.forEach(ds=>{
+      const ex=plan.notizen[ds]||'';
+      if(!ex.includes(warnText)) plan.notizen[ds]=ex?ex+'\n'+warnText:warnText;
+    });
+  }
   overrides.forEach(ov=>{
     const di=ov.dayIdx;
     if(di>=0&&di<days.length){
