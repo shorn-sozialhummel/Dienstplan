@@ -1398,11 +1398,22 @@ function renderPlanTable(){
   const termine=getTeamTermine(mk);
   termine.forEach(tr=>{if(!terminByDate[tr.datum])terminByDate[tr.datum]=[];terminByDate[tr.datum].push(tr);});
 
-  function maPill(maId,badge){
+  function maPill(maId,badge,isManual){
     const ma=findMA(t.id,maId);if(!ma) return '';
     const noFS=!ma.fuehrerschein?' 🚫🚗':'';
-    return `<span class="ma-pill" style="background:${maColor(ma)}" onclick="openCellDDList(event)"
-      title="${ma.vorname} ${ma.nachname}${noFS}">${ma.vorname} ${ma.nachname[0]}.${noFS}<sup>${badge}</sup></span>`;
+    const ms=isManual?';outline:2px solid var(--amber-b);outline-offset:1px':'';
+    const mb=isManual?' <sup style="font-size:8px">✏</sup>':'';
+    return `<span class="ma-pill" style="background:${maColor(ma)}${ms}" onclick="openCellDDList(event)"
+      title="${ma.vorname} ${ma.nachname}${noFS}">${ma.vorname} ${ma.nachname[0]}.${noFS}${mb}<sup>${badge}</sup></span>`;
+  }
+  function notizCell(ds,text){
+    const empty=!text;
+    return '<div contenteditable="true"'
+      +' data-empty="'+(empty?'1':'0')+'"'
+      +' onfocus="if(this.dataset.empty===\'1\'){this.textContent=\'\';this.dataset.empty=\'0\';this.style.color=\'var(--text)\'}"'
+      +' onblur="saveNotiz(\''+ds+'\',this.textContent.trim());if(!this.textContent.trim()){this.textContent=\'Notiz…\';this.dataset.empty=\'1\';this.style.color=\'var(--muted)\'}"'
+      +' style="font-size:11px;color:'+(empty?'var(--muted)':'var(--text)')+';min-height:18px;outline:none;cursor:text;padding:2px 4px;border-radius:3px;white-space:pre-wrap"'
+      +'>'+(empty?'Notiz…':esc(text))+'</div>';
   }
   function vacPills(di){
     const ds=dayStr(mk,di+1);
@@ -1412,6 +1423,10 @@ function renderPlanTable(){
     const ds=dayStr(mk,di+1);
     return mas.filter(ma=>sperSets[ma.id].has(ds)).map(ma=>`<span class="ma-pill-small" style="background:${maColor(ma)};opacity:.6" title="Sperrtag">${maKuerzel(ma)}</span>`).join('');
   }
+
+  const manualSet=new Set();
+  (plan.manualOverrides||[]).forEach(ov=>manualSet.add(ov.dayIdx+':'+ov.field));
+  const notizen=plan.notizen||{};
 
   let rows='';
   for(let di=0;di<dim;di++){
@@ -1462,12 +1477,12 @@ function renderPlanTable(){
       const _b2end=_split?(_wCfg.backup2&&_wCfg.backup2.ende||wa.end):wa.end;
       let _wCell;
       if(_split){
-        const _p1=day.waBkp?maPill(day.waBkp,'W1'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W1</span>`;
-        const _p2=day.waBkp2?maPill(day.waBkp2,'W2'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp2')">+ W2</span>`;
+        const _p1=day.waBkp?maPill(day.waBkp,'W1',manualSet.has(di+':waBkp')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W1</span>`;
+        const _p2=day.waBkp2?maPill(day.waBkp2,'W2',manualSet.has(di+':waBkp2')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp2')">+ W2</span>`;
         _wCell='<div style="font-size:10px;color:var(--muted)">'+wa.start+'–'+_b1end+'</div>'+_p1
           +'<div style="font-size:10px;color:var(--muted);margin-top:3px">'+_b1end+'–'+_b2end+'</div>'+_p2;
       } else {
-        _wCell=day.waBkp?maPill(day.waBkp,'W'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W</span>`;
+        _wCell=day.waBkp?maPill(day.waBkp,'W',manualSet.has(di+':waBkp')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W</span>`;
       }
       rows+=`<tr class="${trCls}">
         ${dateCell}
@@ -1475,12 +1490,12 @@ function renderPlanTable(){
         <td class="td-assign">–</td>
         <td class="td-assign">${_wCell}</td>
         ${vacSpanCell}${sperrSpanCell}
-        <td></td>
+        <td class="td-notiz" rowspan="2" style="vertical-align:top;min-width:120px">${notizCell(ds,notizen[ds]||'')}</td>
       </tr>
       <tr class="r-werk-b${we?' r-we':''}${hol?' r-hol':''}">
         <td class="td-desc" style="color:var(--navy)">🔧 Block B &nbsp;<small>${wa.end}–${ns.end}</small></td>
-        <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
-        <td class="td-assign">${day.backupD?maPill(day.backupD,'B'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
+        <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D',manualSet.has(di+':hauptD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
+        <td class="td-assign">${day.backupD?maPill(day.backupD,'B',manualSet.has(di+':backupD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
       </tr>`;
     } else {
       let descLabel,trCls;
@@ -1493,10 +1508,10 @@ function renderPlanTable(){
       rows+=`<tr class="${trCls}">
         ${dateCell}
         <td class="td-desc">${descLabel}</td>
-        <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
-        <td class="td-assign">${day.backupD?maPill(day.backupD,'B'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
+        <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D',manualSet.has(di+':hauptD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
+        <td class="td-assign">${day.backupD?maPill(day.backupD,'B',manualSet.has(di+':backupD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
         ${vacSpanCell}${sperrSpanCell}
-        <td></td>
+        <td class="td-notiz" style="min-width:120px">${notizCell(ds,notizen[ds]||'')}</td>
       </tr>`;
     }
   }
@@ -1509,13 +1524,21 @@ function renderPlanTable(){
       <th style="min-width:110px">Backup (B)</th>
       <th style="min-width:80px">Urlaub</th>
       <th style="min-width:80px">Sperrtage</th>
-      <th style="min-width:40px"></th>
+      <th style="min-width:120px">Notiz</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
 
   renderSollIst(mas,days,mk);
   renderViolations(mas,days,mk,dim);
+}
+
+function saveNotiz(ds,text){
+  const plan=getOrInitPlan();
+  if(!plan.notizen) plan.notizen={};
+  if(text) plan.notizen[ds]=text;
+  else delete plan.notizen[ds];
+  autoSave('Notiz geändert');
 }
 
 function openCellDDList(evt){
