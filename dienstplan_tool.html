@@ -315,7 +315,7 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 <div id="pane-plan" class="pane">
   <div id="plan-stale-banner" style="display:none;background:#fef3c7;border-bottom:2px solid #fcd34d;color:#92400e;padding:8px 18px;font-size:13px;font-weight:500;align-items:center;gap:10px;flex-wrap:wrap">
     <span>⚠ Stamm- oder Monatsdaten wurden geändert – Dienstplan eventuell veraltet</span>
-    <button class="btn btn-primary btn-sm" onclick="generatePlan();dismissStaleBanner()">▶ Plan neu generieren</button>
+    <button class="btn btn-primary btn-sm" onclick="generatePlanSafe()">▶ Plan neu generieren</button>
     <button class="btn btn-sec btn-sm" onclick="dismissStaleBanner()">Bestehenden Plan behalten</button>
   </div>
   <div style="padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -325,6 +325,7 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
       <button onclick="changeMonth(1)">→</button>
     </div>
     <button class="btn btn-primary" onclick="generatePlan()">▶ Plan generieren</button>
+    <button class="btn btn-sec" onclick="generatePlanSafe()">↺ Plan neu generieren</button>
     <button class="btn btn-amber" onclick="doUndo()" id="btn-undo" disabled>↩ Rückgängig</button>
   </div>
   <div id="plan-cfg-wrap"></div>
@@ -1237,6 +1238,16 @@ function renderSKOverview(){
 }
 
 // ─── ALGORITHM ───
+function generatePlanSafe(){
+  const plan=ST.plans&&ST.plans[planKey()];
+  const hasManual=plan&&plan.manualOverrides&&plan.manualOverrides.length>0;
+  if(hasManual){
+    if(!confirm('Es gibt manuelle Änderungen die verloren gehen. Trotzdem neu generieren?')) return;
+  }
+  generatePlan();
+  dismissStaleBanner();
+}
+
 function generatePlan(){
   const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
   const pk=planKey();
