@@ -1363,14 +1363,17 @@ function generatePlan(){
     days.push({d,ds,dow,type,we:isWE(ds),hol:isHol(ds),hauptD:null,backupD:null,waBkp:null,waBkp2:null});
   }
 
+  const dienstTage={};
+  mas.forEach(ma=>{dienstTage[ma.id]=new Set();});
+
   const asgn=(maId,di)=>ed[maId].asgn[di]||{};
   const isAvail=(maId,di)=>!ed[maId].vacSet.has(days[di].ds)&&!ed[maId].sperSet.has(days[di].ds);
 
   function canAssignDienst(maId,di){
     if(!isAvail(maId,di)) return false;
     const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
-    if(di>0&&(days[di-1].hauptD===maId||asgn(maId,di-1).hasHaupt)) return false;
-    if(di+1<dim&&(days[di+1].hauptD===maId||asgn(maId,di+1).hasHaupt)) return false;
+    const d=days[di].d;
+    if(dienstTage[maId].has(d-1)||dienstTage[maId].has(d+1)) return false;
     if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
     if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
     if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
@@ -1398,6 +1401,7 @@ function generatePlan(){
     if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
     ed[maId].asgn[di].hasHaupt=true;ed[maId].asgn[di].hasBelegt=true;
     ed[maId].cnt24h++;ed[maId].lastDay=di;days[di].hauptD=maId;
+    dienstTage[maId].add(days[di].d);
   }
   function setBackup(maId,di){
     if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
