@@ -299,46 +299,16 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 
 <!-- TAB 3 DIENSTPLAN -->
 <div id="pane-plan" class="pane">
-  <div style="padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+  <div style="padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div class="month-sw">
       <button onclick="changeMonth(-1)">←</button>
       <span id="plan-month-lbl">—</span>
       <button onclick="changeMonth(1)">→</button>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1">
-      <span style="font-size:12px;font-weight:600;color:var(--muted)">Werkstatttage:</span>
-      <div class="dow-checks" id="werk-checks"></div>
-      <span style="font-size:12px;font-weight:600;color:var(--muted);margin-left:10px">Freischicht:</span>
-      <div class="dow-checks" id="frei-checks"></div>
-    </div>
     <button class="btn btn-primary" onclick="generatePlan()">▶ Plan generieren</button>
     <button class="btn btn-amber" onclick="doUndo()" id="btn-undo" disabled>↩ Rückgängig</button>
   </div>
-  <div style="padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--border)">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
-      <div class="shift-box" style="flex:1;min-width:150px">
-        <label>24h-Dienst Start/Ende</label>
-        <div style="display:flex;gap:6px">
-          <input type="time" id="nt-start" value="20:00" onchange="saveShiftTimes()" style="flex:1">
-          <input type="time" id="nt-end" value="20:00" onchange="saveShiftTimes()" style="flex:1">
-        </div>
-      </div>
-      <div class="shift-box" style="flex:1;min-width:150px">
-        <label>Werkstatt Block A</label>
-        <div style="display:flex;gap:6px">
-          <input type="time" id="wa-start" value="08:00" onchange="saveShiftTimes()" style="flex:1">
-          <input type="time" id="wa-end" value="15:00" onchange="saveShiftTimes()" style="flex:1">
-        </div>
-      </div>
-      <div class="shift-box" style="flex:1;min-width:150px">
-        <label>Freischicht Block A</label>
-        <div style="display:flex;gap:6px">
-          <input type="time" id="fa-start" value="08:00" onchange="saveShiftTimes()" style="flex:1">
-          <input type="time" id="fa-end" value="12:00" onchange="saveShiftTimes()" style="flex:1">
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="plan-cfg-wrap"></div>
   <div style="flex:1;overflow:auto;padding:14px 18px">
     <div id="sk-overview" style="margin-bottom:14px"></div>
     <div id="plan-table-wrap" class="plan-wrap"></div>
@@ -366,7 +336,7 @@ const DOW_DE=['So','Mo','Di','Mi','Do','Fr','Sa'];
 const MON_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 const MA_COLORS=['#1a3a5c','#15803d','#b45309','#7c3aed','#be123c','#0e7490','#92400e','#4338ca'];
 
-const LS_KEY='dp_v8';
+const LS_KEY='dp_v9';
 let ST=null;
 let activeTab='stamm';
 let selectedMAId=null;
@@ -388,6 +358,8 @@ function monthKey(y,m){return `${y}-${String(m).padStart(2,'0')}`;}
 function daysInMonth(mk){const[y,m]=mk.split('-').map(Number);return new Date(y,m,0).getDate();}
 function dayStr(mk,d){const[y,m]=mk.split('-');return `${y}-${m}-${String(d).padStart(2,'0')}`;}
 function isWE(ds){const d=new Date(ds).getDay();return d===0||d===6;}
+const _DOW_KEYS=['so','mo','di','mi','do','fr','sa'];
+function getDowKey(ds){return _DOW_KEYS[new Date(ds).getDay()];}
 function uid(){return '_'+Math.random().toString(36).slice(2,10);}
 function esc(s){if(!s) return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -451,11 +423,15 @@ function maxSperrtageForMA(ma,mk){
 }
 
 // ─── INIT / LOAD / SAVE ───
+function _mkWerkDefault(){return {aktiv:false,blockA:{start:'08:00',ende:'15:00'},splitBackup:false,backup1:{start:'08:00',ende:'12:00'},backup2:{start:'12:00',ende:'15:00'}};}
+function _mkFreiDefault(){return {aktiv:false,blockA:{start:'08:00',ende:'12:00'}};}
+
 function defaultState(){
   return {
     teams:[{id:'team_1',name:'Team 1',mitarbeitende:[],termine:{}}],
     einstellungen:{
-      werkstatttage:[],freischichttage:[],
+      werkstatttage:{mo:_mkWerkDefault(),di:_mkWerkDefault(),mi:_mkWerkDefault(),do:_mkWerkDefault(),fr:_mkWerkDefault(),sa:_mkWerkDefault(),so:_mkWerkDefault()},
+      freischichttage:{mo:_mkFreiDefault(),di:_mkFreiDefault(),mi:_mkFreiDefault(),do:_mkFreiDefault(),fr:_mkFreiDefault(),sa:_mkFreiDefault(),so:_mkFreiDefault()},
       schichtzeiten:{
         normal:{name:'24h-Dienst',start:'20:00',end:'20:00'},
         werkstattA:{start:'08:00',end:'15:00'},
@@ -475,6 +451,13 @@ function loadState(){
     else ST=defaultState();
     // Migrate: ensure termine on each team
     ST.teams.forEach(t=>{if(!t.termine)t.termine={};});
+    // Migrate: werkstatttage/freischichttage array → per-weekday objects
+    const _ei=ST.einstellungen;
+    if(Array.isArray(_ei.werkstatttage)||!_ei.werkstatttage){const _d=defaultState();_ei.werkstatttage=_d.einstellungen.werkstatttage;_ei.freischichttage=_d.einstellungen.freischichttage;}
+    ['mo','di','mi','do','fr','sa','so'].forEach(k=>{
+      if(!_ei.werkstatttage[k])_ei.werkstatttage[k]=_mkWerkDefault();
+      if(!_ei.freischichttage[k])_ei.freischichttage[k]=_mkFreiDefault();
+    });
   }catch(e){ST=defaultState();}
 }
 
@@ -1096,52 +1079,85 @@ function deleteTermin(idx){
 // ─── TAB 3 – DIENSTPLAN ───
 let undoStack=[];
 
-function renderDOWChecks(){
-  const dows=['Mo','Di','Mi','Do','Fr','Sa','So'];
-  const wvals=[1,2,3,4,5,6,0];
+// ─── PER-WEEKDAY CONFIG ───
+let _cfgOpen=true;
+function renderPlanConfig(){
+  const wrap=document.getElementById('plan-cfg-wrap');if(!wrap) return;
   const ei=ST.einstellungen;
-  ['werk-checks','frei-checks'].forEach((id,fi)=>{
-    const arr=fi===0?ei.werkstatttage:ei.freischichttage;
-    const el=document.getElementById(id);if(!el) return;
-    el.innerHTML=dows.map((d,i)=>{
-      const v=wvals[i];const chk=arr.includes(v);
-      return `<label class="dow-chk ${chk?'checked':''}" title="${d}"><input type="checkbox" ${chk?'checked':''} value="${v}" onchange="toggleDOW('${id}',${v},this.checked)"> ${d}</label>`;
-    }).join('');
+  const DAYS=[{k:'mo',l:'Mo'},{k:'di',l:'Di'},{k:'mi',l:'Mi'},{k:'do',l:'Do'},{k:'fr',l:'Fr'},{k:'sa',l:'Sa'},{k:'so',l:'So'}];
+  const th=function(s){return '<th style="padding:3px 8px;color:var(--muted);font-weight:600;white-space:nowrap">'+s+'</th>';};
+  const ti=function(val,onch,dis){return '<td style="padding:2px 3px"><input type="time" value="'+val+'"'
+    +' onchange="'+onch+'"'
+    +' style="width:74px;font-size:11px;padding:2px 3px;border:1px solid var(--border);border-radius:4px;background:'+(dis?'var(--bg)':'#fff')+'"'
+    +(dis?' disabled':'')+'></td>';};
+
+  var h='<details'+(_cfgOpen?' open':'')
+    +' style="background:var(--surface);border-bottom:1px solid var(--border)"'
+    +' ontoggle="_cfgOpen=this.open">';
+  h+='<summary style="padding:8px 18px;cursor:pointer;font-size:12px;font-weight:700;color:var(--navy);list-style:none;display:flex;align-items:center;gap:6px;user-select:none">'
+    +'▸ Schichtkonfiguration</summary>';
+  h+='<div style="padding:10px 18px 14px;overflow-x:auto;display:flex;gap:24px;flex-wrap:wrap">';
+
+  // Werkstatt table
+  h+='<div><div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:5px">🔧 Werkstatttage</div>';
+  h+='<table style="border-collapse:collapse;font-size:11px"><thead><tr>'
+    +th('Tag')+th('Aktiv')+th('Block A von')+th('Block A bis')+th('Split')+th('Bkp1 bis')+th('Bkp2 bis')
+    +'</tr></thead><tbody>';
+  DAYS.forEach(function(d){
+    var k=d.k,l=d.l;
+    var c=ei.werkstatttage[k]||_mkWerkDefault();
+    var dis=!c.aktiv,sdis=!c.aktiv||!c.splitBackup;
+    h+='<tr>';
+    h+='<td style="padding:2px 8px;font-weight:600">'+l+'</td>';
+    h+='<td style="padding:2px 8px;text-align:center"><input type="checkbox"'+(c.aktiv?' checked':'')+' onchange="setWerkAktiv(\''+k+'\',this.checked)"></td>';
+    h+=ti(c.blockA.start,'setWerkZeit(\''+k+'\',\'blockA\',\'start\',this.value)',dis);
+    h+=ti(c.blockA.ende,'setWerkZeit(\''+k+'\',\'blockA\',\'ende\',this.value)',dis);
+    h+='<td style="padding:2px 8px;text-align:center"><input type="checkbox"'+(c.splitBackup?' checked':'')+' onchange="setWerkSplit(\''+k+'\',this.checked)"'+(dis?' disabled':'')+'></td>';
+    h+=ti(c.backup1.ende,'setWerkZeit(\''+k+'\',\'backup1\',\'ende\',this.value)',sdis);
+    h+=ti(c.backup2.ende,'setWerkZeit(\''+k+'\',\'backup2\',\'ende\',this.value)',sdis);
+    h+='</tr>';
   });
+  h+='</tbody></table></div>';
+
+  // Freischicht table
+  h+='<div><div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px">🌅 Freischichttage</div>';
+  h+='<table style="border-collapse:collapse;font-size:11px"><thead><tr>'
+    +th('Tag')+th('Aktiv')+th('Block A von')+th('Block A bis')
+    +'</tr></thead><tbody>';
+  DAYS.forEach(function(d){
+    var k=d.k,l=d.l;
+    var c=ei.freischichttage[k]||_mkFreiDefault();
+    var dis=!c.aktiv;
+    h+='<tr>';
+    h+='<td style="padding:2px 8px;font-weight:600">'+l+'</td>';
+    h+='<td style="padding:2px 8px;text-align:center"><input type="checkbox"'+(c.aktiv?' checked':'')+' onchange="setFreiAktiv(\''+k+'\',this.checked)"></td>';
+    h+=ti(c.blockA.start,'setFreiZeit(\''+k+'\',\'start\',this.value)',dis);
+    h+=ti(c.blockA.ende,'setFreiZeit(\''+k+'\',\'ende\',this.value)',dis);
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+
+  // 24h-Dienst time
+  h+='<div style="align-self:flex-start"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:5px">🌙 24h-Dienst</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:4px">Dienstbeginn</div>'
+    +'<input type="time" value="'+ei.schichtzeiten.normal.start+'" onchange="set24hStart(this.value)"'
+    +' style="width:90px;font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:5px">'
+    +'</div>';
+
+  h+='</div></details>';
+  wrap.innerHTML=h;
 }
 
-function toggleDOW(id,val,chk){
-  const ei=ST.einstellungen;
-  const arr=id==='werk-checks'?ei.werkstatttage:ei.freischichttage;
-  if(chk&&!arr.includes(val)) arr.push(val);
-  else if(!chk){const i=arr.indexOf(val);if(i>=0)arr.splice(i,1);}
-  autoSave('Schichteinstellungen geändert');
-  renderDOWChecks();
-}
-
-function saveShiftTimes(){
-  const ei=ST.einstellungen;
-  const ns=ei.schichtzeiten.normal,wa=ei.schichtzeiten.werkstattA,fa=ei.schichtzeiten.freischichtA;
-  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
-  ns.start=g('nt-start');ns.end=g('nt-end');
-  wa.start=g('wa-start');wa.end=g('wa-end');
-  fa.start=g('fa-start');fa.end=g('fa-end');
-  autoSave('Schichtzeiten geändert');
-}
-
-function loadShiftTimes(){
-  const ei=ST.einstellungen;
-  const ns=ei.schichtzeiten.normal,wa=ei.schichtzeiten.werkstattA,fa=ei.schichtzeiten.freischichtA;
-  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
-  set('nt-start',ns.start);set('nt-end',ns.end);
-  set('wa-start',wa.start);set('wa-end',wa.end);
-  set('fa-start',fa.start);set('fa-end',fa.end);
-}
+function setWerkAktiv(k,v){ST.einstellungen.werkstatttage[k].aktiv=v;autoSave('Werkstatttag geändert');renderPlanConfig();}
+function setWerkZeit(k,b,f,v){ST.einstellungen.werkstatttage[k][b][f]=v;autoSave('Werkstattzeit geändert');}
+function setWerkSplit(k,v){ST.einstellungen.werkstatttage[k].splitBackup=v;autoSave('Split-Backup geändert');renderPlanConfig();}
+function setFreiAktiv(k,v){ST.einstellungen.freischichttage[k].aktiv=v;autoSave('Freischichttag geändert');renderPlanConfig();}
+function setFreiZeit(k,f,v){ST.einstellungen.freischichttage[k].blockA[f]=v;autoSave('Freischichtzeit geändert');}
+function set24hStart(v){ST.einstellungen.schichtzeiten.normal.start=v;ST.einstellungen.schichtzeiten.normal.end=v;autoSave('24h-Start geändert');}
 
 function renderPlanTab(){
   document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
-  renderDOWChecks();
-  loadShiftTimes();
+  renderPlanConfig();
   renderSKOverview();
   renderPlanTable();
 }
@@ -1206,8 +1222,9 @@ function generatePlan(){
   for(let d=1;d<=dim;d++){
     const ds=dayStr(mk,d);
     const dow=new Date(ds).getDay();
-    const isWerk=ei.werkstatttage.includes(dow);
-    const isFrei=ei.freischichttage.includes(dow);
+    const _dk=getDowKey(ds);
+    const isWerk=!!(ei.werkstatttage[_dk]&&ei.werkstatttage[_dk].aktiv);
+    const isFrei=!!(ei.freischichttage[_dk]&&ei.freischichttage[_dk].aktiv);
     let type='normal';
     if(isWerk) type='werkstatt';
     else if(isFrei) type='freischicht';
@@ -1365,7 +1382,8 @@ function renderPlanTable(){
     const dow=new Date(ds).getDay();
     const we=isWE(ds),hol=isHol(ds);
     const day=days[di]||{};
-    const dayType=day.type||(ei.werkstatttage.includes(dow)?'werkstatt':ei.freischichttage.includes(dow)?'freischicht':'normal');
+    const _dk2=getDowKey(ds);
+    const dayType=day.type||(ei.werkstatttage[_dk2]&&ei.werkstatttage[_dk2].aktiv?'werkstatt':ei.freischichttage[_dk2]&&ei.freischichttage[_dk2].aktiv?'freischicht':'normal');
     const dateLabel=`<strong>${String(di+1).padStart(2,'0')}.${mk.split('-')[1]}.</strong> ${DOW_DE[dow]}`;
     const dateCell=`<td class="td-date${hol?' hol-date':''}" rowspan="${dayType==='werkstatt'?2:1}" title="${holName(ds)||''}">${dateLabel}${hol?`<br><span style="font-size:9px">${holName(ds)}</span>`:''}</td>`;
     const vpills=vacPills(di);const spills=sperrPills(di);
@@ -1395,7 +1413,10 @@ function renderPlanTable(){
       });
     }
 
-    const ns=ei.schichtzeiten.normal,wa=ei.schichtzeiten.werkstattA,fa=ei.schichtzeiten.freischichtA;
+    const ns=ei.schichtzeiten.normal;
+    const _wCfg=ei.werkstatttage[getDowKey(ds)]||{};const _fCfg=ei.freischichttage[getDowKey(ds)]||{};
+    const wa={start:(_wCfg.blockA&&_wCfg.blockA.start)||'08:00',end:(_wCfg.blockA&&_wCfg.blockA.ende)||'15:00'};
+    const fa={start:(_fCfg.blockA&&_fCfg.blockA.start)||'08:00',end:(_fCfg.blockA&&_fCfg.blockA.ende)||'12:00'};
 
     if(dayType==='werkstatt'){
       const trCls='r-werk-a'+(we?' r-we':'')+(hol?' r-hol':'');
