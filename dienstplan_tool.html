@@ -620,8 +620,8 @@ function addMA(){
   const usedColors=t.mitarbeitende.map(m=>m.farbe);
   const farbe=MA_COLORS.find(c=>!usedColors.includes(c))||MA_COLORS[t.mitarbeitende.length%MA_COLORS.length];
   const ma={id,vorname:'Neu',nachname:'Person',kuerzel:'NP',farbe,
-    eintritt:'',stellenanteil:100,fuehrerschein:false,ersthelfer:false,schichtleitung:false,
-    dauerEinschraenkungen:'',bevorzugteTage:'',maxDiensteProMonat:10,monatsdaten:{}};
+    fuehrerschein:false,
+    dauerEinschraenkungen:'',bevorzugteTage:'',maxDiensteProMonat:10,schichtenTeam:0,monatsdaten:{}};
   t.mitarbeitende.push(ma);
   selectedMAId=id;
   autoSave('Mitarbeiter/in erstellt');
@@ -667,9 +667,15 @@ function renderMADetail(){
         <div class="field" style="max-width:80px"><label>Kürzel</label><input type="text" id="ma-kuerzel" value="${esc(ma.kuerzel)}" maxlength="3"></div>
       </div>
       <div class="row">
-        <div class="field" style="max-width:160px"><label>Eintrittsdatum</label><input type="date" id="ma-eintritt" value="${ma.eintritt||''}"></div>
-        <div class="field" style="max-width:120px"><label>Stellenanteil %</label><input type="number" id="ma-stellen" value="${ma.stellenanteil||100}" min="1" max="200"></div>
-        <div class="field" style="max-width:130px"><label>Max. Dienste/Monat</label><input type="number" id="ma-maxd" value="${ma.maxDiensteProMonat||10}" min="0" max="31"></div>
+        <div class="field" style="max-width:160px"><label>Vertragliche Schichten/Monat</label><input type="number" id="ma-maxd" value="${ma.maxDiensteProMonat||10}" min="0" max="31" oninput="updateSchichtenCalc()"></div>
+        <div class="field" style="max-width:160px"><label>Schichten in diesem Team</label><input type="number" id="ma-teamd" value="${ma.schichtenTeam||0}" min="0" max="31" oninput="updateSchichtenCalc()"></div>
+        <div class="field" style="max-width:160px">
+          <label style="white-space:nowrap">Schichten in anderen Teams</label>
+          <div id="ma-otherd" style="padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:13px;min-height:34px;display:flex;align-items:center;gap:8px">
+            <span id="ma-otherd-val">–</span>
+            <span id="ma-otherd-warn" style="display:none;color:var(--red,#dc2626);font-size:11px;font-weight:600">⚠ Teamanteil &gt; Vertrag</span>
+          </div>
+        </div>
       </div>
       <div class="sep"></div>
       <div class="row" style="align-items:center">
@@ -689,13 +695,6 @@ function renderMADetail(){
             <span id="fuehr-lbl">${ma.fuehrerschein?'Ja ✓':'Nein 🚫🚗'}</span>
           </label>
         </div>
-        <div class="field">
-          <label>Qualifikationen</label>
-          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
-            <label class="chk"><input type="checkbox" id="ma-erst" ${ma.ersthelfer?'checked':''}> Ersthelfer</label>
-            <label class="chk"><input type="checkbox" id="ma-schi" ${ma.schichtleitung?'checked':''}> Schichtleitung möglich</label>
-          </div>
-        </div>
       </div>
       <div class="sep"></div>
       <div class="row">
@@ -714,6 +713,20 @@ function renderMADetail(){
   document.getElementById('ma-fuehr').addEventListener('change',function(){
     document.getElementById('fuehr-lbl').textContent=this.checked?'Ja ✓':'Nein 🚫🚗';
   });
+  updateSchichtenCalc();
+}
+
+function updateSchichtenCalc(){
+  const maxEl=document.getElementById('ma-maxd');
+  const teamEl=document.getElementById('ma-teamd');
+  const valEl=document.getElementById('ma-otherd-val');
+  const warnEl=document.getElementById('ma-otherd-warn');
+  if(!maxEl||!teamEl||!valEl||!warnEl) return;
+  const maxD=parseInt(maxEl.value)||0;
+  const teamD=parseInt(teamEl.value)||0;
+  const other=maxD-teamD;
+  valEl.textContent=other>=0?String(other):'–';
+  warnEl.style.display=teamD>maxD?'':'none';
 }
 
 function pickColor(c){
@@ -740,12 +753,9 @@ function saveMAForm(){
   ma.vorname=document.getElementById('ma-vorname').value.trim()||'Vorname';
   ma.nachname=document.getElementById('ma-nachname').value.trim()||'Nachname';
   ma.kuerzel=document.getElementById('ma-kuerzel').value.trim().toUpperCase().slice(0,3)||'??';
-  ma.eintritt=document.getElementById('ma-eintritt').value||'';
-  ma.stellenanteil=parseInt(document.getElementById('ma-stellen').value)||100;
   ma.maxDiensteProMonat=parseInt(document.getElementById('ma-maxd').value)||10;
+  ma.schichtenTeam=parseInt(document.getElementById('ma-teamd').value)||0;
   ma.fuehrerschein=document.getElementById('ma-fuehr').checked;
-  ma.ersthelfer=document.getElementById('ma-erst').checked;
-  ma.schichtleitung=document.getElementById('ma-schi').checked;
   ma.dauerEinschraenkungen=document.getElementById('ma-dauer').value;
   ma.bevorzugteTage=document.getElementById('ma-bev').value;
   autoSave('Stammdaten: '+ma.vorname+' '+ma.nachname);
@@ -1288,7 +1298,7 @@ function generatePlan(){
       asgn:{},cnt24h:0,cntBkpReg:0,cntBkpWerk:0,
       lastDay:-1,
       soll:adjustedSoll,
-      maxD:ma.maxDiensteProMonat||10,
+      maxD:ma.schichtenTeam||ma.maxDiensteProMonat||10,
       pref:parsePrefDays(ma.bevorzugteTage||'')
     };
   });
