@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dienstplan v7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a5c;--navy-l:#2a5080;--navy-bg:#e8f0f8;
+  --bg:#f5f6f8;--surface:#fff;--border:#dde2ea;
+  --text:#1e2d3d;--muted:#6b7a8d;
+  --green:#15803d;--green-bg:#dcfce7;--green-b:#86efac;
+  --amber:#92400e;--amber-bg:#fef3c7;--amber-b:#fcd34d;
+  --red:#be123c;--red-bg:#ffe4e6;--red-b:#fca5a5;
+  --blue:#1d4ed8;--blue-bg:#dbeafe;--blue-b:#93c5fd;
+  --cyan:#0e7490;--cyan-bg:#cffafe;--cyan-b:#67e8f9;
+  --r:8px;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--navy);color:#fff;padding:0 18px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-wrap:wrap}
+.hdr h1{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
+.hdr .sub{font-size:10px;opacity:.55;margin-top:1px}
+.hdr-sp{flex:1}
+
+/* TEAM TOPBAR */
+.topbar{background:var(--surface);border-bottom:2px solid var(--border);padding:8px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:52px;z-index:200}
+.team-pill{display:inline-flex;align-items:center;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:var(--bg);color:var(--muted);transition:all .15s;gap:4px}
+.team-pill:hover{border-color:var(--navy-bg);color:var(--navy)}
+.team-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.topbar-sp{flex:1}
+
+/* TABS */
+.tabs{background:var(--surface);border-bottom:2px solid var(--border);display:flex;padding:0 18px;position:sticky;top:100px;z-index:190}
+.tab{padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--navy)}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+
+/* LAYOUT with SIDEBAR */
+.layout{display:flex;gap:0;height:calc(100vh - 152px)}
+.sidebar{width:168px;min-width:168px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.sb-title{padding:10px 12px 6px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.sb-list{flex:1;overflow-y:auto;padding:6px 0}
+.sb-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;border-left:3px solid transparent;transition:all .1s}
+.sb-item:hover{background:var(--navy-bg)}
+.sb-item.active{background:var(--navy-bg);border-left-color:var(--navy);color:var(--navy);font-weight:600}
+.sb-kuerzel{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace}
+.sb-foot{padding:10px 12px;border-top:1px solid var(--border)}
+.main-area{flex:1;overflow-y:auto;padding:18px 20px}
+
+/* PANES */
+.pane{display:none}
+.pane.on{display:flex;flex-direction:column;height:100%}
+.pane-content{flex:1;overflow-y:auto;padding:0}
+#pane-save{display:none}
+#pane-save.on{display:block;padding:18px 20px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:14px}
+.ch{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ch h2{font-size:14px;font-weight:700}
+.ch h3{font-size:13px;font-weight:600}
+.ch-act{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cb{padding:14px 16px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn-primary:hover:not(:disabled){background:var(--navy-l)}
+.btn-sec{background:var(--surface);color:var(--text);border-color:var(--border)}.btn-sec:hover:not(:disabled){background:var(--navy-bg)}
+.btn-danger{background:#fff;color:var(--red);border-color:var(--red-b)}.btn-danger:hover:not(:disabled){background:var(--red-bg)}
+.btn-amber{background:#fff;color:var(--amber);border-color:var(--amber-b)}.btn-amber:hover:not(:disabled){background:var(--amber-bg)}
+.btn-green{background:#fff;color:var(--green);border-color:var(--green-b)}.btn-green:hover:not(:disabled){background:var(--green-bg)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-xs{padding:2px 7px;font-size:11px}
+
+/* FORM */
+label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px}
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);
+  border:1px solid var(--border);border-radius:6px;padding:6px 9px;width:100%;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy-l)}
+input[type=date]{font-family:'DM Mono',monospace;font-size:12px}
+textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-size:11px}
+.row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap}
+.field{flex:1;min-width:70px}
+.sep{height:1px;background:var(--border);margin:12px 0}
+
+/* TOGGLE */
+.toggle{position:relative;width:38px;height:20px;display:inline-block}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-sl{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:.2s}
+.toggle-sl:before{content:'';position:absolute;width:16px;height:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-sl{background:var(--navy)}
+.toggle input:checked+.toggle-sl:before{transform:translateX(18px)}
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:var(--text)}
+
+/* CHECKBOX */
+.chk{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.chk input[type=checkbox]{width:auto;cursor:pointer}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;margin:2px}
+.chip-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.chip-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.chip-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.chip-del{background:none;border:none;cursor:pointer;font-size:13px;color:inherit;line-height:1;padding:0 2px;opacity:.7}
+.chip-del:hover{opacity:1}
+
+/* ALERTS */
+.alert{padding:9px 13px;border-radius:6px;font-size:12px;margin-bottom:10px}
+.alert-info{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.alert-warn{background:var(--amber-bg);border:1px solid var(--amber-b);color:var(--amber)}
+.alert-err{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.alert-ok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+
+/* KENNZAHLEN */
+.kz-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.kz-card{flex:1;min-width:90px;background:var(--navy-bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px}
+.kz-val{font-size:24px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace}
+.kz-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* AUTO-SAVE BANNER */
+#banner{position:fixed;top:52px;left:0;right:0;z-index:500;background:#fef3c7;border-bottom:2px solid var(--amber-b);color:var(--amber);padding:8px 18px;display:none;align-items:center;gap:10px;font-size:13px;font-weight:500}
+#banner.show{display:flex}
+
+/* MONTH SWITCHER */
+.month-sw{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--navy)}
+.month-sw button{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;font-size:14px;transition:background .15s}
+.month-sw button:hover{background:var(--navy-bg)}
+
+/* DIENSTPLAN TABLE */
+.plan-wrap{overflow:auto}
+.plan-table{border-collapse:collapse;font-size:11px;font-family:'DM Mono',monospace;min-width:max-content}
+.plan-table th{position:sticky;top:0;background:var(--navy);color:#fff;padding:5px 4px;border:1px solid #2a4a6c;white-space:nowrap;text-align:center;min-width:28px;z-index:10}
+.plan-table th.th-name{position:sticky;left:0;z-index:20;background:var(--navy);min-width:130px;text-align:left;padding-left:8px}
+.plan-table th.we-hdr{background:#2a4060}
+.plan-table th.hol-hdr{background:#7c4a0e;color:#fef3c7}
+.plan-table td{border:1px solid var(--border);padding:2px 3px;text-align:center;vertical-align:middle;font-size:11px}
+.plan-table td.td-name{position:sticky;left:0;z-index:5;background:var(--surface);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:4px 8px;text-align:left;white-space:nowrap;border-right:2px solid var(--border);min-width:130px}
+.plan-table td.td-name:hover{background:var(--navy-bg);cursor:default}
+.plan-table tr:hover td:not(.td-name){background:#f0f4f8}
+.plan-table td.we{background:#f8f9fb}
+.plan-table td.hol{background:#fef7e9}
+.plan-cell{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;transition:all .1s}
+.plan-cell:hover{opacity:.8;transform:scale(1.1)}
+.cell-D{background:var(--navy);color:#fff}
+.cell-B{background:var(--blue-bg);color:var(--blue)}
+.cell-U{background:var(--green-bg);color:var(--green)}
+.cell-S{background:var(--amber-bg);color:var(--amber)}
+.cell-W{background:var(--cyan-bg);color:var(--cyan)}
+.cell-WD{background:linear-gradient(135deg,var(--cyan-bg) 50%,var(--navy-bg) 50%);color:var(--navy)}
+.cell-WB{background:linear-gradient(135deg,var(--cyan-bg) 50%,var(--blue-bg) 50%);color:var(--blue)}
+.cell-empty{color:#ccc;font-size:14px}
+
+/* CELL DROPDOWN */
+.cell-dd{position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);min-width:200px;padding:6px 0;display:none}
+.cell-dd.show{display:block}
+.cell-dd-title{padding:5px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);margin-bottom:4px}
+.cell-dd-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif}
+.cell-dd-item:hover{background:var(--navy-bg)}
+.cell-dd-item.unavail{opacity:.45;cursor:not-allowed}
+.cell-dd-item.unavail:hover{background:none}
+.cell-dd-kuerzel{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace}
+
+/* DATEPICKER */
+.dp-popup{position:fixed;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 28px rgba(0,0,0,.18);padding:0;width:252px;z-index:9999;display:none}
+.dp-popup.show{display:block}
+.dp-nav{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px;border-bottom:1px solid var(--border)}
+.dp-nav-btn{background:none;border:none;cursor:pointer;font-size:15px;color:var(--navy);padding:2px 8px;border-radius:4px}
+.dp-nav-btn:hover{background:var(--navy-bg)}
+.dp-nav-title{font-weight:700;font-size:13px;color:var(--navy)}
+.dp-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px 10px 2px;font-size:10px;font-weight:700;color:var(--muted);text-align:center}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px 10px 10px}
+.dp-cell{text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;font-size:12px;transition:background .1s}
+.dp-cell:hover:not(.dp-disabled):not(.dp-other){background:var(--navy-bg)}
+.dp-cell.dp-other{color:#ccc;cursor:default}
+.dp-cell.dp-disabled{opacity:.35;cursor:not-allowed}
+.dp-cell.dp-selected{background:var(--navy);color:#fff;font-weight:700}
+.dp-cell.dp-in-range{background:var(--blue-bg)}
+.dp-cell.dp-vacation{background:var(--blue-bg);color:var(--blue)}
+.dp-cell.dp-blockday{background:var(--amber-bg);color:var(--amber)}
+.dp-cell.dp-weekend{color:var(--muted)}
+.dp-cell.dp-today{font-weight:700;text-decoration:underline}
+
+/* SOLL/IST TABLE */
+.sum-tbl{border-collapse:collapse;width:100%;font-size:12px;font-family:'DM Mono',monospace}
+.sum-tbl th{background:var(--navy-bg);color:var(--navy);padding:6px 10px;text-align:left;border:1px solid var(--border);font-size:11px;white-space:nowrap}
+.sum-tbl td{border:1px solid var(--border);padding:5px 10px;vertical-align:middle}
+.sum-tbl tr:hover td{background:var(--navy-bg)}
+.sum-ok{color:var(--green);font-weight:700}
+.sum-warn{color:var(--amber);font-weight:700}
+.sum-err{color:var(--red);font-weight:700}
+
+/* SAVE TAB */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.stat-val{font-size:20px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:3px}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--navy-l);background:var(--navy-bg);color:var(--navy)}
+.log-tbl{border-collapse:collapse;width:100%;font-size:12px}
+.log-tbl th{background:var(--navy-bg);color:var(--navy);padding:5px 10px;text-align:left;border:1px solid var(--border);font-size:11px}
+.log-tbl td{border:1px solid var(--border);padding:5px 10px;font-family:'DM Mono',monospace;font-size:11px}
+.badge{display:inline-block;padding:1px 7px;border-radius:12px;font-size:10px;font-weight:700}
+.badge-auto{background:var(--blue-bg);color:var(--blue)}
+.badge-manual{background:var(--amber-bg);color:var(--amber)}
+
+/* VALIDATION */
+.viol-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.viol-item:last-child{border-bottom:none}
+.viol-icon{flex-shrink:0;font-size:14px;margin-top:1px}
+
+/* PRINT */
+@media print{
+  .tabs,.topbar,.hdr,.btn,[class*="-action"],#banner,#tab-save,.cell-dd,.dp-popup{display:none!important}
+  body{background:#fff;font-size:9px}
+  .layout{height:auto;display:block}
+  .sidebar{display:none!important}
+  .main-area{padding:0}
+  .plan-table{font-size:8px}
+  .plan-table td,.plan-table th{padding:1px 2px}
+  @page{size:A4 landscape;margin:8mm}
+}
+
+/* COLLAPSIBLE */
+.coll-hdr{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.coll-hdr:hover{color:var(--navy)}
+.coll-arrow{transition:transform .2s;font-size:11px}
+.coll-hdr.open .coll-arrow{transform:rotate(90deg)}
+.coll-body{display:none}
+.coll-body.open{display:block}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;color:var(--muted);text-align:center;gap:10px}
+.empty-state .icon{font-size:40px;opacity:.4}
+.empty-state p{font-size:13px;max-width:280px}
+
+/* DAY CHECKBOXES */
+.dow-checks{display:flex;gap:8px;flex-wrap:wrap}
+.dow-chk{display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 8px;border:1px solid var(--border);border-radius:4px}
+.dow-chk input[type=checkbox]{width:auto}
+.dow-chk.checked{background:var(--navy-bg);border-color:var(--navy)}
+
+/* SHIFT TIME BOXES */
+.shift-boxes{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
+.shift-box{border:1px solid var(--border);border-radius:6px;padding:10px;background:#fff}
+.shift-box label{color:var(--navy);font-size:11px;margin-bottom:5px}
+</style>
+</head>
+<body>
+
+<!-- AUTO-SAVE BANNER -->
+<div id="banner">
+  <span>💾 Daten gespeichert – Backup empfohlen</span>
+  <button class="btn btn-amber btn-sm" onclick="doBackupExport()">Jetzt Backup erstellen</button>
+  <button class="btn btn-xs btn-sec" style="margin-left:auto" onclick="hideBanner()">×</button>
+</div>
+
+<!-- DATEPICKER POPUP -->
+<div class="dp-popup" id="dp-popup">
+  <div class="dp-nav">
+    <button class="dp-nav-btn" onclick="dpNav(-1)">←</button>
+    <span class="dp-nav-title" id="dp-title"></span>
+    <button class="dp-nav-btn" onclick="dpNav(1)">→</button>
+  </div>
+  <div class="dp-dow-row"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+  <div class="dp-grid" id="dp-grid"></div>
+</div>
+
+<!-- CELL DROPDOWN -->
+<div class="cell-dd" id="cell-dd"></div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <h1>📋 Dienstplan</h1>
+    <div class="sub">v7 · Multi-Team · NRW</div>
+  </div>
+  <div class="hdr-sp"></div>
+  <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Drucken</button>
+</div>
+
+<!-- TEAM TOPBAR -->
+<div class="topbar" id="topbar">
+  <span style="font-size:12px;font-weight:600;color:var(--muted)">Teams:</span>
+  <div id="team-pills"></div>
+  <button class="btn btn-sec btn-sm" onclick="addTeam()">+ Team</button>
+  <button class="btn btn-danger btn-sm" onclick="deleteTeam()">Team löschen</button>
+  <div class="topbar-sp"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" data-tab="stamm" onclick="switchTab('stamm')">👤 Stammdaten</button>
+  <button class="tab" data-tab="monat" onclick="switchTab('monat')">📅 Monatsdaten</button>
+  <button class="tab" data-tab="plan" onclick="switchTab('plan')">📋 Dienstplan</button>
+  <button class="tab" data-tab="save" onclick="switchTab('save')">💾 Speichern/Laden</button>
+</div>
+
+<!-- TAB 1 STAMMDATEN -->
+<div id="pane-stamm" class="pane on">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-title">Mitarbeitende</div>
+      <div class="sb-list" id="sb-stamm"></div>
+      <div class="sb-foot">
+        <button class="btn btn-primary btn-sm" style="width:100%" onclick="addMA()">+ Mitarbeiter/in</button>
+      </div>
+    </div>
+    <div class="main-area" id="ma-detail">
+      <div class="empty-state">
+        <div class="icon">👤</div>
+        <p>Wählen Sie eine Person aus der Liste oder fügen Sie eine neue hinzu.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2 MONATSDATEN -->
+<div id="pane-monat" class="pane">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-title">Mitarbeitende</div>
+      <div class="sb-list" id="sb-monat"></div>
+    </div>
+    <div class="main-area" id="monat-detail">
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <p>Wählen Sie eine Person und einen Monat.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3 DIENSTPLAN -->
+<div id="pane-plan" class="pane">
+  <div style="padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div class="month-sw">
+      <button onclick="changeMonth(-1)">←</button>
+      <span id="plan-month-lbl">—</span>
+      <button onclick="changeMonth(1)">→</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1">
+      <span style="font-size:12px;font-weight:600;color:var(--muted)">Werkstatttage:</span>
+      <div class="dow-checks" id="werk-checks"></div>
+      <span style="font-size:12px;font-weight:600;color:var(--muted);margin-left:10px">Freischicht:</span>
+      <div class="dow-checks" id="frei-checks"></div>
+    </div>
+    <button class="btn btn-primary" onclick="generatePlan()">▶ Plan generieren</button>
+    <button class="btn btn-amber" onclick="doUndo()" id="btn-undo" disabled>↩ Rückgängig</button>
+  </div>
+  <div style="padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
+    <div class="shift-boxes" style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
+      <div class="shift-box" style="flex:1;min-width:150px">
+        <label>24h-Dienst Start/Ende</label>
+        <div style="display:flex;gap:6px">
+          <input type="time" id="nt-start" value="20:00" onchange="saveShiftTimes()" style="flex:1">
+          <input type="time" id="nt-end" value="20:00" onchange="saveShiftTimes()" style="flex:1">
+        </div>
+      </div>
+      <div class="shift-box" style="flex:1;min-width:150px">
+        <label>Werkstatt Block A</label>
+        <div style="display:flex;gap:6px">
+          <input type="time" id="wa-start" value="08:00" onchange="saveShiftTimes()" style="flex:1">
+          <input type="time" id="wa-end" value="15:00" onchange="saveShiftTimes()" style="flex:1">
+        </div>
+      </div>
+      <div class="shift-box" style="flex:1;min-width:150px">
+        <label>Freischicht Block A</label>
+        <div style="display:flex;gap:6px">
+          <input type="time" id="fa-start" value="08:00" onchange="saveShiftTimes()" style="flex:1">
+          <input type="time" id="fa-end" value="12:00" onchange="saveShiftTimes()" style="flex:1">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow:auto;padding:14px 18px">
+    <div id="plan-table-wrap" class="plan-wrap"></div>
+    <div id="soll-ist-wrap" style="margin-top:16px"></div>
+    <div id="viol-wrap" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- TAB 4 SPEICHERN/LADEN -->
+<div id="pane-save" class="pane on" style="display:none">
+</div>
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────
+//  NRW HOLIDAYS
+// ─────────────────────────────────────────────
+const HOLS = {
+  2025:{'2025-01-01':'Neujahr','2025-04-18':'Karfreitag','2025-04-21':'Ostermontag','2025-05-01':'Tag der Arbeit','2025-05-29':'Christi Himmelfahrt','2025-06-09':'Pfingstmontag','2025-06-19':'Fronleichnam','2025-10-03':'Tag d. dt. Einheit','2025-11-01':'Allerheiligen','2025-12-25':'1. Weihnachtstag','2025-12-26':'2. Weihnachtstag'},
+  2026:{'2026-01-01':'Neujahr','2026-04-03':'Karfreitag','2026-04-06':'Ostermontag','2026-05-01':'Tag der Arbeit','2026-05-14':'Christi Himmelfahrt','2026-05-25':'Pfingstmontag','2026-06-04':'Fronleichnam','2026-10-03':'Tag d. dt. Einheit','2026-11-01':'Allerheiligen','2026-12-25':'1. Weihnachtstag','2026-12-26':'2. Weihnachtstag'},
+  2027:{'2027-01-01':'Neujahr','2027-03-26':'Karfreitag','2027-03-29':'Ostermontag','2027-05-01':'Tag der Arbeit','2027-05-06':'Christi Himmelfahrt','2027-05-17':'Pfingstmontag','2027-05-27':'Fronleichnam','2027-10-03':'Tag d. dt. Einheit','2027-11-01':'Allerheiligen','2027-12-25':'1. Weihnachtstag','2027-12-26':'2. Weihnachtstag'}
+};
+
+function isHol(dateStr){const y=parseInt(dateStr.slice(0,4));return !!(HOLS[y]&&HOLS[y][dateStr])}
+function holName(dateStr){const y=parseInt(dateStr.slice(0,4));return HOLS[y]&&HOLS[y][dateStr]||''}
+
+const DOW_DE=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const MON_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+const LS_KEY='dp_v7';
+let ST=null;
+let activeTab='stamm';
+let selectedMAId=null;
+
+// Datepicker state
+const DP={
+  el:null, mode:null, viewYear:0, viewMonth:0,
+  empId:null, teamId:null, monthKey:null,
+  fieldType:null, tempStart:null, cb:null,
+  open(anchorEl,mode,cb,ctx){
+    this.mode=mode; this.cb=cb;
+    if(ctx){this.empId=ctx.empId;this.teamId=ctx.teamId;this.monthKey=ctx.monthKey;this.fieldType=ctx.fieldType;}
+    const now=new Date();
+    if(ST&&ST.aktiverMonat){
+      const [y,m]=ST.aktiverMonat.split('-').map(Number);
+      this.viewYear=y; this.viewMonth=m-1;
+    } else {this.viewYear=now.getFullYear();this.viewMonth=now.getMonth();}
+    this.el=document.getElementById('dp-popup');
+    this.render();
+    // Position
+    const r=anchorEl.getBoundingClientRect();
+    const pw=252,ph=280;
+    let top=r.bottom+4, left=r.left;
+    if(top+ph>window.innerHeight) top=r.top-ph-4;
+    if(left+pw>window.innerWidth) left=window.innerWidth-pw-8;
+    this.el.style.top=top+'px'; this.el.style.left=left+'px';
+    this.el.classList.add('show');
+  },
+  close(){if(this.el){this.el.classList.remove('show');}this.tempStart=null;this.mode=null;this.cb=null;},
+  render(){
+    const el=document.getElementById('dp-title');
+    const grid=document.getElementById('dp-grid');
+    if(!el||!grid) return;
+    el.textContent=MON_DE[this.viewMonth]+' '+this.viewYear;
+    const y=this.viewYear,m=this.viewMonth;
+    const first=new Date(y,m,1);
+    const last=new Date(y,m+1,0);
+    // DOW: Mon=0
+    let startDow=(first.getDay()+6)%7; // Mon=0
+    const today=fmtDate(new Date());
+    // Get vacations & sperrtage for context
+    let vacSet=new Set(), sperSet=new Set();
+    if(this.empId&&this.teamId&&this.monthKey){
+      const ma=findMA(this.teamId,this.empId);
+      if(ma&&ma.monatsdaten&&ma.monatsdaten[this.monthKey]){
+        const md=ma.monatsdaten[this.monthKey];
+        (md.urlaube||[]).forEach(u=>{
+          let d=new Date(u.von);
+          const end=new Date(u.bis);
+          while(d<=end){vacSet.add(fmtDate(d));d.setDate(d.getDate()+1);}
+        });
+        (md.sperrtage||[]).forEach(s=>sperSet.add(s.datum));
+      }
+    }
+    let html='';
+    let day=1-startDow;
+    for(let row=0;row<6;row++){
+      for(let col=0;col<7;col++){
+        const dt=new Date(y,m,day);
+        const ds=fmtDate(dt);
+        let cls='dp-cell';
+        if(day<1||day>last.getDate()){cls+=' dp-other';}
+        else{
+          if(ds===today) cls+=' dp-today';
+          if(col>=5) cls+=' dp-weekend';
+          if(vacSet.has(ds)) cls+=' dp-vacation';
+          else if(sperSet.has(ds)) cls+=' dp-blockday';
+          if(this.tempStart&&ds>this.tempStart&&ds<=(this.selectedEnd||'')) cls+=' dp-in-range';
+          if(this.tempStart===ds||this.selectedEnd===ds) cls+=' dp-selected';
+        }
+        const label=day<1||day>last.getDate()?'':day;
+        if(day>=1&&day<=last.getDate()){
+          html+=`<div class="${cls}" onclick="DP.handleClick('${ds}')" title="${holName(ds)||''}">${label}</div>`;
+        } else {
+          html+=`<div class="${cls}">${''}</div>`;
+        }
+        day++;
+      }
+    }
+    grid.innerHTML=html;
+  },
+  handleClick(ds){
+    if(this.mode==='single'){
+      if(this.cb) this.cb(ds);
+      this.close();
+    } else if(this.mode==='range-start'){
+      this.tempStart=ds;
+      this.mode='range-end';
+      this.render();
+    } else if(this.mode==='range-end'){
+      let von=this.tempStart,bis=ds;
+      if(bis<von){[von,bis]=[bis,von];}
+      if(this.cb) this.cb(von,bis);
+      this.close();
+    }
+  }
+};
+
+// Close datepicker on outside click
+document.addEventListener('click',e=>{
+  const dp=document.getElementById('dp-popup');
+  if(dp&&dp.classList.contains('show')&&!dp.contains(e.target)){
+    // Check if click is on a dp-trigger button
+    if(!e.target.closest('[data-dp-trigger]')) DP.close();
+  }
+  const dd=document.getElementById('cell-dd');
+  if(dd&&dd.classList.contains('show')&&!dd.contains(e.target)){
+    dd.classList.remove('show');
+  }
+});
+
+// ─────────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────────
+function fmtDate(d){
+  if(typeof d==='string') return d;
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd2=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd2}`;
+}
+function fmtDisp(ds){if(!ds) return '';const[y,m,d]=ds.split('-');return `${d}.${m}.${y}`;}
+function fmtMonthDisp(mk){if(!mk) return '';const[y,m]=mk.split('-');return `${MON_DE[parseInt(m)-1]} ${y}`;}
+function monthKey(y,m){return `${y}-${String(m).padStart(2,'0')}`;}
+function daysInMonth(mk){const[y,m]=mk.split('-').map(Number);return new Date(y,m,0).getDate();}
+function dayStr(mk,d){const[y,m]=mk.split('-');return `${y}-${m}-${String(d).padStart(2,'0')}`;}
+function getDOW(dateStr){return new Date(dateStr).getDay();} // 0=Sun
+function getDOWIdx(dateStr){return (new Date(dateStr).getDay()+6)%7;} // 0=Mon
+function isWE(dateStr){const d=new Date(dateStr).getDay();return d===0||d===6;}
+function uid(){return '_'+Math.random().toString(36).slice(2,10);}
+
+function findTeam(tid){return ST.teams.find(t=>t.id===tid);}
+function findMA(tid,mid){const t=findTeam(tid);return t&&t.mitarbeitende.find(m=>m.id===mid);}
+function activeTeam(){return findTeam(ST.aktivesTeam);}
+function allMAs(){const t=activeTeam();return t?t.mitarbeitende:[];}
+
+function getMAMonat(ma,mk){
+  if(!ma.monatsdaten) ma.monatsdaten={};
+  if(!ma.monatsdaten[mk]) ma.monatsdaten[mk]={sollDienste:0,schichttyp:'beide',monatEinschraenkungen:'',urlaube:[],sperrtage:[]};
+  return ma.monatsdaten[mk];
+}
+
+function vacDaysInMonth(ma,mk){
+  const md=ma.monatsdaten&&ma.monatsdaten[mk];
+  if(!md||!md.urlaube) return 0;
+  const[y,mo]=mk.split('-').map(Number);
+  const mStart=new Date(y,mo-1,1), mEnd=new Date(y,mo,0);
+  let cnt=0;
+  md.urlaube.forEach(u=>{
+    const von=new Date(u.von), bis=new Date(u.bis);
+    let d=new Date(Math.max(von,mStart));
+    const end=new Date(Math.min(bis,mEnd));
+    while(d<=end){cnt++;d.setDate(d.getDate()+1);}
+  });
+  return cnt;
+}
+
+function buildVacSet(ma,mk){
+  const md=ma.monatsdaten&&ma.monatsdaten[mk];
+  const s=new Set();
+  if(!md) return s;
+  (md.urlaube||[]).forEach(u=>{
+    let d=new Date(u.von);const end=new Date(u.bis);
+    while(d<=end){s.add(fmtDate(d));d.setDate(d.getDate()+1);}
+  });
+  return s;
+}
+function buildSperSet(ma,mk){
+  const md=ma.monatsdaten&&ma.monatsdaten[mk];
+  const s=new Set();
+  if(!md) return s;
+  (md.sperrtage||[]).forEach(sp=>s.add(sp.datum));
+  return s;
+}
+
+// ─────────────────────────────────────────────
+//  INIT / LOAD / SAVE
+// ─────────────────────────────────────────────
+function defaultState(){
+  return {
+    teams:[{id:'team_1',name:'Team 1',mitarbeitende:[]}],
+    einstellungen:{
+      werkstatttage:[],freischichttage:[],
+      schichtzeiten:{
+        normal:{name:'24h-Dienst',start:'20:00',end:'20:00'},
+        werkstattA:{start:'08:00',end:'15:00'},
+        freischichtA:{start:'08:00',end:'12:00'}
+      }
+    },
+    aktivesTeam:'team_1',aktiverMonat:monthKey(new Date().getFullYear(),new Date().getMonth()+1),
+    letztesSpeichern:null,letztesBackup:null,
+    verlauf:[],plans:{}
+  };
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(raw){ST=JSON.parse(raw);if(!ST.plans)ST.plans={};}
+    else ST=defaultState();
+  }catch(e){ST=defaultState();}
+}
+
+function autoSave(desc){
+  ST.letztesSpeichern=new Date().toISOString();
+  if(desc){
+    if(!ST.verlauf) ST.verlauf=[];
+    ST.verlauf.unshift({ts:ST.letztesSpeichern,desc,type:'auto'});
+    if(ST.verlauf.length>10) ST.verlauf.length=10;
+  }
+  try{localStorage.setItem(LS_KEY,JSON.stringify(ST));}catch(e){alert('LocalStorage voll! Bitte exportieren.');}
+  updateSaveTab();
+}
+
+let bannerTimeout=null;
+function showBanner(){
+  const b=document.getElementById('banner');
+  b.classList.add('show');
+  clearTimeout(bannerTimeout);
+  bannerTimeout=setTimeout(hideBanner,8000);
+}
+function hideBanner(){document.getElementById('banner').classList.remove('show');}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.querySelectorAll('.pane').forEach(p=>{
+    const id='pane-'+tab;
+    if(p.id===id){p.classList.add('on');p.style.display='';}
+    else{p.classList.remove('on');if(p.id==='pane-save') p.style.display='none';}
+  });
+  const savePane=document.getElementById('pane-save');
+  if(tab==='save'){savePane.style.display='block';savePane.classList.add('on');renderSaveTab();}
+  if(tab==='stamm'){renderSidebar('sb-stamm');renderMADetail();}
+  if(tab==='monat'){renderSidebar('sb-monat');renderMonatDetail();}
+  if(tab==='plan'){renderPlanTab();}
+}
+
+function changeMonth(delta){
+  const[y,m]=ST.aktiverMonat.split('-').map(Number);
+  const d=new Date(y,m-1+delta,1);
+  ST.aktiverMonat=monthKey(d.getFullYear(),d.getMonth()+1);
+  autoSave('Monat geändert: '+fmtMonthDisp(ST.aktiverMonat));
+  if(activeTab==='monat') renderMonatDetail();
+  if(activeTab==='plan') renderPlanTab();
+  document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
+}
+
+// ─────────────────────────────────────────────
+//  TEAM MANAGEMENT
+// ─────────────────────────────────────────────
+function renderTopbar(){
+  const pills=document.getElementById('team-pills');
+  pills.innerHTML=ST.teams.map(t=>`<span class="team-pill ${t.id===ST.aktivesTeam?'active':''}" onclick="selectTeam('${t.id}')">${t.name}</span>`).join('');
+}
+
+function selectTeam(tid){
+  ST.aktivesTeam=tid;
+  selectedMAId=null;
+  autoSave('Team gewechselt');
+  renderTopbar();
+  renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderMADetail();renderMonatDetail();
+  if(activeTab==='plan') renderPlanTab();
+}
+
+function addTeam(){
+  const name=prompt('Name des neuen Teams:');
+  if(!name||!name.trim()) return;
+  const id='team_'+uid();
+  ST.teams.push({id,name:name.trim(),mitarbeitende:[]});
+  ST.aktivesTeam=id;
+  selectedMAId=null;
+  autoSave('Team erstellt: '+name.trim());
+  renderTopbar();renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderMADetail();renderMonatDetail();
+}
+
+function deleteTeam(){
+  if(ST.teams.length<=1){alert('Mindestens ein Team muss vorhanden sein.');return;}
+  const t=activeTeam();
+  if(!t) return;
+  if(!confirm(`Team "${t.name}" wirklich löschen? Alle Mitarbeitenden dieses Teams werden entfernt.`)) return;
+  ST.teams=ST.teams.filter(x=>x.id!==t.id);
+  ST.aktivesTeam=ST.teams[0].id;
+  selectedMAId=null;
+  autoSave('Team gelöscht: '+t.name);
+  renderTopbar();renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderMADetail();renderMonatDetail();
+}
+
+// ─────────────────────────────────────────────
+//  SIDEBAR
+// ─────────────────────────────────────────────
+function renderSidebar(sbId){
+  const sb=document.getElementById(sbId);
+  if(!sb) return;
+  const mas=allMAs();
+  if(!mas.length){sb.innerHTML='<div style="padding:12px;font-size:12px;color:var(--muted)">Keine Mitarbeitenden</div>';return;}
+  sb.innerHTML=mas.map(ma=>{
+    const k=ma.kuerzel||(ma.vorname[0]||'?')+(ma.nachname[0]||'?');
+    return `<div class="sb-item ${ma.id===selectedMAId?'active':''}" onclick="selectMA('${ma.id}','${sbId}')">
+      <div class="sb-kuerzel">${k.toUpperCase().slice(0,2)}</div>
+      <span>${ma.vorname} ${ma.nachname}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectMA(id, sbId){
+  selectedMAId=id;
+  renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  if(activeTab==='stamm') renderMADetail();
+  if(activeTab==='monat') renderMonatDetail();
+}
+
+// ─────────────────────────────────────────────
+//  TAB 1 – STAMMDATEN
+// ─────────────────────────────────────────────
+function addMA(){
+  const t=activeTeam();if(!t) return;
+  const id='ma_'+uid();
+  const ma={id,vorname:'Neu',nachname:'Person',kuerzel:'NP',eintritt:'',stellenanteil:100,
+    fuehrerschein:false,ersthelfer:false,schichtleitung:false,
+    dauerEinschraenkungen:'',bevorzugteTage:'',maxDiensteProMonat:10,monatsdaten:{}};
+  t.mitarbeitende.push(ma);
+  selectedMAId=id;
+  autoSave('Mitarbeiter/in erstellt');
+  renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderMADetail();
+}
+
+function deleteMA(){
+  if(!selectedMAId) return;
+  const t=activeTeam();if(!t) return;
+  const ma=findMA(t.id,selectedMAId);if(!ma) return;
+  if(!confirm(`"${ma.vorname} ${ma.nachname}" wirklich löschen?`)) return;
+  t.mitarbeitende=t.mitarbeitende.filter(m=>m.id!==selectedMAId);
+  selectedMAId=null;
+  autoSave('Mitarbeiter/in gelöscht');
+  renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderMADetail();
+}
+
+function renderMADetail(){
+  const el=document.getElementById('ma-detail');
+  if(!el) return;
+  if(!selectedMAId){
+    el.innerHTML='<div class="empty-state"><div class="icon">👤</div><p>Wählen Sie eine Person aus der Liste oder fügen Sie eine neue hinzu.</p></div>';
+    return;
+  }
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);
+  if(!ma){el.innerHTML='<div class="empty-state"><div class="icon">👤</div><p>Person nicht gefunden.</p></div>';return;}
+
+  el.innerHTML=`
+  <div class="card">
+    <div class="ch"><h2>👤 Stammdaten</h2>
+      <div class="ch-act">
+        <span id="save-flash" style="color:var(--green);font-size:12px;display:none">✓ Gespeichert</span>
+        <button class="btn btn-primary btn-sm" onclick="saveMAForm()">Speichern</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMA()">Löschen</button>
+      </div>
+    </div>
+    <div class="cb">
+      <div class="row">
+        <div class="field"><label>Vorname</label><input type="text" id="ma-vorname" value="${esc(ma.vorname)}" oninput="autoGenKuerzel()"></div>
+        <div class="field"><label>Nachname</label><input type="text" id="ma-nachname" value="${esc(ma.nachname)}" oninput="autoGenKuerzel()"></div>
+        <div class="field" style="max-width:80px"><label>Kürzel</label><input type="text" id="ma-kuerzel" value="${esc(ma.kuerzel)}" maxlength="3"></div>
+      </div>
+      <div class="row">
+        <div class="field" style="max-width:160px"><label>Eintrittsdatum</label><input type="date" id="ma-eintritt" value="${ma.eintritt||''}"></div>
+        <div class="field" style="max-width:120px"><label>Stellenanteil %</label><input type="number" id="ma-stellen" value="${ma.stellenanteil||100}" min="1" max="200"></div>
+        <div class="field" style="max-width:130px"><label>Max. Dienste/Monat</label><input type="number" id="ma-maxd" value="${ma.maxDiensteProMonat||10}" min="0" max="31"></div>
+      </div>
+      <div class="sep"></div>
+      <div class="row" style="align-items:center">
+        <div class="field">
+          <label>Führerschein</label>
+          <label class="toggle-wrap" style="margin-top:4px">
+            <label class="toggle"><input type="checkbox" id="ma-fuehr" ${ma.fuehrerschein?'checked':''}><span class="toggle-sl"></span></label>
+            <span id="fuehr-lbl">${ma.fuehrerschein?'Ja ✓':'Nein 🚫🚗'}</span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Qualifikationen</label>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+            <label class="chk"><input type="checkbox" id="ma-erst" ${ma.ersthelfer?'checked':''}> Ersthelfer</label>
+            <label class="chk"><input type="checkbox" id="ma-schi" ${ma.schichtleitung?'checked':''}> Schichtleitung möglich</label>
+          </div>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <div class="field">
+          <label>Dauerhafte Einschränkungen</label>
+          <textarea id="ma-dauer" placeholder="z.B. Nie an Weihnachten, Kein Samstag">${esc(ma.dauerEinschraenkungen||'')}</textarea>
+        </div>
+        <div class="field">
+          <label>Bevorzugte Schichttage</label>
+          <textarea id="ma-bev" placeholder="z.B. Mittwoch auf Donnerstag bevorzugt">${esc(ma.bevorzugteTage||'')}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('ma-fuehr').addEventListener('change',function(){
+    document.getElementById('fuehr-lbl').textContent=this.checked?'Ja ✓':'Nein 🚫🚗';
+  });
+}
+
+function autoGenKuerzel(){
+  const v=document.getElementById('ma-vorname'),n=document.getElementById('ma-nachname'),k=document.getElementById('ma-kuerzel');
+  if(!v||!n||!k) return;
+  k.value=((v.value[0]||'')+(n.value[0]||'')).toUpperCase();
+}
+
+function saveMAForm(){
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  ma.vorname=document.getElementById('ma-vorname').value.trim()||'Vorname';
+  ma.nachname=document.getElementById('ma-nachname').value.trim()||'Nachname';
+  ma.kuerzel=document.getElementById('ma-kuerzel').value.trim().toUpperCase().slice(0,3)||'??';
+  ma.eintritt=document.getElementById('ma-eintritt').value||'';
+  ma.stellenanteil=parseInt(document.getElementById('ma-stellen').value)||100;
+  ma.maxDiensteProMonat=parseInt(document.getElementById('ma-maxd').value)||10;
+  ma.fuehrerschein=document.getElementById('ma-fuehr').checked;
+  ma.ersthelfer=document.getElementById('ma-erst').checked;
+  ma.schichtleitung=document.getElementById('ma-schi').checked;
+  ma.dauerEinschraenkungen=document.getElementById('ma-dauer').value;
+  ma.bevorzugteTage=document.getElementById('ma-bev').value;
+  autoSave('Stammdaten gespeichert: '+ma.vorname+' '+ma.nachname);
+  renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  const flash=document.getElementById('save-flash');
+  if(flash){flash.style.display='';setTimeout(()=>flash.style.display='none',2000);}
+  showBanner();
+}
+
+// ─────────────────────────────────────────────
+//  TAB 2 – MONATSDATEN
+// ─────────────────────────────────────────────
+function renderMonatDetail(){
+  const el=document.getElementById('monat-detail');
+  if(!el) return;
+  if(!selectedMAId){
+    el.innerHTML='<div class="empty-state"><div class="icon">📅</div><p>Wählen Sie eine Person aus der Liste.</p></div>';
+    return;
+  }
+  const mk=ST.aktiverMonat;
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);
+  if(!ma){el.innerHTML='<div class="empty-state"><div class="icon">📅</div><p>Person nicht gefunden.</p></div>';return;}
+  const md=getMAMonat(ma,mk);
+  const urlaubTage=vacDaysInMonth(ma,mk);
+  const sperTage=(md.sperrtage||[]).length;
+  const dim=daysInMonth(mk);
+  const weTage=countWE(mk);
+  const freiPlanbar=Math.max(0,dim-urlaubTage-sperTage-weTage);
+
+  el.innerHTML=`
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <div class="month-sw">
+      <button onclick="changeMonth(-1)">←</button>
+      <span id="monat-lbl">${fmtMonthDisp(mk)}</span>
+      <button onclick="changeMonth(1)">→</button>
+    </div>
+    <span style="font-size:13px;font-weight:600;color:var(--navy)">${ma.vorname} ${ma.nachname}</span>
+    ${!ma.fuehrerschein?'<span title="Kein Führerschein">🚫🚗</span>':''}
+  </div>
+
+  <div class="kz-row">
+    <div class="kz-card"><div class="kz-val">${md.sollDienste||0}</div><div class="kz-lbl">Soll-Dienste</div></div>
+    <div class="kz-card"><div class="kz-val">${urlaubTage}</div><div class="kz-lbl">Urlaubstage</div></div>
+    <div class="kz-card"><div class="kz-val">${sperTage}</div><div class="kz-lbl">Sperrtage</div></div>
+    <div class="kz-card"><div class="kz-val">${freiPlanbar}</div><div class="kz-lbl">Frei planbar (ca.)</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h3>📊 Dienste &amp; Schichttyp</h3></div>
+    <div class="cb">
+      <div class="row">
+        <div class="field" style="max-width:120px">
+          <label>Soll-Dienste</label>
+          <input type="number" id="md-soll" value="${md.sollDienste||0}" min="0" max="31" onchange="saveMonatField('sollDienste',this.value,'number')">
+        </div>
+        <div class="field" style="max-width:200px">
+          <label>Schichttyp bevorzugt</label>
+          <select id="md-typ" onchange="saveMonatField('schichttyp',this.value)">
+            <option value="beide" ${md.schichttyp==='beide'?'selected':''}>Beide möglich</option>
+            <option value="nur24h" ${md.schichttyp==='nur24h'?'selected':''}>Nur 24h</option>
+            <option value="nurAusser" ${md.schichttyp==='nurAusser'?'selected':''}>Nur Außerhalb</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Monatsbezogene Einschränkungen</label>
+        <textarea id="md-einschr" placeholder="z.B. Nicht in der letzten Woche" onchange="saveMonatField('monatEinschraenkungen',this.value)">${esc(md.monatEinschraenkungen||'')}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h3>🏖 Urlaub</h3></div>
+    <div class="cb">
+      <div id="urlaub-list">${renderUrlaubList(md)}</div>
+      <div class="sep"></div>
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">Urlaub hinzufügen:</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="max-width:140px">
+          <label>Von</label>
+          <button class="btn btn-sec btn-sm" data-dp-trigger style="width:100%" id="btn-vac-von" onclick="openVacDP(this,'start')">
+            <span id="vac-von-lbl">Datum wählen</span>
+          </button>
+          <input type="hidden" id="vac-von-val">
+        </div>
+        <div class="field" style="max-width:140px">
+          <label>Bis</label>
+          <button class="btn btn-sec btn-sm" data-dp-trigger style="width:100%" id="btn-vac-bis" onclick="openVacDP(this,'end')">
+            <span id="vac-bis-lbl">Datum wählen</span>
+          </button>
+          <input type="hidden" id="vac-bis-val">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addUrlaub()">Urlaub hinzufügen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h3>🚫 Sperrtage</h3></div>
+    <div class="cb">
+      <div id="sperr-list">${renderSperrList(md)}</div>
+      <div class="sep"></div>
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">Sperrtag hinzufügen:</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="max-width:140px">
+          <label>Datum</label>
+          <button class="btn btn-sec btn-sm" data-dp-trigger style="width:100%" id="btn-sperr-dt" onclick="openSperrDP(this)">
+            <span id="sperr-dt-lbl">Datum wählen</span>
+          </button>
+          <input type="hidden" id="sperr-dt-val">
+        </div>
+        <div class="field">
+          <label>Grund (optional)</label>
+          <input type="text" id="sperr-grund" placeholder="z.B. Privattermin">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addSperrtag()">Sperrtag hinzufügen</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function countWE(mk){
+  const dim=daysInMonth(mk);let cnt=0;
+  for(let d=1;d<=dim;d++){if(isWE(dayStr(mk,d))) cnt++;}
+  return cnt;
+}
+
+function renderUrlaubList(md){
+  if(!(md.urlaube&&md.urlaube.length)) return '<div style="color:var(--muted);font-size:12px">Kein Urlaub eingetragen.</div>';
+  return (md.urlaube||[]).map((u,i)=>{
+    const days=Math.round((new Date(u.bis)-new Date(u.von))/(86400000))+1;
+    return `<span class="chip chip-blue">${fmtDisp(u.von)}–${fmtDisp(u.bis)} (${days} Tage)<button class="chip-del" onclick="deleteUrlaub(${i})">×</button></span>`;
+  }).join('');
+}
+function renderSperrList(md){
+  if(!(md.sperrtage&&md.sperrtage.length)) return '<div style="color:var(--muted);font-size:12px">Keine Sperrtage eingetragen.</div>';
+  return (md.sperrtage||[]).map((s,i)=>{
+    return `<span class="chip chip-amber">${fmtDisp(s.datum)}${s.grund?' – '+esc(s.grund):''}<button class="chip-del" onclick="deleteSperrtag(${i})">×</button></span>`;
+  }).join('');
+}
+
+function saveMonatField(field,val,type){
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const md=getMAMonat(ma,ST.aktiverMonat);
+  md[field]=type==='number'?parseInt(val)||0:val;
+  autoSave('Monatsdaten geändert');
+  // Update KZ cards without full re-render
+  const urlaubTage=vacDaysInMonth(ma,ST.aktiverMonat);
+  document.querySelector('.kz-card .kz-val')&&refreshKZ(ma,md);
+}
+
+function refreshKZ(ma,md){
+  const mk=ST.aktiverMonat;
+  const urlaubTage=vacDaysInMonth(ma,mk);
+  const sperTage=(md.sperrtage||[]).length;
+  const dim=daysInMonth(mk);
+  const weTage=countWE(mk);
+  const freiPlanbar=Math.max(0,dim-urlaubTage-sperTage-weTage);
+  const kzCards=document.querySelectorAll('.kz-card .kz-val');
+  if(kzCards[0]) kzCards[0].textContent=md.sollDienste||0;
+  if(kzCards[1]) kzCards[1].textContent=urlaubTage;
+  if(kzCards[2]) kzCards[2].textContent=sperTage;
+  if(kzCards[3]) kzCards[3].textContent=freiPlanbar;
+}
+
+function openVacDP(btn,which){
+  DP.open(btn, which==='start'?'range-start':'range-end',
+    (von,bis)=>{
+      if(bis===undefined){
+        // single click in range mode - set one date
+        document.getElementById('vac-von-val').value=von;
+        document.getElementById('vac-von-lbl').textContent=fmtDisp(von);
+      } else {
+        document.getElementById('vac-von-val').value=von;
+        document.getElementById('vac-bis-val').value=bis;
+        document.getElementById('vac-von-lbl').textContent=fmtDisp(von);
+        document.getElementById('vac-bis-lbl').textContent=fmtDisp(bis);
+      }
+    },
+    {empId:selectedMAId,teamId:ST.aktivesTeam,monthKey:ST.aktiverMonat}
+  );
+}
+
+function openSperrDP(btn){
+  DP.open(btn,'single',ds=>{
+    document.getElementById('sperr-dt-val').value=ds;
+    document.getElementById('sperr-dt-lbl').textContent=fmtDisp(ds);
+  },{empId:selectedMAId,teamId:ST.aktivesTeam,monthKey:ST.aktiverMonat});
+}
+
+function addUrlaub(){
+  const von=document.getElementById('vac-von-val').value;
+  const bis=document.getElementById('vac-bis-val').value||von;
+  if(!von){alert('Bitte Datum wählen.');return;}
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const md=getMAMonat(ma,ST.aktiverMonat);
+  if(!md.urlaube) md.urlaube=[];
+  md.urlaube.push({von,bis});
+  md.urlaube.sort((a,b)=>a.von.localeCompare(b.von));
+  autoSave('Urlaub hinzugefügt');
+  document.getElementById('urlaub-list').innerHTML=renderUrlaubList(md);
+  refreshKZ(ma,md);
+  document.getElementById('vac-von-val').value='';document.getElementById('vac-bis-val').value='';
+  document.getElementById('vac-von-lbl').textContent='Datum wählen';document.getElementById('vac-bis-lbl').textContent='Datum wählen';
+}
+
+function deleteUrlaub(idx){
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const md=getMAMonat(ma,ST.aktiverMonat);
+  md.urlaube.splice(idx,1);
+  autoSave('Urlaub gelöscht');
+  document.getElementById('urlaub-list').innerHTML=renderUrlaubList(md);
+  refreshKZ(ma,md);
+}
+
+function addSperrtag(){
+  const dt=document.getElementById('sperr-dt-val').value;
+  const grund=document.getElementById('sperr-grund').value.trim();
+  if(!dt){alert('Bitte Datum wählen.');return;}
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const md=getMAMonat(ma,ST.aktiverMonat);
+  if(!md.sperrtage) md.sperrtage=[];
+  md.sperrtage.push({datum:dt,grund});
+  md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
+  autoSave('Sperrtag hinzugefügt');
+  document.getElementById('sperr-list').innerHTML=renderSperrList(md);
+  refreshKZ(ma,md);
+  document.getElementById('sperr-dt-val').value='';document.getElementById('sperr-dt-lbl').textContent='Datum wählen';
+  document.getElementById('sperr-grund').value='';
+}
+
+function deleteSperrtag(idx){
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const md=getMAMonat(ma,ST.aktiverMonat);
+  md.sperrtage.splice(idx,1);
+  autoSave('Sperrtag gelöscht');
+  document.getElementById('sperr-list').innerHTML=renderSperrList(md);
+  refreshKZ(ma,md);
+}
+
+// ─────────────────────────────────────────────
+//  TAB 3 – DIENSTPLAN
+// ─────────────────────────────────────────────
+let undoStack=[];
+
+function renderDOWChecks(){
+  const dows=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const wvals=[1,2,3,4,5,6,0];
+  const ei=ST.einstellungen;
+  ['werk-checks','frei-checks'].forEach((id,fi)=>{
+    const arr=fi===0?ei.werkstatttage:ei.freischichttage;
+    document.getElementById(id).innerHTML=dows.map((d,i)=>{
+      const v=wvals[i];const chk=arr.includes(v);
+      return `<label class="dow-chk ${chk?'checked':''}" title="${d}">
+        <input type="checkbox" ${chk?'checked':''} value="${v}" onchange="toggleDOW('${id}',${v},this.checked)"> ${d}
+      </label>`;
+    }).join('');
+  });
+}
+
+function toggleDOW(id,val,chk){
+  const ei=ST.einstellungen;
+  const arr=id==='werk-checks'?ei.werkstatttage:ei.freischichttage;
+  if(chk&&!arr.includes(val)) arr.push(val);
+  else if(!chk) {const i=arr.indexOf(val);if(i>=0)arr.splice(i,1);}
+  autoSave('Schichteinstellungen geändert');
+  renderDOWChecks();
+}
+
+function saveShiftTimes(){
+  const ei=ST.einstellungen;
+  const ns=ei.schichtzeiten.normal,wa=ei.schichtzeiten.werkstattA,fa=ei.schichtzeiten.freischichtA;
+  ns.start=document.getElementById('nt-start').value;
+  ns.end=document.getElementById('nt-end').value;
+  wa.start=document.getElementById('wa-start').value;
+  wa.end=document.getElementById('wa-end').value;
+  fa.start=document.getElementById('fa-start').value;
+  fa.end=document.getElementById('fa-end').value;
+  autoSave('Schichtzeiten geändert');
+}
+
+function loadShiftTimes(){
+  const ei=ST.einstellungen;
+  const ns=ei.schichtzeiten.normal,wa=ei.schichtzeiten.werkstattA,fa=ei.schichtzeiten.freischichtA;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  set('nt-start',ns.start);set('nt-end',ns.end);
+  set('wa-start',wa.start);set('wa-end',wa.end);
+  set('fa-start',fa.start);set('fa-end',fa.end);
+}
+
+function renderPlanTab(){
+  document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
+  renderDOWChecks();
+  loadShiftTimes();
+  renderPlanTable();
+}
+
+// ──── PLAN KEY ────
+function planKey(){return ST.aktiverMonat+'_'+ST.aktivesTeam;}
+
+function getOrInitPlan(){
+  const pk=planKey();
+  if(!ST.plans[pk]) ST.plans[pk]={days:[],manualOverrides:[]};
+  return ST.plans[pk];
+}
+
+// ──── SCHEDULING ALGORITHM ────
+function generatePlan(){
+  const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
+  const pk=planKey();
+  // Save undo snapshot
+  undoStack.push(JSON.parse(JSON.stringify(ST.plans[pk]||null)));
+  if(undoStack.length>20) undoStack.shift();
+  document.getElementById('btn-undo').disabled=false;
+
+  const mk=ST.aktiverMonat;
+  const mas=t.mitarbeitende;
+  const dim=daysInMonth(mk);
+  const ei=ST.einstellungen;
+
+  // Build employee data
+  const ed={};
+  mas.forEach(ma=>{
+    ed[ma.id]={
+      vacSet:buildVacSet(ma,mk),
+      sperSet:buildSperSet(ma,mk),
+      asgn:{},cnt24h:0,cntAusser:0,cntBkpReg:0,cntBkpWerk:0,
+      weekCounts:{},lastDay:-1,
+      soll:(ma.monatsdaten&&ma.monatsdaten[mk]&&ma.monatsdaten[mk].sollDienste)||0,
+      schichttyp:(ma.monatsdaten&&ma.monatsdaten[mk]&&ma.monatsdaten[mk].schichttyp)||'beide',
+      pref:parsePrefDays(ma.bevorzugteTage||''),
+      maxD:ma.maxDiensteProMonat||10
+    };
+  });
+
+  // Build days array
+  const days=[];
+  for(let d=1;d<=dim;d++){
+    const ds=dayStr(mk,d);
+    const dow=new Date(ds).getDay(); // 0=Sun
+    const isWerk=ei.werkstatttage.includes(dow);
+    const isFrei=ei.freischichttage.includes(dow);
+    const we=isWE(ds);const hol=isHol(ds);
+    let type='normal';
+    if(isWerk) type='werkstatt';
+    else if(isFrei) type='freischicht';
+    days.push({d,ds,dow,type,we,hol,hauptD:null,backupD:null,waBkp:null});
+  }
+
+  // Helper: day index -> d-1
+  const asgn=(maId,dayIdx)=>ed[maId].asgn[dayIdx]||{};
+  const isAvail=(maId,dayIdx)=>{
+    const ds=days[dayIdx].ds;
+    return !ed[maId].vacSet.has(ds)&&!ed[maId].sperSet.has(ds);
+  };
+
+  function canAssignDienst(maId,di){
+    if(!isAvail(maId,di)) return false;
+    const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
+    // H2: not haupt on di-1 or di+1
+    if(di>0&&asgn(maId,di-1).hasHaupt) return false;
+    if(di<dim-1&&asgn(maId,di+1).hasHaupt) return false;
+    // H3: not belegt on di-1 AND di-2
+    if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
+    if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
+    // H4: D-B-D pattern
+    if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
+    if(di+2<dim&&asgn(maId,di+1).hasBackup&&asgn(maId,di+2).hasHaupt) return false;
+    if(ed[maId].cnt24h>=ed[maId].maxD) return false;
+    return true;
+  }
+
+  function canAssignBackup(maId,di){
+    if(!isAvail(maId,di)) return false;
+    const a=asgn(maId,di);if(a.hasHaupt||a.hasBackup) return false;
+    // H3
+    if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
+    if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
+    return true;
+  }
+
+  function canAssignWABkp(maId,di){
+    if(!isAvail(maId,di)) return false;
+    const a=asgn(maId,di);if(a.isWABkp) return false;
+    if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
+    return true;
+  }
+
+  function setHaupt(maId,di){
+    if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
+    ed[maId].asgn[di].hasHaupt=true;ed[maId].asgn[di].hasBelegt=true;
+    ed[maId].cnt24h++;ed[maId].lastDay=di;
+    days[di].hauptD=maId;
+  }
+  function setBackup(maId,di){
+    if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
+    ed[maId].asgn[di].hasBackup=true;ed[maId].asgn[di].hasBelegt=true;
+    ed[maId].cntBkpReg++;ed[maId].lastDay=di;
+    days[di].backupD=maId;
+  }
+  function setWABkp(maId,di){
+    if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
+    ed[maId].asgn[di].isWABkp=true;ed[maId].asgn[di].hasBelegt=true;
+    ed[maId].cntBkpWerk++;
+    days[di].waBkp=maId;
+  }
+
+  // Score: lower = prefer (more deficit, pref match, less recent)
+  function score(maId,di,type){
+    const e=ed[maId];
+    const deficit=e.soll-e.cnt24h;
+    const prefMatch=e.pref.includes(days[di].dow)?-1:0;
+    return -deficit*100+prefMatch*10+e.lastDay;
+  }
+
+  // For each day: assign
+  for(let di=0;di<dim;di++){
+    const day=days[di];
+    if(day.type==='werkstatt'){
+      // Werkstatt-Backup (Block A) – fill first
+      const waCands=mas.filter(ma=>canAssignWABkp(ma.id,di))
+        .sort((a,b)=>score(a.id,di,'wa')-score(b.id,di,'wa'));
+      if(waCands.length) setWABkp(waCands[0].id,di);
+
+      // Haupt-Dienst (Block B)
+      const hCands=mas.filter(ma=>canAssignDienst(ma.id,di))
+        .sort((a,b)=>score(a.id,di,'h')-score(b.id,di,'h'));
+      if(hCands.length) setHaupt(hCands[0].id,di);
+
+      // Backup (Block B)
+      const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD)
+        .sort((a,b)=>score(a.id,di,'b')-score(b.id,di,'b'));
+      if(bCands.length) setBackup(bCands[0].id,di);
+
+    } else {
+      // Phase 1: pref days
+      mas.filter(ma=>ed[ma.id].pref.includes(day.dow)&&canAssignDienst(ma.id,di))
+        .sort((a,b)=>score(a.id,di,'h')-score(b.id,di,'h'))
+        .slice(0,1).forEach(ma=>setHaupt(ma.id,di));
+
+      if(!day.hauptD){
+        const hCands=mas.filter(ma=>canAssignDienst(ma.id,di))
+          .sort((a,b)=>score(a.id,di,'h')-score(b.id,di,'h'));
+        if(hCands.length) setHaupt(hCands[0].id,di);
+      }
+
+      if(!day.backupD){
+        const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD)
+          .sort((a,b)=>score(a.id,di,'b')-score(b.id,di,'b'));
+        if(bCands.length) setBackup(bCands[0].id,di);
+      }
+    }
+  }
+
+  // Apply manual overrides
+  const plan=getOrInitPlan();
+  const overrides=plan.manualOverrides||[];
+  plan.days=days;
+  // Re-apply overrides
+  overrides.forEach(ov=>{
+    const di=ov.dayIdx;
+    if(di>=0&&di<days.length){
+      if(ov.field==='hauptD') days[di].hauptD=ov.maId;
+      if(ov.field==='backupD') days[di].backupD=ov.maId;
+      if(ov.field==='waBkp') days[di].waBkp=ov.maId;
+    }
+  });
+
+  ST.plans[planKey()]=plan;
+  autoSave('Plan generiert: '+fmtMonthDisp(mk));
+  showBanner();
+  renderPlanTable();
+}
+
+function parsePrefDays(txt){
+  // Returns array of DOW (0=Sun) that are preferred
+  const map={montag:1,dienstag:2,mittwoch:3,donnerstag:4,freitag:5,samstag:6,sonntag:0,
+    mo:1,di:2,mi:3,do:4,fr:5,sa:6,so:0};
+  const low=txt.toLowerCase();
+  const res=[];
+  Object.keys(map).forEach(k=>{if(low.includes(k)) res.push(map[k]);});
+  return res;
+}
+
+function doUndo(){
+  if(!undoStack.length) return;
+  const snap=undoStack.pop();
+  ST.plans[planKey()]=snap||{days:[],manualOverrides:[]};
+  autoSave('Rückgängig gemacht');
+  if(!undoStack.length) document.getElementById('btn-undo').disabled=true;
+  renderPlanTable();
+}
+
+// ──── RENDER PLAN TABLE ────
+function renderPlanTable(){
+  const wrap=document.getElementById('plan-table-wrap');
+  if(!wrap) return;
+  const mk=ST.aktiverMonat;
+  const t=activeTeam();
+  const mas=t?t.mitarbeitende:[];
+  const dim=daysInMonth(mk);
+  const plan=getOrInitPlan();
+  const days=plan.days||[];
+
+  if(!mas.length){wrap.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Keine Mitarbeitenden. Bitte zuerst Stammdaten anlegen.</p></div>';return;}
+
+  // Headers
+  let headRow='<tr><th class="th-name">Mitarbeiter/in</th>';
+  for(let d=1;d<=dim;d++){
+    const ds=dayStr(mk,d);
+    const dow=new Date(ds).getDay();
+    const we=isWE(ds),hol=isHol(ds);
+    const cls=hol?'hol-hdr':we?'we-hdr':'';
+    headRow+=`<th class="${cls}" title="${hol?holName(ds):''}"><div>${d}</div><div style="font-size:9px">${DOW_DE[dow]}</div></th>`;
+  }
+  headRow+='</tr>';
+
+  // Rows
+  let rows='';
+  mas.forEach(ma=>{
+    const vacSet=buildVacSet(ma,mk);
+    const sperSet=buildSperSet(ma,mk);
+    rows+=`<tr><td class="td-name">${ma.fuehrerschein?'':' 🚫🚗'} <span>${ma.vorname} ${ma.nachname}</span></td>`;
+    for(let d=1;d<=dim;d++){
+      const di=d-1;
+      const ds=dayStr(mk,d);
+      const we=isWE(ds),hol=isHol(ds);
+      const cls=hol?'hol':we?'we':'';
+      const day=days[di]||{};
+      let cell='';
+      if(vacSet.has(ds)) cell=`<div class="plan-cell cell-U" title="Urlaub">U</div>`;
+      else if(sperSet.has(ds)) cell=`<div class="plan-cell cell-S" title="Sperrtag">S</div>`;
+      else if(day.hauptD===ma.id&&day.waBkp===ma.id) cell=`<div class="plan-cell cell-WD" title="Werkstatt+Haupt">WD</div>`;
+      else if(day.backupD===ma.id&&day.waBkp===ma.id) cell=`<div class="plan-cell cell-WB" title="Werkstatt+Backup">WB</div>`;
+      else if(day.hauptD===ma.id) cell=`<div class="plan-cell cell-D" title="Haupt-Dienst">D</div>`;
+      else if(day.backupD===ma.id) cell=`<div class="plan-cell cell-B" title="Backup">B</div>`;
+      else if(day.waBkp===ma.id) cell=`<div class="plan-cell cell-W" title="Werkstatt-Backup">W</div>`;
+      else cell=`<div class="plan-cell cell-empty" title="Frei">·</div>`;
+
+      rows+=`<td class="${cls}" onclick="openCellDD(event,${di},'${ma.id}')" style="cursor:pointer">${cell}</td>`;
+    }
+    rows+='</tr>';
+  });
+
+  wrap.innerHTML=`<table class="plan-table">${headRow}${rows}</table>`;
+  renderSollIst(mas,days,mk,dim);
+  renderViolations(mas,days,mk,dim);
+}
+
+function renderSollIst(mas,days,mk,dim){
+  const wrap=document.getElementById('soll-ist-wrap');
+  if(!wrap) return;
+  let html=`<div class="card"><div class="ch"><h3>📊 Soll/Ist-Vergleich</h3></div><div class="cb" style="overflow:auto">
+  <table class="sum-tbl"><thead><tr><th>Mitarbeiter/in</th><th>Soll</th><th>Haupt-Dienste</th><th>Backups</th><th>Werkst.-Bkp</th><th>Gesamt</th></tr></thead><tbody>`;
+  mas.forEach(ma=>{
+    const soll=(ma.monatsdaten&&ma.monatsdaten[mk]&&ma.monatsdaten[mk].sollDienste)||0;
+    let haupt=0,backup=0,werk=0;
+    days.forEach(day=>{
+      if(day.hauptD===ma.id) haupt++;
+      if(day.backupD===ma.id) backup++;
+      if(day.waBkp===ma.id) werk++;
+    });
+    const gesamt=haupt+backup;
+    const diff=gesamt-soll;
+    const cls=diff>1?'sum-err':diff<-1?'sum-warn':'sum-ok';
+    html+=`<tr><td>${ma.fuehrerschein?'':' 🚫🚗 '}${ma.vorname} ${ma.nachname}</td>
+      <td>${soll}</td><td>${haupt}</td><td>${backup}</td><td>${werk}</td>
+      <td class="${cls}">${gesamt} (${diff>=0?'+':''}${diff})</td></tr>`;
+  });
+  html+='</tbody></table></div></div>';
+  wrap.innerHTML=html;
+}
+
+function renderViolations(mas,days,mk,dim){
+  const wrap=document.getElementById('viol-wrap');
+  if(!wrap) return;
+
+  const violations=[];
+
+  // Build asgn map
+  const asgn={};
+  mas.forEach(ma=>{asgn[ma.id]={};});
+  days.forEach((day,di)=>{
+    if(day.hauptD) {if(!asgn[day.hauptD]) asgn[day.hauptD]={};asgn[day.hauptD][di]={hasHaupt:true,hasBelegt:true};}
+    if(day.backupD){if(!asgn[day.backupD]) asgn[day.backupD]={};if(!asgn[day.backupD][di])asgn[day.backupD][di]={};asgn[day.backupD][di].hasBackup=true;asgn[day.backupD][di].hasBelegt=true;}
+    if(day.waBkp){if(!asgn[day.waBkp]) asgn[day.waBkp]={};if(!asgn[day.waBkp][di])asgn[day.waBkp][di]={};asgn[day.waBkp][di].isWABkp=true;asgn[day.waBkp][di].hasBelegt=true;}
+  });
+
+  const g=(maId,di)=>asgn[maId]&&asgn[maId][di]||{};
+  const vac=(ma)=>buildVacSet(ma,mk);
+  const sper=(ma)=>buildSperSet(ma,mk);
+
+  mas.forEach(ma=>{
+    const vs=vac(ma),ss=sper(ma);
+    days.forEach((day,di)=>{
+      const ds=day.ds;
+      if(day.hauptD===ma.id||day.backupD===ma.id){
+        // H1
+        if(vs.has(ds)) violations.push({rule:'H1',ma:`${ma.vorname} ${ma.nachname}`,day:fmtDisp(ds),desc:'Dienst an Urlaubstag'});
+        if(ss.has(ds)) violations.push({rule:'H1',ma:`${ma.vorname} ${ma.nachname}`,day:fmtDisp(ds),desc:'Dienst an Sperrtag'});
+      }
+      if(day.hauptD===ma.id){
+        // H2
+        if(di>0&&g(ma.id,di-1).hasHaupt) violations.push({rule:'H2',ma:`${ma.vorname} ${ma.nachname}`,day:fmtDisp(ds),desc:'Haupt-Dienste an aufeinanderfolgenden Tagen'});
+        // H3
+        if(di>=2&&g(ma.id,di-1).hasBelegt&&g(ma.id,di-2).hasBelegt) violations.push({rule:'H3',ma:`${ma.vorname} ${ma.nachname}`,day:fmtDisp(ds),desc:'3 Dienste in Folge'});
+      }
+    });
+  });
+
+  if(!violations.length){
+    wrap.innerHTML='<div class="alert alert-ok">✓ Alle Regeln eingehalten – Keine Verstöße gefunden.</div>';
+    return;
+  }
+
+  let html=`<div class="card"><div class="ch"><h3>⚠ Regelprüfungs-Bericht</h3><span style="font-size:12px;color:var(--red)">${violations.length} Verstoß/Verstöße</span></div><div class="cb">`;
+  violations.forEach(v=>{
+    html+=`<div class="viol-item"><span class="viol-icon">❌</span><div><strong>${v.rule}</strong> · <em>${v.ma}</em> · ${v.day} – ${v.desc}</div></div>`;
+  });
+  html+='</div></div>';
+  wrap.innerHTML=html;
+}
+
+// ──── CELL DROPDOWN ────
+function openCellDD(evt,di,maId){
+  evt.stopPropagation();
+  const dd=document.getElementById('cell-dd');
+  const mk=ST.aktiverMonat;
+  const t=activeTeam();
+  const mas=t?t.mitarbeitende:[];
+  const plan=getOrInitPlan();
+  const days=plan.days||[];
+  const day=days[di]||{};
+
+  const ds=dayStr(mk,di+1);
+
+  let html=`<div class="cell-dd-title">Tag ${di+1} (${DOW_DE[new Date(ds).getDay()]}) · ${isHol(ds)?holName(ds):'Zuweisung ändern'}</div>`;
+
+  // Fields
+  ['hauptD','backupD','waBkp'].forEach(field=>{
+    const labels={hauptD:'Haupt-Dienst',backupD:'Backup',waBkp:'Werkstatt-Bkp'};
+    html+=`<div style="padding:3px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase">${labels[field]}</div>`;
+    // Current
+    const cur=day[field];
+    html+=`<div class="cell-dd-item" onclick="setCellField(${di},'${field}',null)">
+      <div class="cell-dd-kuerzel" style="background:#aaa">–</div><span>Niemand ${cur===null?'✓':''}</span></div>`;
+    mas.forEach(ma=>{
+      const vacSet=buildVacSet(ma,mk);
+      const sperSet=buildSperSet(ma,mk);
+      const avail=!vacSet.has(ds)&&!sperSet.has(ds);
+      const isCur=cur===ma.id;
+      const k=(ma.kuerzel||(ma.vorname[0]+ma.nachname[0])).toUpperCase().slice(0,2);
+      html+=`<div class="cell-dd-item ${avail?'':'unavail'}" onclick="${avail?`setCellField(${di},'${field}','${ma.id}')`:''}">
+        <div class="cell-dd-kuerzel">${k}</div>
+        <span>${ma.vorname} ${ma.nachname} ${isCur?'✓':''}${avail?'':' (N/V)'}</span>
+      </div>`;
+    });
+  });
+  html+=`<div style="padding:6px 12px;border-top:1px solid var(--border)"><button class="btn btn-xs btn-sec" onclick="document.getElementById('cell-dd').classList.remove('show')">Schließen</button></div>`;
+
+  dd.innerHTML=html;
+  // Position
+  const r=evt.target.closest('td').getBoundingClientRect();
+  let top=r.bottom+2,left=r.left;
+  if(top+320>window.innerHeight) top=r.top-320;
+  if(left+210>window.innerWidth) left=window.innerWidth-215;
+  dd.style.top=top+'px';dd.style.left=left+'px';
+  dd.classList.add('show');
+}
+
+function setCellField(di,field,maId){
+  const plan=getOrInitPlan();
+  if(!plan.days[di]) plan.days[di]={};
+
+  undoStack.push(JSON.parse(JSON.stringify(plan)));
+  document.getElementById('btn-undo').disabled=false;
+
+  plan.days[di][field]=maId;
+  // Track override
+  if(!plan.manualOverrides) plan.manualOverrides=[];
+  plan.manualOverrides=plan.manualOverrides.filter(o=>!(o.dayIdx===di&&o.field===field));
+  if(maId!==null) plan.manualOverrides.push({dayIdx:di,field,maId});
+
+  autoSave('Manuelle Änderung gespeichert');
+  document.getElementById('cell-dd').classList.remove('show');
+  renderPlanTable();
+}
+
+// ─────────────────────────────────────────────
+//  TAB 4 – SPEICHERN / LADEN
+// ─────────────────────────────────────────────
+function renderSaveTab(){
+  const el=document.getElementById('pane-save');
+  const totalMAs=ST.teams.reduce((s,t)=>s+t.mitarbeitende.length,0);
+  const daysSinceBackup=ST.letztesBackup?Math.floor((Date.now()-new Date(ST.letztesBackup))/(86400000)):null;
+  const backupWarn=daysSinceBackup===null||daysSinceBackup>7;
+
+  const lastSave=ST.letztesSpeichern?new Date(ST.letztesSpeichern).toLocaleString('de-DE'):'–';
+  const lastBkp=ST.letztesBackup?new Date(ST.letztesBackup).toLocaleDateString('de-DE'):'–';
+
+  el.innerHTML=`
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-val">${ST.teams.length}</div><div class="stat-lbl">Teams</div></div>
+    <div class="stat-box"><div class="stat-val">${totalMAs}</div><div class="stat-lbl">Mitarbeitende</div></div>
+    <div class="stat-box"><div class="stat-val" style="font-size:13px">${lastSave}</div><div class="stat-lbl">Zuletzt gespeichert</div></div>
+    <div class="stat-box ${backupWarn?'':''}"><div class="stat-val" style="font-size:13px;color:${backupWarn?'var(--red)':'var(--navy)'}">${lastBkp}</div>
+      <div class="stat-lbl" style="color:${backupWarn?'var(--red)':'var(--muted)'}">${backupWarn?'⚠ Backup empfohlen!':'Letztes Backup'}</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>⬇ Export</h2></div>
+    <div class="cb" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="exportAll()">Alle Teams exportieren</button>
+      ${ST.teams.map(t=>`<button class="btn btn-sec" onclick="exportTeam('${t.id}')">Export: ${esc(t.name)}</button>`).join('')}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>⬆ Import</h2></div>
+    <div class="cb">
+      <div class="alert alert-info">Merge-Import: Vorhandene Daten werden NICHT überschrieben, nur neue Teams/Mitarbeitende ergänzt.</div>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('imp-file').click()"
+        ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')"
+        ondrop="handleDrop(event)">
+        📁 JSON-Datei hier ablegen oder klicken zum Auswählen
+      </div>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>📜 Speicher-Verlauf</h2></div>
+    <div class="cb" style="overflow:auto">
+      <table class="log-tbl"><thead><tr><th>Zeitstempel</th><th>Beschreibung</th><th>Typ</th></tr></thead><tbody>
+      ${(ST.verlauf||[]).map(v=>`<tr><td>${new Date(v.ts).toLocaleString('de-DE')}</td><td>${esc(v.desc||'')}</td><td><span class="badge badge-${v.type||'auto'}">${v.type||'auto'}</span></td></tr>`).join('')||'<tr><td colspan="3" style="color:var(--muted)">Keine Einträge</td></tr>'}
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2>🗑 Daten zurücksetzen</h2></div>
+    <div class="cb" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-amber" onclick="resetMonatsdaten()">Nur Monatsdaten leeren</button>
+      <button class="btn btn-danger" onclick="resetAll()">Alle Daten löschen</button>
+    </div>
+  </div>`;
+}
+
+function updateSaveTab(){if(activeTab==='save') renderSaveTab();}
+
+function exportAll(){
+  const data={...ST,_exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`dienstplan_backup_${fmtDate(new Date())}.json`;a.click();
+  URL.revokeObjectURL(url);
+  ST.letztesBackup=new Date().toISOString();
+  autoSave('Export: Alle Teams');
+  renderSaveTab();
+}
+
+function doBackupExport(){exportAll();}
+
+function exportTeam(tid){
+  const t=findTeam(tid);if(!t) return;
+  const blob=new Blob([JSON.stringify({teams:[t],_exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`dienstplan_${t.name.replace(/\s+/g,'_')}_${fmtDate(new Date())}.json`;a.click();
+  URL.revokeObjectURL(url);
+}
+
+function handleDrop(evt){
+  evt.preventDefault();document.getElementById('drop-zone').classList.remove('over');
+  const f=evt.dataTransfer.files[0];if(!f) return;
+  readImportFile(f);
+}
+
+function importJSON(evt){const f=evt.target.files[0];if(!f) return;readImportFile(f);}
+
+function readImportFile(f){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      mergeImport(data);
+    }catch(err){alert('Fehler beim Lesen der Datei: '+err.message);}
+  };
+  r.readAsText(f);
+}
+
+function mergeImport(data){
+  if(!data.teams){alert('Ungültiges Format: Keine Teams gefunden.');return;}
+  let added=0;
+  data.teams.forEach(imp=>{
+    const existing=findTeam(imp.id);
+    if(!existing){
+      ST.teams.push(imp);added++;
+    } else {
+      (imp.mitarbeitende||[]).forEach(iMa=>{
+        const eMA=existing.mitarbeitende.find(m=>m.id===iMa.id);
+        if(!eMA){existing.mitarbeitende.push(iMa);added++;}
+      });
+    }
+  });
+  autoSave(`Import: ${added} neue Einträge`);
+  alert(`Import erfolgreich: ${added} neue Einträge hinzugefügt.`);
+  renderTopbar();renderSidebar('sb-stamm');renderSidebar('sb-monat');
+  renderSaveTab();
+}
+
+function resetMonatsdaten(){
+  if(!confirm('Monatsdaten aller Mitarbeitenden leeren? Stammdaten bleiben erhalten.')) return;
+  ST.teams.forEach(t=>t.mitarbeitende.forEach(ma=>{ma.monatsdaten={};}));
+  ST.plans={};
+  autoSave('Monatsdaten geleert');
+  alert('Monatsdaten wurden geleert.');
+  renderSaveTab();
+}
+
+function resetAll(){
+  const confirm1=confirm('ACHTUNG: Alle Daten löschen? Dies kann nicht rückgängig gemacht werden!');
+  if(!confirm1) return;
+  const input=prompt('Zur Bestätigung bitte "LÖSCHEN" eingeben:');
+  if(input!=='LÖSCHEN'){alert('Eingabe falsch – Abbruch.');return;}
+  localStorage.removeItem(LS_KEY);
+  ST=defaultState();
+  selectedMAId=null;
+  autoSave('Alle Daten gelöscht');
+  alert('Alle Daten wurden gelöscht.');
+  renderAll();
+}
+
+// ─────────────────────────────────────────────
+//  UTILITY
+// ─────────────────────────────────────────────
+function esc(s){if(!s) return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ─────────────────────────────────────────────
+//  FULL RENDER
+// ─────────────────────────────────────────────
+function renderAll(){
+  renderTopbar();
+  renderSidebar('sb-stamm');
+  renderSidebar('sb-monat');
+  if(activeTab==='stamm') renderMADetail();
+  if(activeTab==='monat') renderMonatDetail();
+  if(activeTab==='plan') renderPlanTab();
+  if(activeTab==='save') renderSaveTab();
+}
+
+// ─────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────
+loadState();
+renderAll();
+</script>
+</body>
+</html>
