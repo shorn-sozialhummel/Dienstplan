@@ -801,7 +801,7 @@ function renderMonatDetail(){
           <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">
             ⛔ Maximum erreicht (${(md.sperrtage||[]).filter(s=>!s.tkAusnahme).length}/${maxSperr}) – ${fmtDisp(calSperrPendingDs)}
           </div>
-          <button class="btn btn-amber btn-sm" onclick="confirmTKAusnahme('${calSperrPendingDs}')">
+          <button class="btn btn-amber btn-sm" onclick="confirmTKAusnahme()">
             ✅ Als TK genehmigen – weiteren Sperrtag erlauben
           </button>
           <button class="btn btn-xs btn-sec" style="margin-top:4px;display:block" onclick="calSperrPendingDs=null;renderMonatDetail()">Abbrechen</button>
@@ -898,7 +898,9 @@ function calClick(ds){
   }
 }
 
-function confirmTKAusnahme(ds){
+function confirmTKAusnahme(){
+  const ds=calSperrPendingDs;
+  if(!ds) return;
   const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
   const mk=ST.aktiverMonat;const md=getMAMonat(ma,mk);
   const maxSperr=maxSperrtageForMA(ma,mk);
