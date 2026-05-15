@@ -232,18 +232,6 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 
 <div class="cell-dd" id="cell-dd"></div>
 
-<!-- TERMIN MODAL -->
-<div id="termin-modal" class="tk-modal-overlay" style="display:none">
-  <div class="tk-modal-box" style="max-width:500px;width:96%">
-    <div class="tk-modal-title" style="color:var(--navy)">📌 Termin hinzufügen</div>
-    <div id="termin-modal-body"></div>
-    <div class="tk-modal-foot">
-      <button class="btn btn-sec" onclick="terminModalAbbrechen()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="terminModalSpeichern()">Speichern</button>
-    </div>
-  </div>
-</div>
-
 <!-- TK-AUSNAHME MODAL -->
 <div id="tk-modal" class="tk-modal-overlay" style="display:none">
   <div class="tk-modal-box">
@@ -832,8 +820,11 @@ function renderMonatDetail(){
 
       <!-- Termine -->
       <div class="card">
-        <div class="ch"><h3>📌 Termine</h3><div class="ch-act"><button class="btn btn-primary btn-xs" onclick="openAddTermin()">+ Termin</button></div></div>
-        <div class="cb" id="termin-list">${renderTerminList()}</div>
+        <div class="ch"><h3>📌 Termine</h3><div class="ch-act">${!terminFormOpen?'<button class="btn btn-primary btn-xs" onclick="openAddTermin()">+ Termin</button>':''}</div></div>
+        <div class="cb">
+          ${terminFormOpen ? _terminFormHTML() : ''}
+          <div id="termin-list">${renderTerminList()}</div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -1014,77 +1005,81 @@ function renderTerminList(){
   }).join('');
 }
 
-// ─── TERMIN MODAL STATE ───
+// ─── TERMIN INLINE FORM STATE ───
+const TERMIN_ARTEN=['Teammeeting','Supervision','Helfertreffen','Dienstbesprechung','Einarbeitung','Pflegeschulung'];
+let terminFormOpen=false;
 let _terminTyp='team';
 let _terminTeilnehmer=new Set();
+let _terminFD={art:'Teammeeting',name:'Teammeeting',datum:'',von:'09:00',bis:'11:00'};
 
 function openAddTermin(){
-  _terminTyp='team';_terminTeilnehmer=new Set();
-  _renderTerminModalBody();
-  document.getElementById('termin-modal').style.display='flex';
+  _terminTyp='team';
+  _terminTeilnehmer=new Set();
+  _terminFD={art:'Teammeeting',name:'Teammeeting',datum:dayStr(ST.aktiverMonat,1),von:'09:00',bis:'11:00'};
+  terminFormOpen=true;
+  renderMonatDetail();
 }
 
-function _renderTerminModalBody(){
-  const mk=ST.aktiverMonat;
-  const mas=allMAs();
-  const arten=['Teammeeting','Supervision','Helfertreffen','Dienstbesprechung','Einarbeitung','Pflegeschulung'];
-  const maPills=mas.map(ma=>{
+function _terminMAPills(){
+  return allMAs().map(ma=>{
     const sel=_terminTeilnehmer.has(ma.id);
     const c=maColor(ma);
-    return `<button type="button" style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid ${c};background:${sel?c:'#fff'};color:${sel?'#fff':c};margin:2px" onclick="if(_terminTeilnehmer.has('${ma.id}'))_terminTeilnehmer.delete('${ma.id}');else _terminTeilnehmer.add('${ma.id}');_renderTerminModalBody()">${esc(ma.vorname)} ${esc(ma.nachname[0])}.</button>`;
+    const toggle=sel
+      ?'_terminTeilnehmer.delete(\''+ma.id+'\')'
+      :'_terminTeilnehmer.add(\''+ma.id+'\')';
+    return '<button type="button"'
+      +' style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;'
+      +'cursor:pointer;border:2px solid '+c+';background:'+(sel?c:'#fff')
+      +';color:'+(sel?'#fff':c)+';margin:2px"'
+      +' onclick="'+toggle+';renderMonatDetail()">'
+      +esc(ma.vorname)+' '+esc(ma.nachname[0])+'.</button>';
   }).join('');
-  document.getElementById('termin-modal-body').innerHTML=`
-    <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="cal-mode-btn ${_terminTyp==='team'?'active-vac':''}" style="flex:1" onclick="_terminTyp='team';_renderTerminModalBody()">👥 Teamtermin</button>
-      <button class="cal-mode-btn ${_terminTyp==='einzeln'?'active-sperr':''}" style="flex:1" onclick="_terminTyp='einzeln';_renderTerminModalBody()">👤 Einzeltermin</button>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Terminart</label>
-        <select id="t-art" onchange="var n=document.getElementById('t-name');if(this.value!=='Sonstiges')n.value=this.value">
-          ${arten.map(a=>`<option value="${a}">${a}</option>`).join('')}
-          <option value="Sonstiges">Sonstiges (freier Name)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Name</label>
-        <input type="text" id="t-name" value="Teammeeting" placeholder="Terminname">
-      </div>
-    </div>
-    <div class="row">
-      <div class="field"><label>Datum</label><input type="date" id="t-datum" value="${dayStr(mk,1)}"></div>
-      <div class="field"><label>Von</label><input type="time" id="t-von" value="09:00"></div>
-      <div class="field"><label>Bis</label><input type="time" id="t-bis" value="11:00"></div>
-    </div>
-    ${_terminTyp==='einzeln'?`<div><label style="display:block;margin-bottom:6px">Mitarbeitende (mind. 1 wählen)</label><div style="display:flex;flex-wrap:wrap">${maPills}</div></div>`:''}
-  `;
 }
 
-function terminModalAbbrechen(){
-  document.getElementById('termin-modal').style.display='none';
+function _terminFormHTML(){
+  const artOpts=TERMIN_ARTEN.map(a=>'<option value="'+a+'"'+(_terminFD.art===a?' selected':'')+'>'+a+'</option>').join('')
+    +'<option value="Sonstiges"'+(_terminFD.art==='Sonstiges'?' selected':'')+'>Sonstiges (freier Name)</option>';
+  return '<div style="background:var(--navy-bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px">'
+    +'<button class="cal-mode-btn '+(_terminTyp==='team'?'active-vac':'')+'" style="flex:1" onclick="_terminTyp=\'team\';renderMonatDetail()">👥 Teamtermin</button>'
+    +'<button class="cal-mode-btn '+(_terminTyp==='einzeln'?'active-sperr':'')+'" style="flex:1" onclick="_terminTyp=\'einzeln\';renderMonatDetail()">👤 Einzeltermin</button>'
+    +'</div>'
+    +'<div class="row">'
+    +'<div class="field"><label>Terminart</label><select onchange="_terminFD.art=this.value;if(this.value!==\'Sonstiges\')_terminFD.name=this.value;renderMonatDetail()">'+artOpts+'</select></div>'
+    +'<div class="field"><label>Name</label><input type="text" value="'+esc(_terminFD.name)+'" oninput="_terminFD.name=this.value" placeholder="Terminname"></div>'
+    +'</div>'
+    +'<div class="row">'
+    +'<div class="field"><label>Datum</label><input type="date" value="'+_terminFD.datum+'" onchange="_terminFD.datum=this.value"></div>'
+    +'<div class="field"><label>Von</label><input type="time" value="'+_terminFD.von+'" onchange="_terminFD.von=this.value"></div>'
+    +'<div class="field"><label>Bis</label><input type="time" value="'+_terminFD.bis+'" onchange="_terminFD.bis=this.value"></div>'
+    +'</div>'
+    +(_terminTyp==='einzeln'
+      ?'<div style="margin-bottom:10px"><label style="display:block;margin-bottom:6px">Mitarbeitende (mind. 1)</label>'+_terminMAPills()+'</div>'
+      :'')
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn btn-primary btn-sm" onclick="terminSpeichern()">Termin speichern</button>'
+    +'<button class="btn btn-sec btn-sm" onclick="terminFormOpen=false;renderMonatDetail()">Abbrechen</button>'
+    +'</div>'
+    +'</div>';
 }
 
-function terminModalSpeichern(){
-  const artEl=document.getElementById('t-art');
-  const art=artEl?artEl.value:'Sonstiges';
-  const name=(document.getElementById('t-name').value.trim())||art;
-  const datum=document.getElementById('t-datum').value;
-  const von=document.getElementById('t-von').value||'09:00';
-  const bis=document.getElementById('t-bis').value||'11:00';
+function terminSpeichern(){
+  const name=(_terminFD.name||'').trim()||_terminFD.art;
+  const datum=_terminFD.datum;
   if(!datum){alert('Bitte Datum eingeben.');return;}
   if(_terminTyp==='einzeln'&&_terminTeilnehmer.size===0){alert('Bitte mindestens eine Person auswählen.');return;}
   const t=activeTeam();if(!t) return;
   const mk=ST.aktiverMonat;
   if(!t.termine) t.termine={};
   if(!t.termine[mk]) t.termine[mk]=[];
-  const farbe=_terminTyp==='team'?'#534AB7':'#b45309';
-  t.termine[mk].push({id:'t_'+uid(),art,name,datum,von,bis,farbe,
+  t.termine[mk].push({id:'t_'+uid(),art:_terminFD.art,name,
+    datum,von:_terminFD.von||'09:00',bis:_terminFD.bis||'11:00',
+    farbe:_terminTyp==='team'?'#534AB7':'#b45309',
     typ:_terminTyp,teilnehmer:_terminTyp==='einzeln'?[..._terminTeilnehmer]:[]});
   t.termine[mk].sort((a,b)=>a.datum.localeCompare(b.datum));
-  document.getElementById('termin-modal').style.display='none';
+  terminFormOpen=false;
   autoSave('Termin hinzugefügt: '+name);
-  const tl=document.getElementById('termin-list');
-  if(tl) tl.innerHTML=renderTerminList();
+  renderMonatDetail();
   if(activeTab==='plan') renderPlanTable();
 }
 
