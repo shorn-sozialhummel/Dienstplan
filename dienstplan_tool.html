@@ -1728,10 +1728,41 @@ function setCellField(di,field,maId){
   if(!plan.days[di]) plan.days[di]={};
   undoStack.push(JSON.parse(JSON.stringify(plan)));
   document.getElementById('btn-undo').disabled=false;
-  plan.days[di][field]=maId;
-  if(!plan.manualOverrides) plan.manualOverrides=[];
-  plan.manualOverrides=plan.manualOverrides.filter(o=>!(o.dayIdx===di&&o.field===field));
-  if(maId!==null) plan.manualOverrides.push({dayIdx:di,field,maId});
+
+  const day=plan.days[di];
+  const mk=ST.aktiverMonat;
+  const ds=dayStr(mk,di+1);
+  const t=activeTeam();
+
+  // Detect swap: new MA is already in the opposite slot
+  const swapField=field==='hauptD'?'backupD':field==='backupD'?'hauptD':null;
+  const isSwap=swapField&&maId!==null&&day[swapField]===maId;
+
+  if(isSwap){
+    const oldFieldMA=day[field];   // the MA being displaced from 'field'
+    // perform swap
+    day[field]=maId;
+    day[swapField]=oldFieldMA;
+    // update manualOverrides for both slots
+    if(!plan.manualOverrides) plan.manualOverrides=[];
+    plan.manualOverrides=plan.manualOverrides.filter(o=>!(o.dayIdx===di&&(o.field===field||o.field===swapField)));
+    plan.manualOverrides.push({dayIdx:di,field,maId});
+    if(oldFieldMA!==null&&oldFieldMA!==undefined) plan.manualOverrides.push({dayIdx:di,field:swapField,maId:oldFieldMA});
+    // build notiz swap hint
+    const ma1=findMA(t&&t.id,maId);const ma2=findMA(t&&t.id,oldFieldMA);
+    const n1=ma1?(ma1.vorname+' '+ma1.nachname[0]+'.'):'?';
+    const n2=ma2?(ma2.vorname+' '+ma2.nachname[0]+'.'):'?';
+    if(!plan.notizen) plan.notizen={};
+    const existing=plan.notizen[ds]||'';
+    const tauschLine='🔄 Tausch: '+n1+' ↔ '+n2;
+    plan.notizen[ds]=existing?existing+'\n'+tauschLine:tauschLine;
+  } else {
+    day[field]=maId;
+    if(!plan.manualOverrides) plan.manualOverrides=[];
+    plan.manualOverrides=plan.manualOverrides.filter(o=>!(o.dayIdx===di&&o.field===field));
+    if(maId!==null) plan.manualOverrides.push({dayIdx:di,field,maId});
+  }
+
   autoSave('Manuelle Änderung');
   document.getElementById('cell-dd').classList.remove('show');
   renderPlanTable();
