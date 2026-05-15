@@ -1369,8 +1369,8 @@ function generatePlan(){
   function canAssignDienst(maId,di){
     if(!isAvail(maId,di)) return false;
     const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
-    if(di>0&&asgn(maId,di-1).hasHaupt) return false;
-    if(di+1<dim&&asgn(maId,di+1).hasHaupt) return false;
+    if(di>0&&(days[di-1].hauptD===maId||asgn(maId,di-1).hasHaupt)) return false;
+    if(di+1<dim&&(days[di+1].hauptD===maId||asgn(maId,di+1).hasHaupt)) return false;
     if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
     if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
     if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
