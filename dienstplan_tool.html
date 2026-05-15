@@ -211,14 +211,18 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 .tk-modal-foot{display:flex;gap:8px;justify-content:flex-end}
 /* PRINT */
 @media print{
-  .tabs,.topbar,.hdr,.btn,.cell-dd,.ch-act,#banner{display:none!important}
+  .tabs,.topbar,.hdr,.btn,.cell-dd,.ch-act,#banner,#print-header-spacer{display:none!important}
   body{background:#fff;font-size:9px}
   .layout{height:auto;display:block}
   .sidebar{display:none!important}
   .main-area{padding:0}
   .plan-list{font-size:9px}
   .plan-list td,.plan-list th{padding:2px 4px}
-  @page{size:A4 landscape;margin:8mm}
+  .ma-pill{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .termin-badge{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  @page{size:A4 landscape;margin:12mm 8mm 16mm 8mm}
+  #print-header{display:flex!important}
+  #print-footer{display:flex!important;justify-content:space-between}
 }
 </style>
 </head>
@@ -251,6 +255,16 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
   </div>
   <div class="hdr-sp"></div>
   <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Drucken</button>
+  <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626" onclick="pdfExport()">📄 PDF Export</button>
+</div>
+<div id="print-header" style="display:none;justify-content:space-between;align-items:baseline;border-bottom:2px solid #1a3a5c;padding-bottom:4px;margin-bottom:6px">
+  <span id="ph-team" style="font-size:14px;font-weight:700;color:#1a3a5c"></span>
+  <span id="ph-month" style="font-size:12px;color:#555"></span>
+</div>
+<div id="print-footer" style="display:none;position:fixed;bottom:0;left:0;right:0;font-size:9px;color:#888;border-top:1px solid #ccc;padding:2px 8px">
+  <span id="pf-team"></span>
+  <span style="color:#c00;font-weight:600">vertraulich</span>
+  <span id="pf-date"></span>
 </div>
 
 <div class="topbar" id="topbar">
@@ -475,6 +489,28 @@ function autoSave(desc){
 let bannerTimeout=null;
 function showBanner(){const b=document.getElementById('banner');b.classList.add('show');clearTimeout(bannerTimeout);bannerTimeout=setTimeout(hideBanner,8000);}
 function hideBanner(){document.getElementById('banner').classList.remove('show');}
+
+function pdfExport(){
+  const t=activeTeam();
+  const mk=ST.aktiverMonat;
+  const teamName=(t?t.name:'Team').replace(/\s+/g,'_');
+  const[y,m]=mk.split('-');
+  const cntKey='dp_v9_pdf_cnt_'+mk+'_'+teamName;
+  const cnt=(parseInt(localStorage.getItem(cntKey)||'0'))+1;
+  const title=y+'_'+m+'_'+teamName+'_Vorplanung_v1_'+cnt;
+  const now=new Date();
+  const dateStr=now.getDate().toString().padStart(2,'0')+'.'+(now.getMonth()+1).toString().padStart(2,'0')+'.'+now.getFullYear();
+  const monthDisp=fmtMonthDisp(mk);
+  document.getElementById('ph-team').textContent=t?t.name:'';
+  document.getElementById('ph-month').textContent=monthDisp;
+  document.getElementById('pf-team').textContent=t?t.name:'';
+  document.getElementById('pf-date').textContent=dateStr;
+  const prev=document.title;
+  document.title=title;
+  window.print();
+  document.title=prev;
+  localStorage.setItem(cntKey,cnt);
+}
 
 // ─── NAVIGATION ───
 function switchTab(tab){
