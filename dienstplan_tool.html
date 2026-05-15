@@ -355,6 +355,7 @@ let selectedMAId=null;
 // Inline calendar state
 let calMode='vac'; // 'vac'|'sperr'
 let calTempStart=null;
+let calSperrPendingDs=null; // day awaiting TK approval
 
 // ─── UTILITIES ───
 function fmtDate(d){
@@ -494,7 +495,7 @@ function changeMonth(delta){
   const d=new Date(y,m-1+delta,1);
   ST.aktiverMonat=monthKey(d.getFullYear(),d.getMonth()+1);
   autoSave('Monat: '+fmtMonthDisp(ST.aktiverMonat));
-  calTempStart=null;
+  calTempStart=null;calSperrPendingDs=null;
   if(activeTab==='monat') renderMonatDetail();
   if(activeTab==='plan') renderPlanTab();
   document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
@@ -557,7 +558,7 @@ function renderSidebar(sbId){
 }
 
 function selectMA(id){
-  selectedMAId=id;
+  selectedMAId=id;calSperrPendingDs=null;
   renderSidebar('sb-stamm');renderSidebar('sb-monat');
   if(activeTab==='stamm') renderMADetail();
   if(activeTab==='monat') renderMonatDetail();
@@ -803,6 +804,17 @@ function renderMonatDetail(){
           ${calMode==='vac'?'1. Klick: Von-Datum, 2. Klick: Bis-Datum':'Klick: Sperrtag umschalten'}
           ${calTempStart?`<br><strong>Von: ${fmtDisp(calTempStart)}</strong> – jetzt Bis-Datum wählen`:''}
         </div>
+        ${calMode==='sperr'&&calSperrPendingDs?`
+        <div style="margin-top:8px;padding:9px 10px;border-radius:6px;background:var(--amber-bg);border:1px solid var(--amber-b)">
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">
+            ⛔ Maximum erreicht (${(md.sperrtage||[]).filter(s=>!s.tkAusnahme).length}/${maxSperr}) – ${fmtDisp(calSperrPendingDs)}
+          </div>
+          <button class="btn btn-amber btn-sm" onclick="confirmTKAusnahme('${calSperrPendingDs}')">
+            ✅ Als TK genehmigen – weiteren Sperrtag erlauben
+          </button>
+          <button class="btn btn-xs btn-sec" style="margin-top:4px;display:block" onclick="calSperrPendingDs=null;renderMonatDetail()">Abbrechen</button>
+        </div>`:''}
+
       </div>
 
       <!-- Termine -->
@@ -846,7 +858,7 @@ function buildCalGrid(ma,mk,md){
 }
 
 function setCalMode(mode){
-  calMode=mode;calTempStart=null;
+  calMode=mode;calTempStart=null;calSperrPendingDs=null;
   if(activeTab==='monat') renderMonatDetail();
 }
 
@@ -874,19 +886,38 @@ function calClick(ds){
     const idx=md.sperrtage.findIndex(s=>s.datum===ds);
     if(idx>=0){
       md.sperrtage.splice(idx,1);
+      calSperrPendingDs=null;
       autoSave('Sperrtag entfernt');
     } else {
-      if(md.sperrtage.length>=maxSperr){
-        alert(`Max. ${maxSperr} Sperrtage für diesen Monat (Urlaub: ${vacDaysInMonth(ma,mk)} Tage).`);return;
-      }
       const vacSet=buildVacSet(ma,mk);
-      if(vacSet.has(ds)){alert('Dieser Tag ist bereits als Urlaub eingetragen.');return;}
-      md.sperrtage.push({datum:ds,grund:'',tkAusnahme:false});
-      md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
-      autoSave('Sperrtag hinzugefügt');
+      if(vacSet.has(ds)){return;} // silently ignore vacation days
+      const normalCount=md.sperrtage.filter(s=>!s.tkAusnahme).length;
+      if(normalCount>=maxSperr){
+        // Don't alert – show TK pending UI instead
+        calSperrPendingDs=ds;
+      } else {
+        calSperrPendingDs=null;
+        md.sperrtage.push({datum:ds,grund:'',tkAusnahme:false});
+        md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
+        autoSave('Sperrtag hinzugefügt');
+      }
     }
     renderMonatDetail();
   }
+}
+
+function confirmTKAusnahme(ds){
+  const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
+  const mk=ST.aktiverMonat;const md=getMAMonat(ma,mk);
+  const maxSperr=maxSperrtageForMA(ma,mk);
+  const total=(md.sperrtage||[]).length;
+  if(!confirm(`TK-Ausnahme genehmigen?\n\nDatum: ${fmtDisp(ds)}\nMA: ${ma.vorname} ${ma.nachname}\nAktuell: ${total}/${maxSperr} Sperrtage\n\nEin weiterer Sperrtag wird als TK-Ausnahme eingetragen.`)) return;
+  if(!md.sperrtage) md.sperrtage=[];
+  md.sperrtage.push({datum:ds,grund:'TK-Ausnahme',tkAusnahme:true});
+  md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
+  calSperrPendingDs=null;
+  autoSave('Sperrtag (TK-Ausnahme) hinzugefügt');
+  renderMonatDetail();
 }
 
 function renderUrlaubList(md){
@@ -900,9 +931,11 @@ function renderUrlaubList(md){
 
 function renderSperrList(md,maxSperr){
   const cnt=(md.sperrtage||[]).length;
-  const hdr=`<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">🚫 Sperrtage (${cnt}/${maxSperr})</div>`;
+  const normalCnt=(md.sperrtage||[]).filter(s=>!s.tkAusnahme).length;
+  const atLimit=normalCnt>=maxSperr;
+  const hdr=`<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">🚫 Sperrtage (${normalCnt}/${maxSperr}${cnt>normalCnt?' +'+( cnt-normalCnt)+' TK':''})${atLimit?` <span style="color:var(--amber);font-weight:700">· Limit erreicht</span>`:''}</div>`;
   if(!cnt) return hdr+'<div style="color:var(--muted);font-size:12px">Keine Sperrtage.</div>';
-  return hdr+(md.sperrtage||[]).map((s,i)=>`<span class="chip chip-amber">${fmtDisp(s.datum)}${s.grund?' – '+esc(s.grund):''}<button class="chip-del" onclick="deleteSperrtag(${i})">×</button></span>`).join('');
+  return hdr+(md.sperrtage||[]).map((s,i)=>`<span class="chip chip-amber">${fmtDisp(s.datum)}${s.tkAusnahme?'<span class="badge badge-manual" style="margin-left:4px;font-size:9px">TK</span>':''}${s.grund&&s.grund!=='TK-Ausnahme'?' – '+esc(s.grund):''}<button class="chip-del" onclick="deleteSperrtag(${i})">×</button></span>`).join('');
 }
 
 function saveMonatField(field,val,type){
