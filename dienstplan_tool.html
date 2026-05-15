@@ -1228,7 +1228,7 @@ function generatePlan(){
     let type='normal';
     if(isWerk) type='werkstatt';
     else if(isFrei) type='freischicht';
-    days.push({d,ds,dow,type,we:isWE(ds),hol:isHol(ds),hauptD:null,backupD:null,waBkp:null});
+    days.push({d,ds,dow,type,we:isWE(ds),hol:isHol(ds),hauptD:null,backupD:null,waBkp:null,waBkp2:null});
   }
 
   const asgn=(maId,di)=>ed[maId].asgn[di]||{};
@@ -1277,6 +1277,17 @@ function generatePlan(){
     ed[maId].asgn[di].isWABkp=true;ed[maId].asgn[di].hasBelegt=true;
     ed[maId].cntBkpWerk++;days[di].waBkp=maId;
   }
+  function canAssignWABkp2(maId,di){
+    if(!isAvail(maId,di)) return false;
+    const a=asgn(maId,di);if(a.isWABkp2) return false;
+    if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
+    return true;
+  }
+  function setWABkp2(maId,di){
+    if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
+    ed[maId].asgn[di].isWABkp2=true;ed[maId].asgn[di].hasBelegt=true;
+    ed[maId].cntBkpWerk++;days[di].waBkp2=maId;
+  }
 
   function score(maId,di){
     const e=ed[maId];
@@ -1286,10 +1297,17 @@ function generatePlan(){
   for(let di=0;di<dim;di++){
     const day=days[di];
     if(day.type==='werkstatt'){
-      const waCands=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
-      if(waCands.length) setWABkp(waCands[0].id,di);
+      // hauptD zuerst (nötig für waBkp-Präferenz)
       const hCands=mas.filter(ma=>canAssignDienst(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
       if(hCands.length) setHaupt(hCands[0].id,di);
+      // waBkp: bevorzugt aktueller hauptD (weiche Regel)
+      if(day.hauptD&&canAssignWABkp(day.hauptD,di)){
+        setWABkp(day.hauptD,di);
+      } else {
+        const waCands=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
+        if(waCands.length) setWABkp(waCands[0].id,di);
+      }
+      // backupD
       const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD).sort((a,b)=>score(a.id,di)-score(b.id,di));
       if(bCands.length) setBackup(bCands[0].id,di);
     } else {
@@ -1306,6 +1324,24 @@ function generatePlan(){
     }
   }
 
+  // Zweiter Durchlauf: waBkp2 für Split-Backup-Werkstatttage
+  for(let di=0;di<dim;di++){
+    const day=days[di];
+    if(day.type==='werkstatt'){
+      const _dwk=getDowKey(day.ds);const _wc=ei.werkstatttage[_dwk];
+      if(_wc&&_wc.splitBackup){
+        // bevorzugt nächster hauptD (weiche Regel)
+        const nextHD=di+1<dim?days[di+1].hauptD:null;
+        if(nextHD&&canAssignWABkp2(nextHD,di)){
+          setWABkp2(nextHD,di);
+        } else {
+          const cands=mas.filter(ma=>canAssignWABkp2(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
+          if(cands.length) setWABkp2(cands[0].id,di);
+        }
+      }
+    }
+  }
+
   const plan=getOrInitPlan();
   const overrides=plan.manualOverrides||[];
   plan.days=days;
@@ -1315,6 +1351,7 @@ function generatePlan(){
       if(ov.field==='hauptD') days[di].hauptD=ov.maId;
       if(ov.field==='backupD') days[di].backupD=ov.maId;
       if(ov.field==='waBkp') days[di].waBkp=ov.maId;
+      if(ov.field==='waBkp2') days[di].waBkp2=ov.maId;
     }
   });
   ST.plans[planKey()]=plan;
@@ -1420,11 +1457,23 @@ function renderPlanTable(){
 
     if(dayType==='werkstatt'){
       const trCls='r-werk-a'+(we?' r-we':'')+(hol?' r-hol':'');
+      const _split=!!(_wCfg.splitBackup);
+      const _b1end=_split?(_wCfg.backup1&&_wCfg.backup1.ende||wa.end):wa.end;
+      const _b2end=_split?(_wCfg.backup2&&_wCfg.backup2.ende||wa.end):wa.end;
+      let _wCell;
+      if(_split){
+        const _p1=day.waBkp?maPill(day.waBkp,'W1'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W1</span>`;
+        const _p2=day.waBkp2?maPill(day.waBkp2,'W2'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp2')">+ W2</span>`;
+        _wCell='<div style="font-size:10px;color:var(--muted)">'+wa.start+'–'+_b1end+'</div>'+_p1
+          +'<div style="font-size:10px;color:var(--muted);margin-top:3px">'+_b1end+'–'+_b2end+'</div>'+_p2;
+      } else {
+        _wCell=day.waBkp?maPill(day.waBkp,'W'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W</span>`;
+      }
       rows+=`<tr class="${trCls}">
         ${dateCell}
-        <td class="td-desc" style="color:var(--cyan)">🔧 Block A &nbsp;<small>${wa.start}–${wa.end}</small></td>
+        <td class="td-desc" style="color:var(--cyan)">🔧 Block A &nbsp;<small>${wa.start}–${wa.end}</small>${_split?' <span style="font-size:9px;background:var(--cyan-bg);color:var(--cyan);padding:1px 5px;border-radius:3px;margin-left:2px">Split</span>':''}</td>
         <td class="td-assign">–</td>
-        <td class="td-assign">${day.waBkp?maPill(day.waBkp,'W'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'waBkp')">+ W</span>`}</td>
+        <td class="td-assign">${_wCell}</td>
         ${vacSpanCell}${sperrSpanCell}
         <td></td>
       </tr>
@@ -1481,7 +1530,7 @@ function openCellDDByDi(evt,di,field){
   const ds=dayStr(mk,di+1);
   const dd=document.getElementById('cell-dd');
 
-  const labels={hauptD:'Haupt-Dienst (D)',backupD:'Backup (B)',waBkp:'Werkstatt-Bkp (W)'};
+  const labels={hauptD:'Haupt-Dienst (D)',backupD:'Backup (B)',waBkp:'Werkstatt-Bkp 1 (W1)',waBkp2:'Werkstatt-Bkp 2 (W2)'};
   let html=`<div class="cell-dd-title">${String(di+1).padStart(2,'0')}.${mk.split('-')[1]}. – ${labels[field]}</div>`;
   html+=`<div class="cell-dd-item" onclick="setCellField(${di},'${field}',null)">
     <div class="cell-dd-kuerzel" style="background:#aaa">–</div><span>Niemand ${day[field]===null||day[field]===undefined?'✓':''}</span></div>`;
