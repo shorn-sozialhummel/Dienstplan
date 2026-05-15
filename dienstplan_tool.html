@@ -664,7 +664,11 @@ function renderMADetail(){
       <div class="row">
         <div class="field"><label>Vorname</label><input type="text" id="ma-vorname" value="${esc(ma.vorname)}" oninput="autoGenKuerzel()"></div>
         <div class="field"><label>Nachname</label><input type="text" id="ma-nachname" value="${esc(ma.nachname)}" oninput="autoGenKuerzel()"></div>
-        <div class="field" style="max-width:80px"><label>Kürzel</label><input type="text" id="ma-kuerzel" value="${esc(ma.kuerzel)}" maxlength="3"></div>
+        <div class="field" style="max-width:80px">
+          <label>Kürzel</label>
+          <input type="text" id="ma-kuerzel" value="${esc(ma.kuerzel)}" maxlength="3" oninput="this.value=this.value.toUpperCase();checkKuerzelDuplikat()">
+          <div id="kuerzel-hint" style="margin-top:4px;font-size:11px"></div>
+        </div>
       </div>
       <div class="row">
         <div class="field" style="max-width:160px"><label>Vertragliche Schichten/Monat</label><input type="number" id="ma-maxd" value="${ma.maxDiensteProMonat||10}" min="0" max="31" oninput="updateSchichtenCalc()"></div>
@@ -714,6 +718,7 @@ function renderMADetail(){
     document.getElementById('fuehr-lbl').textContent=this.checked?'Ja ✓':'Nein 🚫🚗';
   });
   updateSchichtenCalc();
+  checkKuerzelDuplikat();
 }
 
 function updateSchichtenCalc(){
@@ -746,6 +751,42 @@ function autoGenKuerzel(){
   const v=document.getElementById('ma-vorname'),n=document.getElementById('ma-nachname'),k=document.getElementById('ma-kuerzel');
   if(!v||!n||!k) return;
   k.value=((v.value[0]||'')+(n.value[0]||'')).toUpperCase();
+  checkKuerzelDuplikat();
+}
+
+function checkKuerzelDuplikat(){
+  const kEl=document.getElementById('ma-kuerzel');
+  const hint=document.getElementById('kuerzel-hint');
+  if(!kEl||!hint) return;
+  const kz=kEl.value.trim().toUpperCase();
+  const t=activeTeam();
+  const others=(t?t.mitarbeitende:[]).filter(ma=>ma.id!==selectedMAId);
+  const isDup=kz.length>0&&others.some(ma=>maKuerzel(ma)===kz);
+  if(isDup){
+    kEl.style.outline='2px solid #dc2626';
+    // generate suggestions from current vorname/nachname inputs
+    const v=(document.getElementById('ma-vorname')||{}).value||'';
+    const n=(document.getElementById('ma-nachname')||{}).value||'';
+    const v0=(v[0]||'').toUpperCase(),v1=(v[1]||'').toUpperCase();
+    const n0=(n[0]||'').toUpperCase(),n1=(n[1]||'').toUpperCase(),n2=(n[2]||'').toUpperCase();
+    const usedSet=new Set(others.map(ma=>maKuerzel(ma)));
+    const cands=[v0+n0,v0+n0+n1,v0+n0+n2,v1+n0,v0+v1+n0,n0+n1,v0+n0+v1,v1+n0+n1]
+      .map(s=>s.replace(/[^A-Z]/g,'').slice(0,3)).filter(s=>s.length>=1&&s!==kz&&!usedSet.has(s));
+    const unique=[...new Set(cands)].slice(0,4);
+    const btns=unique.map(s=>`<button type="button" onclick="document.getElementById('ma-kuerzel').value='${s}';checkKuerzelDuplikat()" `
+      +`style="margin:2px;padding:2px 7px;font-size:11px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--surface)">${s}</button>`).join('');
+    hint.innerHTML='<span style="color:#dc2626">Kürzel bereits vergeben</span>'+(unique.length?'<div style="margin-top:3px">'+btns+'</div>':'');
+  } else {
+    kEl.style.outline='';
+    hint.innerHTML='';
+  }
+}
+
+function hasDuplicateKuerzel(){
+  const t=activeTeam();if(!t) return false;
+  const mas=t.mitarbeitende;
+  const seen=new Set();
+  return mas.some(ma=>{const k=maKuerzel(ma);if(seen.has(k)) return true;seen.add(k);return false;});
 }
 
 function saveMAForm(){
@@ -1255,6 +1296,7 @@ function renderSKOverview(){
 // ─── ALGORITHM ───
 function generatePlanFillEmpty(){
   const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
+  if(hasDuplicateKuerzel()){alert('Es gibt doppelte Kürzel im Team. Bitte erst alle Kürzel eindeutig machen (Tab 1 Stammdaten).');return;}
   const plan=getOrInitPlan();
   const oldDays=JSON.parse(JSON.stringify(plan.days||[]));
   const manualSet=new Set((plan.manualOverrides||[]).map(o=>o.dayIdx+':'+o.field));
@@ -1283,6 +1325,7 @@ function generatePlanSafe(){
 
 function generatePlan(){
   const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
+  if(hasDuplicateKuerzel()){alert('Es gibt doppelte Kürzel im Team. Bitte erst alle Kürzel eindeutig machen (Tab 1 Stammdaten).');return;}
   const pk=planKey();
   undoStack.push(JSON.parse(JSON.stringify(ST.plans[pk]||null)));
   if(undoStack.length>20) undoStack.shift();
