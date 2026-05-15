@@ -202,6 +202,12 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 .sk-pos{color:var(--amber);font-weight:700}
 .sk-neg{color:var(--blue);font-weight:700}
 .sk-zero{color:var(--muted)}
+/* TK MODAL */
+.tk-modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.tk-modal-box{background:#fff;border-radius:10px;padding:24px 26px;max-width:380px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.28)}
+.tk-modal-title{font-size:15px;font-weight:700;color:var(--amber);margin-bottom:10px}
+.tk-modal-body{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:18px}
+.tk-modal-foot{display:flex;gap:8px;justify-content:flex-end}
 /* PRINT */
 @media print{
   .tabs,.topbar,.hdr,.btn,.cell-dd,.ch-act,#banner{display:none!important}
@@ -224,6 +230,18 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 </div>
 
 <div class="cell-dd" id="cell-dd"></div>
+
+<!-- TK-AUSNAHME MODAL -->
+<div id="tk-modal" class="tk-modal-overlay" style="display:none">
+  <div class="tk-modal-box">
+    <div class="tk-modal-title">⚠ TK-Ausnahme genehmigen?</div>
+    <div class="tk-modal-body" id="tk-modal-body"></div>
+    <div class="tk-modal-foot">
+      <button class="btn btn-sec" onclick="tkModalAbbrechen()">Abbrechen</button>
+      <button class="btn btn-amber" onclick="tkModalBestaetigen()">✅ Ja, genehmigen</button>
+    </div>
+  </div>
+</div>
 
 <div class="hdr">
   <div>
@@ -355,7 +373,7 @@ let selectedMAId=null;
 // Inline calendar state
 let calMode='vac'; // 'vac'|'sperr'
 let calTempStart=null;
-let calSperrPendingDs=null; // day awaiting TK approval
+window.pendingSperrtag=null;
 
 // ─── UTILITIES ───
 function fmtDate(d){
@@ -495,7 +513,7 @@ function changeMonth(delta){
   const d=new Date(y,m-1+delta,1);
   ST.aktiverMonat=monthKey(d.getFullYear(),d.getMonth()+1);
   autoSave('Monat: '+fmtMonthDisp(ST.aktiverMonat));
-  calTempStart=null;calSperrPendingDs=null;
+  calTempStart=null;window.pendingSperrtag=null;
   if(activeTab==='monat') renderMonatDetail();
   if(activeTab==='plan') renderPlanTab();
   document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
@@ -558,7 +576,7 @@ function renderSidebar(sbId){
 }
 
 function selectMA(id){
-  selectedMAId=id;calSperrPendingDs=null;
+  selectedMAId=id;window.pendingSperrtag=null;
   renderSidebar('sb-stamm');renderSidebar('sb-monat');
   if(activeTab==='stamm') renderMADetail();
   if(activeTab==='monat') renderMonatDetail();
@@ -796,16 +814,6 @@ function renderMonatDetail(){
           ${calMode==='vac'?'1. Klick: Von-Datum, 2. Klick: Bis-Datum':'Klick: Sperrtag umschalten'}
           ${calTempStart?`<br><strong>Von: ${fmtDisp(calTempStart)}</strong> – jetzt Bis-Datum wählen`:''}
         </div>
-        ${calMode==='sperr'&&calSperrPendingDs?`
-        <div style="margin-top:8px;padding:9px 10px;border-radius:6px;background:var(--amber-bg);border:1px solid var(--amber-b)">
-          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">
-            ⛔ Maximum erreicht (${(md.sperrtage||[]).filter(s=>!s.tkAusnahme).length}/${maxSperr}) – ${fmtDisp(calSperrPendingDs)}
-          </div>
-          <button class="btn btn-amber btn-sm" onclick="confirmTKAusnahme()">
-            ✅ Als TK genehmigen – weiteren Sperrtag erlauben
-          </button>
-          <button class="btn btn-xs btn-sec" style="margin-top:4px;display:block" onclick="calSperrPendingDs=null;renderMonatDetail()">Abbrechen</button>
-        </div>`:''}
 
       </div>
 
@@ -850,7 +858,7 @@ function buildCalGrid(ma,mk,md){
 }
 
 function setCalMode(mode){
-  calMode=mode;calTempStart=null;calSperrPendingDs=null;
+  calMode=mode;calTempStart=null;window.pendingSperrtag=null;
   if(activeTab==='monat') renderMonatDetail();
 }
 
@@ -878,40 +886,48 @@ function calClick(ds){
     const idx=md.sperrtage.findIndex(s=>s.datum===ds);
     if(idx>=0){
       md.sperrtage.splice(idx,1);
-      calSperrPendingDs=null;
       autoSave('Sperrtag entfernt');
+      renderMonatDetail();
     } else {
-      const vacSet=buildVacSet(ma,mk);
-      if(vacSet.has(ds)){return;} // silently ignore vacation days
+      if(buildVacSet(ma,mk).has(ds)) return;
       const normalCount=md.sperrtage.filter(s=>!s.tkAusnahme).length;
       if(normalCount>=maxSperr){
-        // Don't alert – show TK pending UI instead
-        calSperrPendingDs=ds;
+        // Limit reached – store day and show modal (no re-render yet)
+        window.pendingSperrtag=ds;
+        const total=md.sperrtage.length;
+        document.getElementById('tk-modal-body').innerHTML=
+          '<strong>'+esc(ma.vorname+' '+ma.nachname)+'</strong><br>'+
+          'Datum: <strong>'+fmtDisp(ds)+'</strong><br>'+
+          'Reguläre Sperrtage: '+normalCount+'/'+maxSperr+'<br><br>'+
+          'Einen weiteren Sperrtag als TK-Ausnahme eintragen?';
+        document.getElementById('tk-modal').style.display='flex';
       } else {
-        calSperrPendingDs=null;
         md.sperrtage.push({datum:ds,grund:'',tkAusnahme:false});
         md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
         autoSave('Sperrtag hinzugefügt');
+        renderMonatDetail();
       }
     }
-    renderMonatDetail();
   }
 }
 
-function confirmTKAusnahme(){
-  const ds=calSperrPendingDs;
+function tkModalBestaetigen(){
+  const ds=window.pendingSperrtag;
+  document.getElementById('tk-modal').style.display='none';
+  window.pendingSperrtag=null;
   if(!ds) return;
   const t=activeTeam();const ma=findMA(t&&t.id,selectedMAId);if(!ma) return;
   const mk=ST.aktiverMonat;const md=getMAMonat(ma,mk);
-  const maxSperr=maxSperrtageForMA(ma,mk);
-  const total=(md.sperrtage||[]).length;
-  if(!confirm(`TK-Ausnahme genehmigen?\n\nDatum: ${fmtDisp(ds)}\nMA: ${ma.vorname} ${ma.nachname}\nAktuell: ${total}/${maxSperr} Sperrtage\n\nEin weiterer Sperrtag wird als TK-Ausnahme eingetragen.`)) return;
   if(!md.sperrtage) md.sperrtage=[];
   md.sperrtage.push({datum:ds,grund:'TK-Ausnahme',tkAusnahme:true});
   md.sperrtage.sort((a,b)=>a.datum.localeCompare(b.datum));
-  calSperrPendingDs=null;
   autoSave('Sperrtag (TK-Ausnahme) hinzugefügt');
   renderMonatDetail();
+}
+
+function tkModalAbbrechen(){
+  window.pendingSperrtag=null;
+  document.getElementById('tk-modal').style.display='none';
 }
 
 function renderUrlaubList(md){
@@ -929,7 +945,7 @@ function renderSperrList(md,maxSperr){
   const atLimit=normalCnt>=maxSperr;
   const hdr=`<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">🚫 Sperrtage (${normalCnt}/${maxSperr}${cnt>normalCnt?' +'+( cnt-normalCnt)+' TK':''})${atLimit?` <span style="color:var(--amber);font-weight:700">· Limit erreicht</span>`:''}</div>`;
   if(!cnt) return hdr+'<div style="color:var(--muted);font-size:12px">Keine Sperrtage.</div>';
-  return hdr+(md.sperrtage||[]).map((s,i)=>`<span class="chip chip-amber">${fmtDisp(s.datum)}${s.tkAusnahme?'<span class="badge badge-manual" style="margin-left:4px;font-size:9px">TK</span>':''}${s.grund&&s.grund!=='TK-Ausnahme'?' – '+esc(s.grund):''}<button class="chip-del" onclick="deleteSperrtag(${i})">×</button></span>`).join('');
+  return hdr+(md.sperrtage||[]).map((s,i)=>`<span class="chip chip-amber">${fmtDisp(s.datum)}${s.tkAusnahme?' <span class="badge badge-manual" style="font-size:9px;vertical-align:middle">⚠ TK-Ausnahme</span>':''}${s.grund&&!s.tkAusnahme?' – '+esc(s.grund):''}<button class="chip-del" onclick="deleteSperrtag(${i})">×</button></span>`).join('');
 }
 
 function saveMonatField(field,val,type){
