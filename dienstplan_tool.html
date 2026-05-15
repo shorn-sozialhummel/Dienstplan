@@ -1634,6 +1634,14 @@ function renderPlanTable(){
     const wa={start:(_wCfg.blockA&&_wCfg.blockA.start)||'08:00',end:(_wCfg.blockA&&_wCfg.blockA.ende)||'15:00'};
     const fa={start:(_fCfg.blockA&&_fCfg.blockA.start)||'08:00',end:(_fCfg.blockA&&_fCfg.blockA.ende)||'12:00'};
 
+    // Dynamic end time: if next day is werkstatt, this shift ends at its Block A start
+    const _nxtDs=di+1<dim?dayStr(mk,di+2):null;
+    const _nxtDk=_nxtDs?getDowKey(_nxtDs):null;
+    const _nxtDay=di+1<dim?(days[di+1]||{}):null;
+    const _nxtType=_nxtDay?(_nxtDay.type||(_nxtDk&&ei.werkstatttage[_nxtDk]&&ei.werkstatttage[_nxtDk].aktiv?'werkstatt':_nxtDk&&ei.freischichttage[_nxtDk]&&ei.freischichttage[_nxtDk].aktiv?'freischicht':'normal')):'normal';
+    const _nxtWCfg=_nxtDk?(ei.werkstatttage[_nxtDk]||{}):{};
+    const _dynEnd=_nxtType==='werkstatt'?((_nxtWCfg.blockA&&_nxtWCfg.blockA.start)||'08:00'):ns.start;
+
     const _isDoppel=!!(day.hauptD&&di>0&&(days[di-1]||{}).hauptD===day.hauptD);
     const _doppelBadge=_isDoppel?'<div style="margin-top:3px"><span class="chip chip-amber" style="font-size:10px;padding:2px 5px">⚠ Doppeldienst</span></div>':'';
 
@@ -1660,16 +1668,16 @@ function renderPlanTable(){
         <td class="td-notiz" rowspan="2" style="vertical-align:top;min-width:120px">${notizCell(ds,notizen[ds]||'')}${_doppelBadge}</td>
       </tr>
       <tr class="r-werk-b${we?' r-we':''}${hol?' r-hol':''}">
-        <td class="td-desc" style="color:var(--navy)">🔧 Block B &nbsp;<small>${wa.end}–${ns.end}</small></td>
+        <td class="td-desc" style="color:var(--navy)">🔧 Block B &nbsp;<small>${wa.end}–${_dynEnd}</small></td>
         <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D',manualSet.has(di+':hauptD'),di,'hauptD'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
         <td class="td-assign">${day.backupD?maPill(day.backupD,'B',manualSet.has(di+':backupD'),di,'backupD'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
       </tr>`;
     } else {
       let descLabel,trCls;
       if(dayType==='freischicht'){
-        descLabel=`🌅 Freischicht &nbsp;<small>${fa.start}–${ns.end}</small>`;trCls='r-frei';
+        descLabel=`🌅 Freischicht &nbsp;<small>${fa.start}–${_dynEnd}</small>`;trCls='r-frei';
       } else {
-        descLabel=`🌙 24h-Dienst &nbsp;<small>${ns.start}–${ns.end}</small>`;trCls='r-norm';
+        descLabel=`🌙 24h-Dienst &nbsp;<small>${ns.start}–${_dynEnd}</small>`;trCls='r-norm';
       }
       if(we) trCls+=' r-we';if(hol) trCls+=' r-hol';
       rows+=`<tr class="${trCls}">
