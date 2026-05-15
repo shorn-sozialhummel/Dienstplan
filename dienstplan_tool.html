@@ -1237,8 +1237,6 @@ function generatePlan(){
   function canAssignDienst(maId,di){
     if(!isAvail(maId,di)) return false;
     const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
-    if(di>0&&asgn(maId,di-1).hasHaupt) return false;
-    if(di<dim-1&&asgn(maId,di+1).hasHaupt) return false;
     if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
     if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
     if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
@@ -1470,6 +1468,9 @@ function renderPlanTable(){
     const wa={start:(_wCfg.blockA&&_wCfg.blockA.start)||'08:00',end:(_wCfg.blockA&&_wCfg.blockA.ende)||'15:00'};
     const fa={start:(_fCfg.blockA&&_fCfg.blockA.start)||'08:00',end:(_fCfg.blockA&&_fCfg.blockA.ende)||'12:00'};
 
+    const _isDoppel=!!(day.hauptD&&di>0&&(days[di-1]||{}).hauptD===day.hauptD);
+    const _doppelBadge=_isDoppel?'<div style="margin-top:3px"><span class="chip chip-amber" style="font-size:10px;padding:2px 5px">⚠ Doppeldienst</span></div>':'';
+
     if(dayType==='werkstatt'){
       const trCls='r-werk-a'+(we?' r-we':'')+(hol?' r-hol':'');
       const _split=!!(_wCfg.splitBackup);
@@ -1490,7 +1491,7 @@ function renderPlanTable(){
         <td class="td-assign">–</td>
         <td class="td-assign">${_wCell}</td>
         ${vacSpanCell}${sperrSpanCell}
-        <td class="td-notiz" rowspan="2" style="vertical-align:top;min-width:120px">${notizCell(ds,notizen[ds]||'')}</td>
+        <td class="td-notiz" rowspan="2" style="vertical-align:top;min-width:120px">${notizCell(ds,notizen[ds]||'')}${_doppelBadge}</td>
       </tr>
       <tr class="r-werk-b${we?' r-we':''}${hol?' r-hol':''}">
         <td class="td-desc" style="color:var(--navy)">🔧 Block B &nbsp;<small>${wa.end}–${ns.end}</small></td>
@@ -1511,7 +1512,7 @@ function renderPlanTable(){
         <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D',manualSet.has(di+':hauptD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
         <td class="td-assign">${day.backupD?maPill(day.backupD,'B',manualSet.has(di+':backupD')):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
         ${vacSpanCell}${sperrSpanCell}
-        <td class="td-notiz" style="min-width:120px">${notizCell(ds,notizen[ds]||'')}</td>
+        <td class="td-notiz" style="min-width:120px">${notizCell(ds,notizen[ds]||'')}${_doppelBadge}</td>
       </tr>`;
     }
   }
@@ -1559,12 +1560,20 @@ function openCellDDByDi(evt,di,field){
     <div class="cell-dd-kuerzel" style="background:#aaa">–</div><span>Niemand ${day[field]===null||day[field]===undefined?'✓':''}</span></div>`;
   mas.forEach(ma=>{
     const vacSet=buildVacSet(ma,mk);const sperSet=buildSperSet(ma,mk);
-    const avail=!vacSet.has(ds)&&!sperSet.has(ds);
+    const onVac=vacSet.has(ds);const onSperr=sperSet.has(ds);
+    const prevHD=di>0?(days[di-1]||{}).hauptD:null;
+    const nextHD=di+1<days.length?(days[di+1]||{}).hauptD:null;
+    const isDoppel=field==='hauptD'&&(prevHD===ma.id||nextHD===ma.id);
+    const hardUnavail=onVac||onSperr;
     const isCur=day[field]===ma.id;
-    html+=`<div class="cell-dd-item ${avail?'':'unavail'}" onclick="${avail?`setCellField(${di},'${field}','${ma.id}')`:''}" >
-      <div class="cell-dd-kuerzel" style="background:${maColor(ma)}">${maKuerzel(ma)}</div>
-      <span>${ma.vorname} ${ma.nachname} ${isCur?'✓':''}${!avail?' (N/V)':''}</span>
-    </div>`;
+    let reasonHtml='';
+    if(onVac) reasonHtml=' <span style="color:var(--muted);font-size:11px">(Urlaub)</span>';
+    else if(onSperr) reasonHtml=' <span style="color:var(--muted);font-size:11px">(Sperrtag)</span>';
+    else if(isDoppel) reasonHtml=' <span style="color:var(--amber);font-size:11px">(Doppeldienst)</span>';
+    html+='<div class="cell-dd-item '+(hardUnavail?'unavail':'')+'" onclick="'+(hardUnavail?'':('setCellField('+di+',\''+field+'\',\''+ma.id+'\')'))+'">'
+      +'<div class="cell-dd-kuerzel" style="background:'+maColor(ma)+'">'+maKuerzel(ma)+'</div>'
+      +'<span>'+ma.vorname+' '+ma.nachname+' '+(isCur?'✓':'')+reasonHtml+'</span>'
+      +'</div>';
   });
   html+=`<div style="padding:6px 12px;border-top:1px solid var(--border)"><button class="btn btn-xs btn-sec" onclick="document.getElementById('cell-dd').classList.remove('show')">Schließen</button></div>`;
   dd.innerHTML=html;
