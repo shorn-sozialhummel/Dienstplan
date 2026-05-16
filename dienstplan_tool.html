@@ -387,6 +387,12 @@ function esc(s){if(!s) return '';return String(s).replace(/&/g,'&amp;').replace(
 function findTeam(tid){return ST.teams.find(t=>t.id===tid);}
 function findMA(tid,mid){const t=findTeam(tid);return t&&t.mitarbeitende.find(m=>m.id===mid);}
 function activeTeam(){return findTeam(ST.aktivesTeam);}
+function activeTeamEi(){
+  const t=activeTeam();if(!t) return ST.einstellungen;
+  if(!t.schichtKonfiguration)
+    t.schichtKonfiguration=JSON.parse(JSON.stringify(ST.einstellungen));
+  return t.schichtKonfiguration;
+}
 function allMAs(){const t=activeTeam();return t?t.mitarbeitende:[];}
 
 function getMAMonat(ma,mk){
@@ -479,6 +485,8 @@ function loadState(){
       if(!_ei.werkstatttage[k])_ei.werkstatttage[k]=_mkWerkDefault();
       if(!_ei.freischichttage[k])_ei.freischichttage[k]=_mkFreiDefault();
     });
+    // Migrate: teams ohne schichtKonfiguration bekommen globale Einstellungen als Startwert
+    ST.teams.forEach(t=>{if(!t.schichtKonfiguration)t.schichtKonfiguration=JSON.parse(JSON.stringify(_ei));});
   }catch(e){ST=defaultState();}
 }
 
@@ -551,11 +559,24 @@ function changeMonth(delta){
 }
 
 // ─── TEAM MANAGEMENT ───
+function _teamCfgPreview(t){
+  const cfg=t.schichtKonfiguration;if(!cfg) return '';
+  const DOW_SHORT={mo:'Mo',di:'Di',mi:'Mi',do:'Do',fr:'Fr',sa:'Sa',so:'So'};
+  const wDays=Object.entries(cfg.werkstatttage||{}).filter(([,v])=>v.aktiv).map(([k])=>DOW_SHORT[k]);
+  const fDays=Object.entries(cfg.freischichttage||{}).filter(([,v])=>v.aktiv).map(([k])=>DOW_SHORT[k]);
+  const h24=(cfg.schichtzeiten&&cfg.schichtzeiten.normal&&cfg.schichtzeiten.normal.start)||'20:00';
+  const parts=[];
+  if(wDays.length) parts.push(wDays.join('/')+' Werk');
+  if(fDays.length) parts.push(fDays.join('/')+' Frei');
+  if(h24!=='20:00') parts.push(h24+' 24h');
+  return parts.join(' · ');
+}
 function renderTopbar(){
   const pills=document.getElementById('team-pills');
-  pills.innerHTML=ST.teams.map(t=>`
-    <span class="team-pill ${t.id===ST.aktivesTeam?'active':''}" onclick="selectTeam('${t.id}')" ondblclick="renameTeamInline('${t.id}',this)">${esc(t.name)}</span>
-  `).join('');
+  pills.innerHTML=ST.teams.map(t=>{
+    const preview=_teamCfgPreview(t);
+    return `<span class="team-pill ${t.id===ST.aktivesTeam?'active':''}" onclick="selectTeam('${t.id}')" ondblclick="renameTeamInline('${t.id}',this)">${esc(t.name)}${preview?`<span style="font-size:9px;opacity:0.65;margin-left:5px;font-weight:400">${preview}</span>`:''}</span>`;
+  }).join('');
 }
 
 function renameTeamInline(tid,el){
@@ -576,7 +597,7 @@ function addTeam(){
   const name=prompt('Name des neuen Teams:');
   if(!name||!name.trim()) return;
   const id='team_'+uid();
-  ST.teams.push({id,name:name.trim(),mitarbeitende:[],termine:{}});
+  ST.teams.push({id,name:name.trim(),mitarbeitende:[],termine:{},schichtKonfiguration:JSON.parse(JSON.stringify(ST.einstellungen))});
   ST.aktivesTeam=id;selectedMAId=null;
   autoSave('Team erstellt: '+name.trim());
   renderTopbar();renderSidebar('sb-stamm');renderSidebar('sb-monat');
@@ -1185,7 +1206,7 @@ let undoStack=[];
 let _cfgOpen=true;
 function renderPlanConfig(){
   const wrap=document.getElementById('plan-cfg-wrap');if(!wrap) return;
-  const ei=ST.einstellungen;
+  const ei=activeTeamEi();
   const DAYS=[{k:'mo',l:'Mo'},{k:'di',l:'Di'},{k:'mi',l:'Mi'},{k:'do',l:'Do'},{k:'fr',l:'Fr'},{k:'sa',l:'Sa'},{k:'so',l:'So'}];
   const th=function(s){return '<th style="padding:3px 8px;color:var(--muted);font-weight:600;white-space:nowrap">'+s+'</th>';};
   const ti=function(val,onch,dis){return '<td style="padding:2px 3px"><input type="time" value="'+val+'"'
@@ -1250,12 +1271,12 @@ function renderPlanConfig(){
   wrap.innerHTML=h;
 }
 
-function setWerkAktiv(k,v){ST.einstellungen.werkstatttage[k].aktiv=v;autoSave('Werkstatttag geändert');renderPlanConfig();}
-function setWerkZeit(k,b,f,v){ST.einstellungen.werkstatttage[k][b][f]=v;autoSave('Werkstattzeit geändert');}
-function setWerkSplit(k,v){ST.einstellungen.werkstatttage[k].splitBackup=v;autoSave('Split-Backup geändert');renderPlanConfig();}
-function setFreiAktiv(k,v){ST.einstellungen.freischichttage[k].aktiv=v;autoSave('Freischichttag geändert');renderPlanConfig();}
-function setFreiZeit(k,f,v){ST.einstellungen.freischichttage[k].blockA[f]=v;autoSave('Freischichtzeit geändert');}
-function set24hStart(v){ST.einstellungen.schichtzeiten.normal.start=v;ST.einstellungen.schichtzeiten.normal.end=v;autoSave('24h-Start geändert');}
+function setWerkAktiv(k,v){activeTeamEi().werkstatttage[k].aktiv=v;autoSave('Werkstatttag geändert');renderPlanConfig();renderTopbar();}
+function setWerkZeit(k,b,f,v){activeTeamEi().werkstatttage[k][b][f]=v;autoSave('Werkstattzeit geändert');}
+function setWerkSplit(k,v){activeTeamEi().werkstatttage[k].splitBackup=v;autoSave('Split-Backup geändert');renderPlanConfig();}
+function setFreiAktiv(k,v){activeTeamEi().freischichttage[k].aktiv=v;autoSave('Freischichttag geändert');renderPlanConfig();renderTopbar();}
+function setFreiZeit(k,f,v){activeTeamEi().freischichttage[k].blockA[f]=v;autoSave('Freischichtzeit geändert');}
+function set24hStart(v){const _ei=activeTeamEi();_ei.schichtzeiten.normal.start=v;_ei.schichtzeiten.normal.end=v;autoSave('24h-Start geändert');renderTopbar();}
 
 function renderPlanTab(){
   document.getElementById('plan-month-lbl').textContent=fmtMonthDisp(ST.aktiverMonat);
@@ -1332,7 +1353,7 @@ function generatePlan(){
   document.getElementById('btn-undo').disabled=false;
 
   const mk=ST.aktiverMonat;const mas=t.mitarbeitende;
-  const dim=daysInMonth(mk);const ei=ST.einstellungen;
+  const dim=daysInMonth(mk);const ei=activeTeamEi();
 
   const ed={};
   mas.forEach(ma=>{
@@ -1553,7 +1574,7 @@ function renderPlanTable(){
   const t=activeTeam();const mas=t?t.mitarbeitende:[];
   const dim=daysInMonth(mk);
   const plan=getOrInitPlan();const days=plan.days||[];
-  const ei=ST.einstellungen;
+  const ei=activeTeamEi();
 
   if(!mas.length){wrap.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Keine Mitarbeitenden. Bitte zuerst Stammdaten anlegen.</p></div>';
     document.getElementById('soll-ist-wrap').innerHTML='';document.getElementById('viol-wrap').innerHTML='';return;}
