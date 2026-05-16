@@ -1455,20 +1455,28 @@ function generatePlan(){
         if(fb.length){setHaupt(fb[0].id,di);warningDays.add(day.ds);}
       }
       if(_split){
-        // W1: bevorzugt Vortag-hauptD (ist noch vor Ort bis Block-A-Start)
+        // W1: Vortag-hauptD (er ist noch vor Ort); Fallback: bester verfügbarer MA
         const prevHD=di>0?days[di-1].hauptD:null;
         if(prevHD&&canAssignWABkp(prevHD,di)){setWABkp(prevHD,di);}
         else{const c=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp(c[0].id,di);}
-        // W2: bevorzugt aktueller hauptD (kommt sowieso für Block B)
-        if(day.hauptD&&canAssignWABkp2(day.hauptD,di)){setWABkp2(day.hauptD,di);}
-        else{const c=mas.filter(ma=>canAssignWABkp2(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp2(c[0].id,di);}
+        // W2: aktueller hauptD (kommt für Block B) – aber nur wenn er nicht bereits W1 ist
+        // Falls W1===hauptD oder W1===W2-Kandidat: anderen MA wählen (nicht hauptD, nicht W1)
+        const _w1=day.waBkp;
+        const _hd=day.hauptD;
+        if(_hd&&_hd!==_w1&&canAssignWABkp2(_hd,di)){
+          setWABkp2(_hd,di);
+        } else {
+          const c=mas.filter(ma=>canAssignWABkp2(ma.id,di)&&ma.id!==_w1&&ma.id!==_hd).sort((a,b)=>score(a.id,di)-score(b.id,di));
+          if(c.length) setWABkp2(c[0].id,di);
+          // falls kein MA verfügbar: W2 bleibt null
+        }
       } else {
         // non-split: waBkp bevorzugt aktueller hauptD
         if(day.hauptD&&canAssignWABkp(day.hauptD,di)){setWABkp(day.hauptD,di);}
         else{const c=mas.filter(ma=>canAssignWABkp(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));if(c.length)setWABkp(c[0].id,di);}
       }
-      // backupD
-      const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD).sort((a,b)=>score(a.id,di)-score(b.id,di));
+      // backupD – darf nicht hauptD, W1 oder W2 sein
+      const bCands=mas.filter(ma=>canAssignBackup(ma.id,di)&&ma.id!==day.hauptD&&ma.id!==day.waBkp&&ma.id!==day.waBkp2).sort((a,b)=>score(a.id,di)-score(b.id,di));
       if(bCands.length) setBackup(bCands[0].id,di);
     } else {
       const prefH=mas.filter(ma=>ed[ma.id].pref.includes(day.dow)&&canAssignDienst(ma.id,di)).sort((a,b)=>score(a.id,di)-score(b.id,di));
