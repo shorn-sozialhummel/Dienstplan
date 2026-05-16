@@ -161,6 +161,8 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
 .plan-list tr.r-werk-a td{background:#f0fbff}
 .plan-list tr.r-werk-b td{background:#f0fbff}
 .plan-list tr.r-frei td{background:#f9f9ff}
+.plan-list tr.r-werk-ausnahme td{background:#f0fff4}
+.plan-list tr.r-werk-ausnahme .td-desc{color:var(--green,#16a34a)}
 .plan-list tr.r-termin td{background:#fdf4ff;border-top:2px solid #c4b5fd}
 .plan-list tr.r-einzeln td{background:#fef7e9;border-top:2px solid #fcd34d}
 .plan-list td.td-date{font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap;min-width:80px;font-weight:600}
@@ -244,6 +246,19 @@ textarea{resize:vertical;min-height:54px;font-family:'DM Mono',monospace;font-si
     <div class="tk-modal-foot">
       <button class="btn btn-sec" onclick="tkModalAbbrechen()">Abbrechen</button>
       <button class="btn btn-amber" onclick="tkModalBestaetigen()">✅ Ja, genehmigen</button>
+    </div>
+  </div>
+</div>
+
+<!-- WERKSTATT-AUSNAHME MODAL -->
+<div id="waus-modal" class="tk-modal-overlay" style="display:none" onclick="if(event.target===this)closeWausModal()">
+  <div class="tk-modal-box" style="max-width:440px;width:96%">
+    <div class="tk-modal-title" id="waus-title" style="color:var(--green,#16a34a)">📅 Ausnahme</div>
+    <div id="waus-body" style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:14px"></div>
+    <div class="tk-modal-foot" style="flex-wrap:wrap;gap:6px">
+      <button class="btn btn-sec" onclick="closeWausModal()">Abbrechen</button>
+      <button id="waus-reset-btn" class="btn btn-amber" onclick="resetWerkstattAusnahmeManual()" style="display:none">↩ Zurücksetzen</button>
+      <button class="btn" style="background:var(--green,#16a34a);color:#fff" onclick="applyWerkstattAusnahme()">✅ Übernehmen</button>
     </div>
   </div>
 </div>
@@ -1575,6 +1590,91 @@ function parsePrefDays(txt){
   return res;
 }
 
+let _wausState={di:null,ds:null};
+function openWerkstattAusnahmeDialog(di){
+  const mk=ST.aktiverMonat;
+  const ds=dayStr(mk,di+1);
+  const ei=activeTeamEi();
+  const defaultZeit=ei.schichtzeiten&&ei.schichtzeiten.normal&&ei.schichtzeiten.normal.start||'20:00';
+  const plan=getOrInitPlan();
+  const existing=(plan.ausnahmen||{})[ds];
+  const curZeit=existing?existing.uebergabezeit:defaultZeit;
+  _wausState={di,ds};
+  document.getElementById('waus-title').textContent=`📅 Ausnahme – ${fmtDisp(ds)} (Werkstatttag)`;
+  document.getElementById('waus-reset-btn').style.display=existing?'':'none';
+  _renderWausBody(curZeit,di,ds,ei);
+  document.getElementById('waus-modal').style.display='flex';
+}
+function _renderWausBody(zeit,di,ds,ei){
+  const mk=ST.aktiverMonat;
+  const dim=daysInMonth(mk);
+  const prevDs=di>0?dayStr(mk,di):null;
+  const nxtDs=di+1<dim?dayStr(mk,di+2):null;
+  const nxtDk=nxtDs?getDowKey(nxtDs):null;
+  const nxtIsWerk=nxtDk&&ei.werkstatttage[nxtDk]&&ei.werkstatttage[nxtDk].aktiv;
+  const nxtEnd=nxtIsWerk?((ei.werkstatttage[nxtDk].blockA&&ei.werkstatttage[nxtDk].blockA.start)||'08:00'):zeit;
+  document.getElementById('waus-body').innerHTML=`
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Übergabezeit (Dienstbeginn)</label>
+      <input type="time" id="waus-zeit" value="${zeit}" oninput="updateWausPreview()" style="font-size:14px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;width:110px">
+    </div>
+    <div id="waus-preview" style="background:#f8f8f8;border-radius:6px;padding:8px 12px;font-size:12px;line-height:1.8;color:var(--text)"></div>`;
+  _updateWausPreviewInner(zeit,prevDs,nxtEnd);
+}
+function updateWausPreview(){
+  const zeit=document.getElementById('waus-zeit').value;
+  if(!zeit) return;
+  const {di,ds}=_wausState;
+  const mk=ST.aktiverMonat;
+  const dim=daysInMonth(mk);
+  const ei=activeTeamEi();
+  const prevDs=di>0?dayStr(mk,di):null;
+  const nxtDs=di+1<dim?dayStr(mk,di+2):null;
+  const nxtDk=nxtDs?getDowKey(nxtDs):null;
+  const nxtIsWerk=nxtDk&&ei.werkstatttage[nxtDk]&&ei.werkstatttage[nxtDk].aktiv;
+  const nxtEnd=nxtIsWerk?((ei.werkstatttage[nxtDk].blockA&&ei.werkstatttage[nxtDk].blockA.start)||'08:00'):zeit;
+  _updateWausPreviewInner(zeit,prevDs,nxtEnd);
+}
+function _updateWausPreviewInner(zeit,prevDs,nxtEnd){
+  const wrap=document.getElementById('waus-preview');if(!wrap) return;
+  const {ds}=_wausState;
+  wrap.innerHTML=`
+    <div><strong>Anpassungen:</strong></div>
+    ${prevDs?`<div>🌙 Vortag-Dienst (${fmtDisp(prevDs)}) endet um <strong>${zeit}</strong></div>`:''}
+    <div>🌙 Dieser Tag (${fmtDisp(ds)}): 24h-Dienst <strong>${zeit}–${nxtEnd}</strong></div>
+    <div style="color:var(--muted);font-size:11px;margin-top:4px">Folgetag bleibt unverändert</div>`;
+}
+function applyWerkstattAusnahme(){
+  const {di,ds}=_wausState;
+  const zeit=document.getElementById('waus-zeit').value;
+  if(!zeit){alert('Bitte eine Übergabezeit eingeben.');return;}
+  const plan=getOrInitPlan();
+  if(!plan.ausnahmen) plan.ausnahmen={};
+  plan.ausnahmen[ds]={uebergabezeit:zeit};
+  if(!plan.notizen) plan.notizen={};
+  const note='✏️ Werkstatt geschlossen – manuell umgestellt ('+zeit+')';
+  const ex=plan.notizen[ds]||'';
+  const cleaned=ex.replace(/✏️ Werkstatt geschlossen.*?(\n|$)/g,'').trim();
+  plan.notizen[ds]=cleaned?cleaned+'\n'+note:note;
+  autoSave('Werkstatt-Ausnahme gesetzt');
+  closeWausModal();
+  renderPlanTable();
+}
+function resetWerkstattAusnahmeManual(){
+  const {ds}=_wausState;
+  const plan=getOrInitPlan();
+  if(plan.ausnahmen) delete plan.ausnahmen[ds];
+  if(plan.notizen&&plan.notizen[ds]){
+    const cleaned=plan.notizen[ds].replace(/✏️ Werkstatt geschlossen.*?(\n|$)/g,'').trim();
+    if(cleaned) plan.notizen[ds]=cleaned; else delete plan.notizen[ds];
+  }
+  autoSave('Werkstatt-Ausnahme zurückgesetzt');
+  closeWausModal();
+  renderPlanTable();
+}
+function closeWausModal(){
+  document.getElementById('waus-modal').style.display='none';
+}
 function toggleWerkstattAusnahme(di){
   const plan=getOrInitPlan();
   if(!plan.days[di]) plan.days[di]={};
@@ -1650,6 +1750,7 @@ function renderPlanTable(){
   const manualSet=new Set();
   (plan.manualOverrides||[]).forEach(ov=>manualSet.add(ov.dayIdx+':'+ov.field));
   const notizen=plan.notizen||{};
+  const planAusnahmen=plan.ausnahmen||{};
 
   let rows='';
   for(let di=0;di<dim;di++){
@@ -1662,11 +1763,13 @@ function renderPlanTable(){
     const _werkstattAusnahme=!!(day.werkstattAusnahme);
     const _werkstattFeiertag=_cfgWerk&&hol&&!_werkstattAusnahme;
     const dayType=(_werkstattAusnahme&&_cfgWerk)?'werkstatt':_werkstattFeiertag?'normal':(day.type||(_cfgWerk?'werkstatt':ei.freischichttage[_dk2]&&ei.freischichttage[_dk2].aktiv?'freischicht':'normal'));
+    const _manAusnahme=planAusnahmen[ds]||null;
+    const _effRowspan=(dayType==='werkstatt'&&!_manAusnahme)?2:1;
     const dateLabel=`<strong>${String(di+1).padStart(2,'0')}.${mk.split('-')[1]}.</strong> ${DOW_DE[dow]}`;
-    const dateCell=`<td class="td-date${hol?' hol-date':''}" rowspan="${dayType==='werkstatt'?2:1}" title="${holName(ds)||''}">${dateLabel}${hol?`<br><span style="font-size:9px">${holName(ds)}</span>`:''}</td>`;
+    const dateCell=`<td class="td-date${hol?' hol-date':''}" rowspan="${_effRowspan}" title="${holName(ds)||''}">${dateLabel}${hol?`<br><span style="font-size:9px">${holName(ds)}</span>`:''}</td>`;
     const vpills=vacPills(di);const spills=sperrPills(di);
-    const vacSpanCell=`<td class="td-avail" rowspan="${dayType==='werkstatt'?2:1}">${vpills}</td>`;
-    const sperrSpanCell=`<td class="td-avail" rowspan="${dayType==='werkstatt'?2:1}">${spills}</td>`;
+    const vacSpanCell=`<td class="td-avail" rowspan="${_effRowspan}">${vpills}</td>`;
+    const sperrSpanCell=`<td class="td-avail" rowspan="${_effRowspan}">${spills}</td>`;
 
     // Insert termin rows before this day
     if(terminByDate[ds]){
@@ -1696,18 +1799,35 @@ function renderPlanTable(){
     const wa={start:(_wCfg.blockA&&_wCfg.blockA.start)||'08:00',end:(_wCfg.blockA&&_wCfg.blockA.ende)||'15:00'};
     const fa={start:(_fCfg.blockA&&_fCfg.blockA.start)||'08:00',end:(_fCfg.blockA&&_fCfg.blockA.ende)||'12:00'};
 
-    // Dynamic end time: if next day is werkstatt, this shift ends at its Block A start
+    // Dynamic end time: respects next-day Ausnahme Übergabezeit or Block A start
     const _nxtDs=di+1<dim?dayStr(mk,di+2):null;
     const _nxtDk=_nxtDs?getDowKey(_nxtDs):null;
     const _nxtDay=di+1<dim?(days[di+1]||{}):null;
+    const _nxtManAusnahme=_nxtDs?planAusnahmen[_nxtDs]:null;
     const _nxtType=_nxtDay?(_nxtDay.type||(_nxtDk&&ei.werkstatttage[_nxtDk]&&ei.werkstatttage[_nxtDk].aktiv?'werkstatt':_nxtDk&&ei.freischichttage[_nxtDk]&&ei.freischichttage[_nxtDk].aktiv?'freischicht':'normal')):'normal';
     const _nxtWCfg=_nxtDk?(ei.werkstatttage[_nxtDk]||{}):{};
-    const _dynEnd=_nxtType==='werkstatt'?((_nxtWCfg.blockA&&_nxtWCfg.blockA.start)||'08:00'):ns.start;
+    const _dynEnd=_nxtManAusnahme?_nxtManAusnahme.uebergabezeit:(_nxtType==='werkstatt'?((_nxtWCfg.blockA&&_nxtWCfg.blockA.start)||'08:00'):ns.start);
 
     const _isDoppel=!!(day.hauptD&&di>0&&(days[di-1]||{}).hauptD===day.hauptD);
     const _doppelBadge=_isDoppel?'<div style="margin-top:3px"><span class="chip chip-amber" style="font-size:10px;padding:2px 5px">⚠ Doppeldienst</span></div>':'';
 
-    if(dayType==='werkstatt'){
+    const _ausnahmeSmallBtn=`<button onclick="openWerkstattAusnahmeDialog(${di})" style="font-size:10px;padding:1px 6px;margin-left:6px;border:1px solid var(--border);background:#fff;color:var(--muted);border-radius:3px;cursor:pointer" title="Werkstatt-Ausnahme konfigurieren">Ausnahme</button>`;
+    if(dayType==='werkstatt'&&_manAusnahme){
+      // Manuell umgestellt: 1 Zeile, grün, 24h-Dienst mit Ausnahme-Übergabezeit
+      const _az=_manAusnahme.uebergabezeit;
+      const trCls='r-werk-ausnahme'+(we?' r-we':'')+(hol?' r-hol':'');
+      rows+=`<tr class="${trCls}">
+        ${dateCell}
+        <td class="td-desc">🌙 24h-Dienst &nbsp;<small>${_az}–${_dynEnd}</small>
+          <span style="font-size:9px;background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:3px;margin-left:4px">Ausnahme</span>
+          <button onclick="openWerkstattAusnahmeDialog(${di})" style="font-size:10px;padding:1px 6px;margin-left:4px;border:1px solid #15803d;background:#f0fff4;color:#15803d;border-radius:3px;cursor:pointer">✏ Bearbeiten</button>
+        </td>
+        <td class="td-assign">${day.hauptD?maPill(day.hauptD,'D',manualSet.has(di+':hauptD'),di,'hauptD'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'hauptD')">+ D</span>`}</td>
+        <td class="td-assign">${day.backupD?maPill(day.backupD,'B',manualSet.has(di+':backupD'),di,'backupD'):`<span style="color:#ccc;font-size:11px" onclick="openCellDDByDi(event,${di},'backupD')">+ B</span>`}</td>
+        ${vacSpanCell}${sperrSpanCell}
+        <td class="td-notiz" style="min-width:120px">${notizCell(ds,notizen[ds]||'')}${_doppelBadge}</td>
+      </tr>`;
+    } else if(dayType==='werkstatt'){
       const trCls='r-werk-a'+(we?' r-we':'')+(hol?' r-hol':'');
       const _split=!!(_wCfg.splitBackup);
       const _b1end=_split?(_wCfg.backup1&&_wCfg.backup1.ende||wa.end):wa.end;
@@ -1723,7 +1843,7 @@ function renderPlanTable(){
       }
       rows+=`<tr class="${trCls}">
         ${dateCell}
-        <td class="td-desc" style="color:var(--cyan)">🔧 Block A &nbsp;<small>${wa.start}–${wa.end}</small>${_split?' <span style="font-size:9px;background:var(--cyan-bg);color:var(--cyan);padding:1px 5px;border-radius:3px;margin-left:2px">Split</span>':''}</td>
+        <td class="td-desc" style="color:var(--cyan)">🔧 Block A &nbsp;<small>${wa.start}–${wa.end}</small>${_split?' <span style="font-size:9px;background:var(--cyan-bg);color:var(--cyan);padding:1px 5px;border-radius:3px;margin-left:2px">Split</span>':''}${_ausnahmeSmallBtn}</td>
         <td class="td-assign">–</td>
         <td class="td-assign">${_wCell}</td>
         ${vacSpanCell}${sperrSpanCell}
