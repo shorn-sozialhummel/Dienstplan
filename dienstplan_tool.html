@@ -1372,16 +1372,24 @@ function generatePlan(){
   });
 
   const days=[];
+  // Werkstatt-Ausnahmen aus bestehendem Plan übernehmen (TK hat manuell "offen" gesetzt)
+  const _prevDays=(ST.plans[pk]&&ST.plans[pk].days)||[];
+  const _ausnahmenSet=new Set();
+  _prevDays.forEach((day,di)=>{if(day&&day.werkstattAusnahme)_ausnahmenSet.add(di);});
+
   for(let d=1;d<=dim;d++){
     const ds=dayStr(mk,d);
     const dow=new Date(ds).getDay();
     const _dk=getDowKey(ds);
     const isWerk=!!(ei.werkstatttage[_dk]&&ei.werkstatttage[_dk].aktiv);
     const isFrei=!!(ei.freischichttage[_dk]&&ei.freischichttage[_dk].aktiv);
+    const _holDay=isHol(ds);
+    const _ausnahme=_ausnahmenSet.has(d-1);
+    const _wFeiertag=isWerk&&_holDay&&!_ausnahme;
     let type='normal';
-    if(isWerk) type='werkstatt';
+    if(isWerk&&!_wFeiertag) type='werkstatt';
     else if(isFrei) type='freischicht';
-    days.push({d,ds,dow,type,we:isWE(ds),hol:isHol(ds),hauptD:null,backupD:null,waBkp:null,waBkp2:null});
+    days.push({d,ds,dow,type,we:isWE(ds),hol:_holDay,werkstattFeiertag:_wFeiertag,werkstattAusnahme:_ausnahme,hauptD:null,backupD:null,waBkp:null,waBkp2:null});
   }
 
   const dienstTage={};
@@ -1527,6 +1535,15 @@ function generatePlan(){
   const plan=getOrInitPlan();
   const overrides=plan.manualOverrides||[];
   plan.days=days;
+  // Auto-Notizen für Werkstatt-Feiertage
+  if(!plan.notizen) plan.notizen={};
+  days.forEach(day=>{
+    if(day.werkstattFeiertag){
+      const note='🏖 Werkstatt geschlossen – Feiertag: '+holName(day.ds);
+      const ex=plan.notizen[day.ds]||'';
+      if(!ex.includes('Werkstatt geschlossen')) plan.notizen[day.ds]=ex?ex+'\n'+note:note;
+    }
+  });
   if(warningDays.size){
     if(!plan.notizen) plan.notizen={};
     const warnText='⚠ Alle MA haben Obergrenze erreicht';
@@ -1558,6 +1575,22 @@ function parsePrefDays(txt){
   return res;
 }
 
+function toggleWerkstattAusnahme(di){
+  const plan=getOrInitPlan();
+  if(!plan.days[di]) plan.days[di]={};
+  const wasAusnahme=!!plan.days[di].werkstattAusnahme;
+  plan.days[di].werkstattAusnahme=!wasAusnahme;
+  plan.days[di].werkstattFeiertag=wasAusnahme; // toggled
+  // Notiz aktualisieren
+  const ds=plan.days[di].ds||(()=>{const mk=ST.aktiverMonat;return dayStr(mk,di+1);})();
+  if(!plan.notizen) plan.notizen={};
+  const note=wasAusnahme?('🏖 Werkstatt geschlossen – Feiertag: '+holName(ds)):('✅ Werkstatt geöffnet (Ausnahme) – Feiertag: '+holName(ds));
+  const ex=plan.notizen[ds]||'';
+  const cleaned=ex.replace(/🏖 Werkstatt geschlossen.*?(\n|$)/g,'').replace(/✅ Werkstatt geöffnet.*?(\n|$)/g,'').trim();
+  plan.notizen[ds]=cleaned?cleaned+'\n'+note:note;
+  autoSave('Werkstatt-Ausnahme geändert');
+  renderPlanTable();
+}
 function doUndo(){
   if(!undoStack.length) return;
   const snap=undoStack.pop();
@@ -1625,7 +1658,10 @@ function renderPlanTable(){
     const we=isWE(ds),hol=isHol(ds);
     const day=days[di]||{};
     const _dk2=getDowKey(ds);
-    const dayType=day.type||(ei.werkstatttage[_dk2]&&ei.werkstatttage[_dk2].aktiv?'werkstatt':ei.freischichttage[_dk2]&&ei.freischichttage[_dk2].aktiv?'freischicht':'normal');
+    const _cfgWerk=!!(ei.werkstatttage[_dk2]&&ei.werkstatttage[_dk2].aktiv);
+    const _werkstattAusnahme=!!(day.werkstattAusnahme);
+    const _werkstattFeiertag=_cfgWerk&&hol&&!_werkstattAusnahme;
+    const dayType=(_werkstattAusnahme&&_cfgWerk)?'werkstatt':_werkstattFeiertag?'normal':(day.type||(_cfgWerk?'werkstatt':ei.freischichttage[_dk2]&&ei.freischichttage[_dk2].aktiv?'freischicht':'normal'));
     const dateLabel=`<strong>${String(di+1).padStart(2,'0')}.${mk.split('-')[1]}.</strong> ${DOW_DE[dow]}`;
     const dateCell=`<td class="td-date${hol?' hol-date':''}" rowspan="${dayType==='werkstatt'?2:1}" title="${holName(ds)||''}">${dateLabel}${hol?`<br><span style="font-size:9px">${holName(ds)}</span>`:''}</td>`;
     const vpills=vacPills(di);const spills=sperrPills(di);
@@ -1700,12 +1736,15 @@ function renderPlanTable(){
       </tr>`;
     } else {
       let descLabel,trCls;
-      if(dayType==='freischicht'){
+      if(_werkstattFeiertag){
+        const _ausnahmeBtn=`<button onclick="toggleWerkstattAusnahme(${di})" style="font-size:10px;padding:1px 6px;margin-left:6px;border:1px solid #b45309;background:#fef3c7;color:#92400e;border-radius:3px;cursor:pointer">Werkstatt offen</button>`;
+        descLabel=`🏖 Feiertag – 24h-Dienst &nbsp;<small>${ns.start}–${_dynEnd}</small>${_ausnahmeBtn}`;trCls='r-norm r-hol';
+      } else if(dayType==='freischicht'){
         descLabel=`🌅 Freischicht &nbsp;<small>${fa.start}–${_dynEnd}</small>`;trCls='r-frei';
       } else {
         descLabel=`🌙 24h-Dienst &nbsp;<small>${ns.start}–${_dynEnd}</small>`;trCls='r-norm';
       }
-      if(we) trCls+=' r-we';if(hol) trCls+=' r-hol';
+      if(we) trCls+=' r-we';if(hol&&!_werkstattFeiertag) trCls+=' r-hol';
       rows+=`<tr class="${trCls}">
         ${dateCell}
         <td class="td-desc">${descLabel}</td>
