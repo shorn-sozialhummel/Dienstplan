@@ -1409,7 +1409,13 @@ function generatePlan(){
 
   const letzterDienst={};
   const dienstZaehler={};
-  mas.forEach(ma=>{letzterDienst[ma.id]=-99;dienstZaehler[ma.id]=0;});
+  const obergrenze={};
+  mas.forEach(ma=>{
+    letzterDienst[ma.id]=-99;dienstZaehler[ma.id]=0;
+    const _md=ma.monatsdaten&&ma.monatsdaten[mk];
+    const _sollD=_md&&_md.sollDienste>0?_md.sollDienste:null;
+    obergrenze[ma.id]=_sollD||ma.schichtenTeam||ma.maxDiensteProMonat||999;
+  });
 
   const asgn=(maId,di)=>ed[maId].asgn[di]||{};
   const isAvail=(maId,di)=>!ed[maId].vacSet.has(days[di].ds)&&!ed[maId].sperSet.has(days[di].ds);
@@ -1422,7 +1428,7 @@ function generatePlan(){
     if(di+2<dim&&asgn(maId,di+1).hasBelegt&&asgn(maId,di+2).hasBelegt) return false;
     if(di>=2&&asgn(maId,di-2).hasHaupt&&asgn(maId,di-1).hasBackup) return false;
     if(di+2<dim&&asgn(maId,di+1).hasBackup&&asgn(maId,di+2).hasHaupt) return false;
-    if(dienstZaehler[maId]>=ed[maId].maxD) return false;
+    if(dienstZaehler[maId]>=obergrenze[maId]) return false;
     return true;
   }
 
@@ -1576,6 +1582,8 @@ function generatePlan(){
     }
   });
   ST.plans[planKey()]=plan;
+  console.log('[Obergrenze-Check] '+fmtMonthDisp(mk));
+  mas.forEach(ma=>{console.log(`  MA ${ma.vorname} ${ma.nachname}: Obergrenze=${obergrenze[ma.id]}, aktueller Zähler=${dienstZaehler[ma.id]}`);});
   autoSave('Plan generiert: '+fmtMonthDisp(mk));
   showBanner();
   renderSKOverview();
