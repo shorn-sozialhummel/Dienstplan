@@ -1345,7 +1345,7 @@ function generatePlan(){
       asgn:{},cnt24h:0,cntBkpReg:0,cntBkpWerk:0,
       lastDay:-1,
       soll:adjustedSoll,
-      maxD:ma.schichtenTeam||ma.maxDiensteProMonat||10,
+      maxD:(md&&md.sollDienste>0?md.sollDienste:null)||ma.schichtenTeam||ma.maxDiensteProMonat||10,
       pref:parsePrefDays(ma.bevorzugteTage||'')
     };
   });
@@ -1808,7 +1808,11 @@ function renderSollIst(mas,days,mk){
   <table class="sum-tbl"><thead><tr><th>Mitarbeiter/in</th><th>Soll</th><th>Haupt-D</th><th>Backup</th><th>Werk-W</th><th>Gesamt</th><th>Stundenkonto</th></tr></thead><tbody>`;
   mas.forEach(ma=>{
     const md=ma.monatsdaten&&ma.monatsdaten[mk];
-    const soll=(md&&md.sollDienste)||0;const sk=(md&&md.stundenkonto)||0;
+    const _urlaubTage=vacDaysInMonth(ma,mk);
+    const _teamD=ma.schichtenTeam||0;
+    const _recSoll=_teamD>0?Math.round(_teamD*Math.max(0,30-_urlaubTage)/30):null;
+    const soll=(md&&md.sollDienste)||(_recSoll!==null?_recSoll:0);
+    const sk=(md&&md.stundenkonto)||0;
     let haupt=0,backup=0,werk=0;
     days.forEach(day=>{
       if(day.hauptD===ma.id) haupt++;
