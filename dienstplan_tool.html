@@ -1360,6 +1360,26 @@ function generatePlanSafe(){
 }
 
 function generatePlan(){
+  // ── Dauereinschränkungen parsen ──────────────────────────────────────────
+  const _DOW_NAMES={montag:1,dienstag:2,mittwoch:3,donnerstag:4,freitag:5,samstag:6,sonntag:0,mo:1,di:2,mi:3,do:4,fr:5,sa:6,so:0};
+  const _DOW_RX=Object.keys(_DOW_NAMES).sort((a,b)=>b.length-a.length).join('|');
+  function parseDauerRegeln(txt){
+    const r={verboteDow:new Set(),maxProWoche:null};
+    if(!txt) return r;
+    const low=txt.toLowerCase();
+    const rx=new RegExp('kein(?:en)?\\s+('+_DOW_RX+')(?:\\s+auf\\s+(?:'+_DOW_RX+'))?','g');
+    let m;while((m=rx.exec(low))!==null) r.verboteDow.add(_DOW_NAMES[m[1]]);
+    const m2=/nur\s+(\d+)\s*x?\s*(?:die|pro)\s+woche/.exec(low);
+    if(m2) r.maxProWoche=parseInt(m2[1]);
+    return r;
+  }
+  function mondayOfWeek(ds){
+    const d=new Date(ds);const dow=d.getDay();
+    const diff=dow===0?-6:1-dow;
+    const mon=new Date(d);mon.setDate(d.getDate()+diff);
+    return mon.toISOString().slice(0,10);
+  }
+  // ────────────────────────────────────────────────────────────────────────
   const t=activeTeam();if(!t||!t.mitarbeitende.length){alert('Keine Mitarbeitenden vorhanden.');return;}
   if(hasDuplicateKuerzel()){alert('Es gibt doppelte Kürzel im Team. Bitte erst alle Kürzel eindeutig machen (Tab 1 Stammdaten).');return;}
   const pk=planKey();
@@ -1410,18 +1430,28 @@ function generatePlan(){
   const letzterDienst={};
   const dienstZaehler={};
   const obergrenze={};
+  const maRegeln={};
+  const wochenZaehler={};
   mas.forEach(ma=>{
-    letzterDienst[ma.id]=-99;dienstZaehler[ma.id]=0;
+    letzterDienst[ma.id]=-99;dienstZaehler[ma.id]=0;wochenZaehler[ma.id]={};
     const _md=ma.monatsdaten&&ma.monatsdaten[mk];
     const _sollD=_md&&_md.sollDienste>0?_md.sollDienste:null;
     obergrenze[ma.id]=_sollD||ma.schichtenTeam||ma.maxDiensteProMonat||999;
+    maRegeln[ma.id]=parseDauerRegeln(ma.dauerEinschraenkungen||'');
   });
 
   const asgn=(maId,di)=>ed[maId].asgn[di]||{};
   const isAvail=(maId,di)=>!ed[maId].vacSet.has(days[di].ds)&&!ed[maId].sperSet.has(days[di].ds);
+  function violatesDauerRegeln(maId,di){
+    const r=maRegeln[maId];if(!r) return false;
+    if(r.verboteDow.has(days[di].dow)) return true;
+    if(r.maxProWoche!==null){const wk=mondayOfWeek(days[di].ds);if((wochenZaehler[maId][wk]||0)>=r.maxProWoche) return true;}
+    return false;
+  }
 
   function canAssignDienst(maId,di){
     if(!isAvail(maId,di)) return false;
+    if(violatesDauerRegeln(maId,di)) return false;
     const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
     if(letzterDienst[maId]===di-1) return false;
     if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
@@ -1434,6 +1464,7 @@ function generatePlan(){
 
   function canAssignDienstNoLimit(maId,di){
     if(!isAvail(maId,di)) return false;
+    if(violatesDauerRegeln(maId,di)) return false;
     const a=asgn(maId,di);if(a.hasHaupt||a.hasBelegt) return false;
     if(letzterDienst[maId]===di-1) return false;
     if(di>=2&&asgn(maId,di-1).hasBelegt&&asgn(maId,di-2).hasBelegt) return false;
@@ -1463,6 +1494,7 @@ function generatePlan(){
     ed[maId].asgn[di].hasHaupt=true;ed[maId].asgn[di].hasBelegt=true;
     ed[maId].cnt24h++;ed[maId].lastDay=di;days[di].hauptD=maId;
     letzterDienst[maId]=di;dienstZaehler[maId]++;
+    const _wk=mondayOfWeek(days[di].ds);wochenZaehler[maId][_wk]=(wochenZaehler[maId][_wk]||0)+1;
   }
   function setBackup(maId,di){
     if(!ed[maId].asgn[di]) ed[maId].asgn[di]={};
